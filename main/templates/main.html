@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>main</title>
+</head>
+    <body>
+        <h1>HELLO!</h1>
+        <p>Текущий пользователь: {{ request.user }}</p>
+        <ul>
+            <li>Текущая дата: {{ date.hour }}:{{ date.minute }}:{{ date.second }}</li>
+        </ul>
+
+        <div>
+            {% for vote in voting %}
+                <li>Заголовок: {{ vote.title }}</li>
+                <li>Описание: {{ vote.description }}</li>
+            {% endfor %}
+        </div>
+    </body>
+</html>
