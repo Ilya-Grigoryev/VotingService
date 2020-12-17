@@ -1,12 +1,10 @@
-from django.urls import path, include
-from rest_framework.routers import SimpleRouter
+from django.urls import path
 
-from api.views import VotingViewSet
+from api.views import voting_req, options_req, votedusers_req
 
-router = SimpleRouter()
-router.register('voting', VotingViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('voting/', voting_req),
+    path('options/', options_req),
+    path('votedusers/', votedusers_req)
 ]
