@@ -3,19 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <title>main</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
     <body>
-        <h1>HELLO!</h1>
-        <p>Текущий пользователь: {{ request.user }}</p>
+        <h3>HELLO!</h3>
         <ul>
+            <li>Текущий пользователь: {{ request.user }}</li>
             <li>Текущая дата: {{ date.hour }}:{{ date.minute }}:{{ date.second }}</li>
         </ul>
 
-        <div>
-            {% for vote in voting %}
-                <li>Заголовок: {{ vote.title }}</li>
-                <li>Описание: {{ vote.description }}</li>
-            {% endfor %}
+        <hr>
+         {% verbatim %}
+        <div id="vue_app">
+            <div v-for="(vote, index) in voting" @click="route(`/api/voting/${index+1}/`)">
+                <h3>Заголовок: {{ vote.title }}</h3>
+                <h5>Описание: {{ vote.description }}</h5>
+                <h5>Автор: {{ vote.user.name }}</h5>
+                <h5>Время начала голосования: {{ vote.start_date }}</h5>
+                <h5>Время конца голосования: {{ vote.end_date }}</h5>
+                <h5>Статус: {{ vote.status }}</h5>
+                <h5>Тип голосования: {{ vote.type }}</h5>
+                <hr>
+            </div>
+
         </div>
+        {% endverbatim %}
+
+
+        <script>
+            new Vue({
+                el: '#vue_app',
+                data: {
+                    voting: [],
+                    options: [],
+                    votedusers: [],
+                },
+                methods: {
+                    route: function(href) {
+                        window.location.href = href;
+                    }
+                },
+                created: function () {
+                    axios.get('/api/voting').then((response) => {
+                        this.voting = response.data;
+                        for(let i = 0; i < this.voting.length; i++) {
+                            this.voting[i].start_date = new Date(this.voting[i].start_date)
+                            this.voting[i].end_date = new Date(this.voting[i].end_date)
+                        }
+                    })
+                    axios.get('/api/options').then((response) => {
+                        this.options = response.data;
+                    })
+                }
+            })
+        </script>
     </body>
 </html>

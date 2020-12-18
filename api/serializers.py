@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from rest_framework.serializers import ModelSerializer
 
 from api.models import Voting, Options, VotedUsers
@@ -9,13 +11,40 @@ class VotingSerializer(ModelSerializer):
         fields = ['title', 'description', 'user', 'start_date', 'end_date', 'status', 'type', 'id']
 
 
+def serialize_vote(vote) -> Dict[str, Any]:
+    return {
+        'title': vote.title,
+        'description': vote.description,
+        'user': {'name': vote.user.username, 'id': vote.user.id},
+        'start_date': vote.start_date,
+        'end_date': vote.end_date,
+        'status': vote.status,
+        'type': vote.type,
+        'id': vote.id
+    }
+
+
 class OptionsSerializer(ModelSerializer):
     class Meta:
         model = Options
         fields = ['text', 'voting', 'id']
 
 
+def serialize_option(option) -> Dict[str, Any]:
+    return {
+        'text': option.text,
+        'id': option.id
+    }
+
+
 class VotedUsersSerializer(ModelSerializer):
     class Meta:
         model = VotedUsers
         fields = ['user', 'option', 'id']
+
+
+def serialize_voteduser(voteduser) -> Dict[str, Any]:
+    return {
+        'name': voteduser.user.username,
+        'id': voteduser.user.id
+    }

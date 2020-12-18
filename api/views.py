@@ -4,23 +4,30 @@ from rest_framework.decorators import api_view
 from rest_framework.utils import json
 
 from api.models import Voting, Options, VotedUsers
-from api.serializers import VotingSerializer, OptionsSerializer, VotedUsersSerializer
+from api.serializers import OptionsSerializer, VotedUsersSerializer
+from api.serializers import serialize_vote, serialize_option, serialize_voteduser
 
 
 @api_view(['GET', 'POST'])
 def voting_req(request):
     if request.method == 'GET':
         snippets = Voting.objects.all()
-        serializer = VotingSerializer(snippets, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        serializers = [serialize_vote(snippet) for snippet in snippets]
+        for serializer in serializers:
+            vote_options = Options.objects.filter(voting_id=serializer['id'])
+            serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
+            for option in serializer['options']:
+                option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
+                option['user'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+        return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
         """
         Request body format:
         {
-            "title": "Заголовок", 
-            "description": "Описание", 
-            "hours": 24, 
+            "title": "Заголовок",
+            "description": "Описание",
+            "hours": 24,
             "type": 0
         }
         """
@@ -42,12 +49,29 @@ def voting_req(request):
             return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
+@api_view(['GET'])
+def vote_req(request, vote_id):
+    if request.method == 'GET':
+        vote_snippet = Voting.objects.filter(id=vote_id)[0]
+        serializer = serialize_vote(vote_snippet)
+        vote_options = Options.objects.filter(voting_id=vote_id)
+        serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
+        for option in serializer['options']:
+            option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
+            option['user'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+        return JsonResponse(serializer, safe=False)
+
+
 @api_view(['GET', 'POST'])
 def options_req(request):
     if request.method == 'GET':
         snippets = Options.objects.all()
-        serializer = OptionsSerializer(snippets, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        serializer = [serialize_option(snippet) for snippet in snippets]
+        for option in serializer:
+            option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
+            option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+
+        return JsonResponse(serializer, safe=False)
 
     elif request.method == 'POST':
         """
@@ -66,6 +90,17 @@ def options_req(request):
 
         except:
             return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+
+
+@api_view(['GET'])
+def option_req(request, option_id):
+    if request.method == 'GET':
+        snippet = Options.objects.filter(id=option_id)[0]
+        option = serialize_option(snippet)
+        option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
+        option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+
+        return JsonResponse(option, safe=False)
 
 
 @api_view(['GET', 'POST'])
