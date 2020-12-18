@@ -16,7 +16,8 @@
         <hr>
          {% verbatim %}
         <div id="vue_app">
-            <div v-for="(vote, index) in voting" @click="route(`/api/voting/${index+1}/`)">
+            {{ voting }}
+            <div v-for="(vote, vote_index) in voting"> <!-- @click="route(`/api/voting/${index+1}/` -->
                 <h3>Заголовок: {{ vote.title }}</h3>
                 <h5>Описание: {{ vote.description }}</h5>
                 <h5>Автор: {{ vote.user.name }}</h5>
@@ -24,25 +25,54 @@
                 <h5>Время конца голосования: {{ vote.end_date }}</h5>
                 <h5>Статус: {{ vote.status }}</h5>
                 <h5>Тип голосования: {{ vote.type }}</h5>
+                <h4>Варианты ответов:</h4>
+                    <div v-for="(option, option_index) in vote.options">
+                        <b style="background-color: gray" @click="set_option(option.id, vote_index, option_index)">{{ option.text }}</b><br>
+                        <div>Проголосовали: {{ option.users.length }} человек (<b v-for="user in option.users">{{ user.name }}, </b>)</div>
+                    </div>
                 <hr>
             </div>
 
         </div>
         {% endverbatim %}
-
-
+        {
         <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
             new Vue({
                 el: '#vue_app',
                 data: {
                     voting: [],
-                    options: [],
                     votedusers: [],
                 },
                 methods: {
                     route: function(href) {
                         window.location.href = href;
-                    }
+                    },
+                     set_option: function(option_id, vote_index, option_index) {
+                         console.log(option_id)
+                         this.voting[vote_index].options[option_index].users.push({"name":"ilya", "id":1,})
+                         axios.post('/api/votedusers/', {
+                             "csrfmiddlewaretoken": `{% csrf_token %}`,
+                             option_id: option_id
+                         }).then((response) => {
+                             console.log("POSTED! response: ", response)
+                         })
+                     }
                 },
                 created: function () {
                     axios.get('/api/voting').then((response) => {
@@ -51,9 +81,6 @@
                             this.voting[i].start_date = new Date(this.voting[i].start_date)
                             this.voting[i].end_date = new Date(this.voting[i].end_date)
                         }
-                    })
-                    axios.get('/api/options').then((response) => {
-                        this.options = response.data;
                     })
                 }
             })

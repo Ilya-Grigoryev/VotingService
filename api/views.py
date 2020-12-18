@@ -18,7 +18,7 @@ def voting_req(request):
             serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
             for option in serializer['options']:
                 option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
-                option['user'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+                option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
@@ -58,7 +58,7 @@ def vote_req(request, vote_id):
         serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
         for option in serializer['options']:
             option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
-            option['user'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+            option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
         return JsonResponse(serializer, safe=False)
 
 
@@ -117,12 +117,12 @@ def votedusers_req(request):
                 "option_id": "1"
             }
         """
-        try:
-            body = json.loads(request.body)
-            voted_user = VotedUsers(user=request.user,
-                                    option_id=body['option_id'])
-            voted_user.save()
-            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        # try:
+        body = json.loads(request.body.decode())
+        voted_user = VotedUsers(user=request.user,
+                                option_id=int(body['option_id']))
+        voted_user.save()
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        except:
-            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        # except:
+        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
