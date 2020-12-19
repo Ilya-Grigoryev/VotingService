@@ -5,8 +5,8 @@
     <title>main</title>
 </head>
     <body>
+    {% include 'menu.html'%}
         <h1>HELLO!</h1>
-        <p>Текущий пользователь: {{ request.user }}</p>
         <ul>
             <li>Текущая дата: {{ date.hour }}:{{ date.minute }}:{{ date.second }}</li>
         </ul>

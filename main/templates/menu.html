@@ -1,0 +1,12 @@
+
+<a href="/">Главная</a> |
+    {% if request.user.is_authenticated %}
+    |
+    User: {{ request.user }}
+    |
+    <a href="/logout/">Выйти</a>
+    {%else%}
+    <a href="/login/">Войти</a>
+    {% endif %}
+
+    <hr>
