@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework.decorators import api_view
-from rest_framework.utils import json
 
 from api.models import Voting, Options, VotedUsers
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser
@@ -31,7 +30,7 @@ def voting_req(request):
         }
         """
         try:
-            body = json.loads(request.body)
+            body = request.data
             end_date = timezone.now()
             end_date.hour += body.hours
             vote = Voting(title=body['title'],
@@ -81,7 +80,7 @@ def options_req(request):
             }
         """
         try:
-            body = json.loads(request.body)
+            body = request.data
             option = Options(text=body['text'],
                              voting_id=body['voting_id'])
             option.save()
@@ -116,12 +115,12 @@ def votedusers_req(request):
                 "option_id": "1"
             }
         """
-        # try:
-        body = json.loads(request.body.decode())
-        voted_user = VotedUsers(user=request.user,
-                                option_id=int(body['option_id']))
-        voted_user.save()
-        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        try:
+            body = request.data
+            voted_user = VotedUsers(user=request.user,
+                                    option_id=int(body['option_id']))
+            voted_user.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        # except:
-        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)

@@ -35,7 +35,7 @@
 
         </div>
         {% endverbatim %}
-        {
+
         <script>
             function getCookie(name) {
                 let cookieValue = null;
@@ -66,11 +66,13 @@
                      set_option: function(option_id, vote_index, option_index) {
                          console.log(option_id)
                          this.voting[vote_index].options[option_index].users.push({"name":"ilya", "id":1,})
-                         axios.post('/api/votedusers/', {
-                             "csrfmiddlewaretoken": `{% csrf_token %}`,
-                             option_id: option_id
+                         axios({
+                             method: 'POST',
+                             url: '/api/votedusers/',
+                             headers: {'X-CSRFToken': '{% csrf_token %}'.replace('<input type="hidden" name="csrfmiddlewaretoken" value="', '').replace('">', '')},
+                             data: {option_id: option_id}
                          }).then((response) => {
-                             console.log("POSTED! response: ", response)
+                         console.log("POSTED! response: ", response)
                          })
                      }
                 },
