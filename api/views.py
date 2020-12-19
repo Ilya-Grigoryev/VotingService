@@ -4,7 +4,6 @@ from rest_framework.decorators import api_view
 from rest_framework.utils import json
 
 from api.models import Voting, Options, VotedUsers
-from api.serializers import OptionsSerializer, VotedUsersSerializer
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser
 
 
@@ -107,8 +106,8 @@ def option_req(request, option_id):
 def votedusers_req(request):
     if request.method == 'GET':
         snippets = VotedUsers.objects.all()
-        serializer = VotedUsersSerializer(snippets, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        serializer = [serialize_voteduser(snippet) for snippet in snippets]
+        return JsonResponse(serializer, safe=False)
 
     elif request.method == 'POST':
         """
