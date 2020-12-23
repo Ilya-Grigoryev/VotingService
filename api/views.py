@@ -4,8 +4,10 @@ from rest_framework.decorators import api_view
 from rest_framework.utils import json
 
 from api.models import Voting, Options, VotedUsers
-from api.serializers import OptionsSerializer, VotedUsersSerializer
+from api.serializers import VotedUsersSerializer
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser
+
+from rest_framework.authtoken.models import Token
 
 
 @api_view(['GET', 'POST'])
@@ -32,7 +34,7 @@ def voting_req(request):
         }
         """
         try:
-            body = json.loads(request.body)
+            body = request.data
             end_date = timezone.now()
             end_date.hour += body.hours
             vote = Voting(title=body['title'],
@@ -64,6 +66,15 @@ def vote_req(request, vote_id):
 
 @api_view(['GET', 'POST'])
 def options_req(request):
+    try:
+        if not request.user:
+            token = request.headers['Authorization'].replace('Token ', '')
+            user = Token.objects.get(key=token).user
+        else:
+            user = request.user
+    except:
+        return JsonResponse({"status": 401, "description": " Unauthorized"}, safe=False)
+    print(user.username)
     if request.method == 'GET':
         snippets = Options.objects.all()
         serializer = [serialize_option(snippet) for snippet in snippets]
@@ -82,7 +93,7 @@ def options_req(request):
             }
         """
         try:
-            body = json.loads(request.body)
+            body = request.data
             option = Options(text=body['text'],
                              voting_id=body['voting_id'])
             option.save()
@@ -118,7 +129,7 @@ def votedusers_req(request):
             }
         """
         try:
-            body = json.loads(request.body)
+            body = request.data
             voted_user = VotedUsers(user=request.user,
                                     option_id=body['option_id'])
             voted_user.save()
