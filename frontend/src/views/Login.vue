@@ -5,28 +5,34 @@
                 outlined
                 width="50%">
             <v-text-field
-              v-model="name"
-              :error-messages="nameErrors"
-              label="Username"
-              required
-              @input="$v.name.$touch()"
-              @blur="$v.name.$touch()"
+                v-model="name"
+                :error-messages="nameErrors"
+                label="Username"
+                required clearable
+                @input="$v.name.$touch()"
+                @blur="$v.name.$touch()"
             ></v-text-field>
-            <v-text-field type="password"
-              v-model="password"
-              :error-messages="passwordErrors"
-              label="Password"
-              required
-              @input="$v.password.$touch()"
-              @blur="$v.password.$touch()"
+            <v-text-field
+                type="password"
+                v-model="password"
+                :error-messages="passwordErrors"
+                label="Password"
+                required clearable
+                @input="$v.password.$touch()"
+                @blur="$v.password.$touch()"
             ></v-text-field>
 
-            <v-btn class="mr-4" @click="submit">
+            <v-btn
+                    class="mr-4"
+                    @click="submit"
+                    width="25%">
               login
             </v-btn>
-            <v-btn @click="clear">
-              clear
-            </v-btn>
+            <br>
+            <ins style="color: gray; cursor: pointer;"
+                 @click="$router.push('/register')">
+                No account? Register now!
+            </ins>
         </v-card>
   </div>
 </template>
@@ -67,7 +73,7 @@
     methods: {
       submit () {
         this.$v.$touch()
-        if (this.name !== '' && this.password !== '') {
+        if (!this.$v.$invalid) {
             this.axios.post('http://localhost:8000/api/login/', {
                 username: this.name,
                 password: this.password

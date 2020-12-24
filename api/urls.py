@@ -1,5 +1,5 @@
 from django.urls import path
-from api.views import voting_req, options_req, votedusers_req, vote_req, option_req
+from api.views import voting_req, options_req, votedusers_req, vote_req, option_req, register_req
 from api.authentication import CustomAuthToken
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     path('options/<int:option_id>/', option_req),
     path('votedusers/', votedusers_req),
     path('login/', CustomAuthToken.as_view()),
+    path('register/', register_req),
 ]

@@ -1,13 +1,39 @@
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework.decorators import api_view
-from rest_framework.utils import json
 
 from api.models import Voting, Options, VotedUsers
 from api.serializers import VotedUsersSerializer
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser
 
 from rest_framework.authtoken.models import Token
+
+
+@api_view(['POST'])
+def register_req(request):
+    if request.method == 'POST':
+        """
+        {
+            "first_name": "Илья",
+            "last_name": "Григорьев",
+            "username": "ilya",
+            "email": "mail@mail.ru",
+            "password": "1234"
+        }
+        """
+        try:
+            body = request.data
+            user = User(first_name=body['first_name'],
+                        last_name=body['last_name'],
+                        username=body['username'],
+                        email=body['email'],
+                        password=make_password(body['password']))
+            user.save()
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
 
 @api_view(['GET', 'POST'])
