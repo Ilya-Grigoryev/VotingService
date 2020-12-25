@@ -69,7 +69,7 @@
 
       <v-content class="px-12 py-3">
         <v-container fluid>
-          <router-view @login="login"/>
+          <router-view @login="login" :user="user"/>
         </v-container>
       </v-content>
 

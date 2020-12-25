@@ -46,7 +46,7 @@ def voting_req(request):
             serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
             for option in serializer['options']:
                 option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
-                option['user'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+                option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
@@ -86,7 +86,7 @@ def vote_req(request, vote_id):
         serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
         for option in serializer['options']:
             option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
-            option['user'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+            option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
         return JsonResponse(serializer, safe=False)
 
 
@@ -100,7 +100,6 @@ def options_req(request):
             user = request.user
     except:
         return JsonResponse({"status": 401, "description": " Unauthorized"}, safe=False)
-    print(user.username)
     if request.method == 'GET':
         snippets = Options.objects.all()
         serializer = [serialize_option(snippet) for snippet in snippets]
@@ -144,8 +143,8 @@ def option_req(request, option_id):
 def votedusers_req(request):
     if request.method == 'GET':
         snippets = VotedUsers.objects.all()
-        serializer = VotedUsersSerializer(snippets, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        serializer = [serialize_voteduser(snippet) for snippet in snippets]
+        return JsonResponse(serializer, safe=False)
 
     elif request.method == 'POST':
         """
@@ -156,10 +155,15 @@ def votedusers_req(request):
         """
         try:
             body = request.data
-            voted_user = VotedUsers(user=request.user,
-                                    option_id=body['option_id'])
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+
+            voted_user = VotedUsers(user=user,
+                                    option_id=int(body['option_id']))
             voted_user.save()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
-
-        except:
-            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        except Token.DoesNotExist:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
