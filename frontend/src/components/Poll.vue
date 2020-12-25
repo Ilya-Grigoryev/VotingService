@@ -172,12 +172,10 @@
                     }
                 ).then(response => {
                     if (response.data.status === 200) {
-                        console.log('go')
                         a.votes++
                         a.selected = true
                         this.visibleResults = true
                         this.voted_answer = index
-                        console.log(`Vote ${a.id} option`)
                     } else {
                         window.alert(`Invalid token!`)
                     }
@@ -194,7 +192,6 @@
                         this.visibleResults = false
                         this.answers[this.voted_answer].selected = false
                         this.answers[this.voted_answer].votes -= 1
-                        console.log(`Remove ${this.answers[this.voted_answer].id} vote`)
                     } else {
                         window.alert(`Invalid token!`)
                     }

@@ -11,13 +11,13 @@
               app>
 
       <v-list nav shaped dense>
-        <v-list-item>
-          <v-list-item-avatar left>
-              <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img>
+        <v-list-item class="pl-0">
+          <v-list-item-avatar>
+              <v-img src="https://ishwortimilsina.com/images/icon_no_avatar.svg"></v-img>
           </v-list-item-avatar>
           <v-list-item-content class="text-left">
             <v-list-item-title class="font-weight-black">{{ user.first_name }} {{ user.last_name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ user.username }}</v-list-item-subtitle>
+            <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider class="my-3"></v-divider>
@@ -61,8 +61,6 @@
             <v-list-item-title class="text-left">Мои жалобы</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-
-
         </v-list>
 
         </v-navigation-drawer>
