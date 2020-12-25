@@ -139,7 +139,7 @@ def option_req(request, option_id):
         return JsonResponse(option, safe=False)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 def votedusers_req(request):
     if request.method == 'GET':
         snippets = VotedUsers.objects.all()
@@ -164,6 +164,27 @@ def votedusers_req(request):
             voted_user = VotedUsers(user=user,
                                     option_id=int(body['option_id']))
             voted_user.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except Token.DoesNotExist:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    elif request.method == 'DELETE':
+        """
+            Request body format:
+            {
+                "option_id": "1"
+            }
+        """
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            voted_user = VotedUsers.objects.get(user=user,
+                                                option_id=int(body['option_id']))
+            voted_user.delete()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

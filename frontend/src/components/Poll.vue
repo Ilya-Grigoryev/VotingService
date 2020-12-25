@@ -184,22 +184,20 @@
                 })
             },
             removeVote(){
-                this.visibleResults = false
-                this.answers[this.voted_answer].selected = false
-                this.answers[this.voted_answer].votes -= 1
-                console.log(`Remove ${this.answers[this.voted_answer].id} vote`)
-                this.send_delete_request(this.answers[this.voted_answer].id)
-            },
-            send_delete_request(option_id) {
+                let option_id = this.answers[this.voted_answer].id
                 this.axios.delete('http://localhost:8000/api/votedusers/',
                     {
-                        option_id: option_id,
-                    },
-                    {
+                        data: { option_id: option_id },
                         headers: { Authorization: `Token ${this.user.token}` }
+                    }).then(response => {
+                    if (response.data.status === 200) {
+                        this.visibleResults = false
+                        this.answers[this.voted_answer].selected = false
+                        this.answers[this.voted_answer].votes -= 1
+                        console.log(`Remove ${this.answers[this.voted_answer].id} vote`)
+                    } else {
+                        window.alert(`Invalid token!`)
                     }
-                ).then(response => {
-                    return response.data.status === 200
                 })
             }
         },
