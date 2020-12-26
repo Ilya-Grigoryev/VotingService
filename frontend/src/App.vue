@@ -33,7 +33,7 @@
         </v-list-item>
 
 
-        <v-list-item link :to="'/profile/'+id">
+        <v-list-item link :to="'/profile/'+user.id">
           <v-list-item-icon>
             <v-icon>mdi-account-outline</v-icon>
           </v-list-item-icon>

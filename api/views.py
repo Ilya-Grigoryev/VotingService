@@ -53,28 +53,36 @@ def voting_req(request):
         """
         Request body format:
         {
-            "title": "Заголовок",
-            "description": "Описание",
+            "title": "Котики или собачки?",
+            "description": "Кто милее?",
             "hours": 24,
-            "type": 0
+            "options": ['Котики', 'Собачки']
         }
         """
-        try:
-            body = request.data
-            end_date = timezone.now()
-            end_date.hour += body.hours
-            vote = Voting(title=body['title'],
-                          description=body['description'],
-                          user=request.user,
-                          start_date=timezone.now(),
-                          end_date=end_date,
-                          status="active",
-                          type=body['type'])
-            vote.save()
-            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        # try:
+        body = request.data
+        if not request.user.is_authenticated:
+            token = request.headers['Authorization'].replace('Token ', '')
+            user = Token.objects.get(key=token).user
+        else:
+            user = request.user
+        end_date = timezone.now()
+        end_date += timezone.timedelta(hours=int(body['hours']))
+        vote = Voting(title=body['title'],
+                      description=body['description'],
+                      user=user,
+                      start_date=timezone.now(),
+                      end_date=end_date,
+                      status="active",
+                      type=0)
+        vote.save()
+        for option in body['options']:
+            Options(text=option, voting=vote).save()
 
-        except:
-            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+
+        # except:
+        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])
@@ -93,7 +101,7 @@ def vote_req(request, vote_id):
 @api_view(['GET', 'POST'])
 def options_req(request):
     try:
-        if not request.user:
+        if not request.user.is_authenticated:
             token = request.headers['Authorization'].replace('Token ', '')
             user = Token.objects.get(key=token).user
         else:

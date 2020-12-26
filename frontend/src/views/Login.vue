@@ -3,7 +3,7 @@
         <v-card class="mx-auto pa-3"
                 elevation="6"
                 outlined
-                width="50%">
+                width="90%">
             <v-text-field
                 v-model="name"
                 :error-messages="nameErrors"

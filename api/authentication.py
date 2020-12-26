@@ -16,6 +16,10 @@ class CustomAuthToken(ObtainAuthToken):
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data['user']
             token, created = Token.objects.get_or_create(user=user)
+            if not created:
+                token.delete()
+                token = Token.objects.create(user=user)
+                token.save()
         except:
             return Response({
                 'status': 401,
