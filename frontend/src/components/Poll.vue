@@ -45,7 +45,7 @@
                 {{ author.name }}
                 </b>
             </u></div>
-            <v-btn v-if="!showTotalVotes && (visibleResults || finalResults)"
+            <v-btn v-if="!finalResults && visibleResults"
                    @click="removeVote" depressed>remove vote</v-btn>
             <div v-if="time.s >= 0">will end in: <br>
                 <b>{{ time.h }} h.</b> <br>
@@ -104,10 +104,6 @@
                 type: Boolean,
                 default: true
             },
-            finalResults: {
-                type: Boolean,
-                default: false
-            },
             multiple: {
                 type: Boolean,
                 default: false
@@ -121,7 +117,8 @@
             return {
                 visibleResults: JSON.parse(this.showResults),
                 time: {h: 0, m: 0, s: 0},
-                interval: null
+                interval: null,
+                finalResults: false
             }
         },
         computed: {
