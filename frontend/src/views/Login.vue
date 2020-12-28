@@ -78,7 +78,6 @@
                 username: this.name,
                 password: this.password
             }).then(response => {
-                console.log(response.data)
                 if (response.data.status === 200) {
                     this.$emit('login', {
                         token: response.data.token,

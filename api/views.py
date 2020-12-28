@@ -5,7 +5,6 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 
 from api.models import Voting, Options, VotedUsers
-from api.serializers import VotedUsersSerializer
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser
 
 from rest_framework.authtoken.models import Token

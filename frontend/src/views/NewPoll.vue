@@ -4,7 +4,7 @@
         class="mx-auto pa-3 ma-3"
         elevation="4"
         outlined
-        width="50%">
+        width="65%">
             <v-text-field
               v-model="title"
               :error-messages="titleErrors"

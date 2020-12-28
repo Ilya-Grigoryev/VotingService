@@ -4,6 +4,7 @@
                style="position: absolute; right: 10px;">
             <v-icon>mdi-arrow-expand-all</v-icon>
         </v-btn>
+
         <h2 class="qst"><strong>{{ question }}</strong></h2>
         <h4 class="qst">{{ description }}</h4>
         <div class="ans-cnt">
@@ -37,8 +38,24 @@
              <a href="#" @click.prevent="handleMultiple" class="submit" v-text="submitButtonText"></a>
         </template>
 
-        <v-btn v-if="showTotalVotes && (visibleResults || finalResults)" @click="removeVote" depressed>remove vote</v-btn>
-
+        <div style="display: flex; justify-content: space-between">
+            <div>Author: <u>
+                <b style="color: #800080; cursor: pointer;"
+                   @click="$router.push(`/profile/${author.id}`)">
+                {{ author.name }}
+                </b>
+            </u></div>
+            <v-btn v-if="!showTotalVotes && (visibleResults || finalResults)"
+                   @click="removeVote" depressed>remove vote</v-btn>
+            <div v-if="time.s >= 0">will end in: <br>
+                <b>{{ time.h }} h.</b> <br>
+                <b>{{ time.m }} m.</b> <br>
+                <b>{{ time.s }} s.</b>
+            </div>
+            <div v-else>
+                poll ended
+            </div>
+        </div>
     </div>
 </template>
 
@@ -47,6 +64,18 @@
     export default{
         name: 'Poll',
         props: {
+            author: {
+                type: Object,
+                required: true
+            },
+            start_date: {
+                type: Date,
+                required: true
+            },
+            end_date: {
+                type: Date,
+                required: true
+            },
             user: {
                 type: Object,
                 required: true
@@ -89,8 +118,10 @@
             }
         },
         data(){
-            return{
-                visibleResults: JSON.parse(this.showResults)
+            return {
+                visibleResults: JSON.parse(this.showResults),
+                time: {h: 0, m: 0, s: 0},
+                interval: null
             }
         },
         computed: {
@@ -137,6 +168,17 @@
             }
         },
         methods: {
+            getTime () {
+                let now = new Date(Date.now())
+                let delta = this.end_date - now
+                this.time.h = Math.floor((delta/1000)/3600)
+                this.time.m = Math.floor((delta/1000)%3600/60)
+                this.time.s = Math.floor((delta/1000)%60)
+                if (this.time.h < 0 || this.time.m < 0 || this.time.s < 0) {
+                    this.finalResults = true
+                    clearInterval(this.interval)
+                }
+            },
             handleMultiple(){
 
                 let arSelected = []
@@ -203,6 +245,8 @@
                 this.answers[this.voted_answer].selected = true
                 this.visibleResults = true
             }
+            this.getTime()
+            this.interval = setInterval(this.getTime, 1000)
         }
     }
 

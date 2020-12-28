@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <v-btn width="50%"
+    <v-btn width="65%"
            color="teal"
            elevation="10"
            @click="$router.push('/new-poll')">
@@ -11,7 +11,7 @@
             class="mx-auto pa-3 ma-3"
             elevation="4"
             outlined
-            width="50%">
+            width="65%">
       <Poll v-bind="voting" :user="user"/>
     </v-card>
   </div>
@@ -52,20 +52,24 @@
                 votes: vote.options[i].users.length
               })
             }
-
-            this.voting_list.push({
+            let start = new Date(vote.start_date)
+            let end = new Date(vote.end_date)
+            this.voting_list.unshift({
                 question: vote.title,
                 description: vote.description,
+                author: vote.user,
+                start_date: start,
+                end_date: end,
                 answers: answers,
                 multiple: false,
                 voted_answer: voted_answer
             })
-        }
-    })
-  }
-  },
-  mounted() {
-    this.get_voting_list()
-  }
+          }
+        })
+      }
+    },
+    mounted() {
+      this.get_voting_list()
+    }
   }
 </script>

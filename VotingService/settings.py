@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework',
     'corsheaders',
-    'main',
     'api',
 ]
 
@@ -66,8 +65,6 @@ ROOT_URLCONF = 'VotingService.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['main/templates']
-        ,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
