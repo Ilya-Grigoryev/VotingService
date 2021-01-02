@@ -1,13 +1,15 @@
 <template>
-   <div id="app">
+   <div id="app" class="profile">
   <v-app id="inspire">
     <v-card
-      max-width="500"
+      width="65%"
       class="mx-auto"
+      elevation="4"
+      outlined
     >
       <v-img
         src="https://cdn.vuetifyjs.com/images/lists/ali.png"
-        height="500px"
+        height="400px"
         dark
       >
         <v-row class="height">
@@ -19,32 +21,41 @@
               icon
               class="mr-5 mb-16"
             >
-              <v-icon>mdi-pencil</v-icon>
+              <v-icon>mdi-plus-circle-outline</v-icon>
             </v-btn>
 
             <v-btn
               dark
               icon
-              class="mb-16"
+              class="mr-5 mb-16"
+            >
+              <v-icon> mdi-content-save</v-icon>
+            </v-btn>
+
+            <v-btn
+              dark
+              icon
+              class="mr-5 mb-16"
             >
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
+
           </v-card-title>
 
           <v-spacer></v-spacer>
 
-          <v-card-title class="white--text pl-12 pb-10">
-            <div class="display-1 pl-12 pb-10">
+<!--          <v-card-title class="white&#45;&#45;text pl-12 pb-1">
+              <div class="display-1 pl-12 pb-10">
               {{user.first_name}} {{user.last_name}}
-            </div>
-          </v-card-title>
+              </div>
+              </v-card-title>-->
         </v-row>
       </v-img>
 
       <v-list three-line>
         <v-list-item>
           <v-list-item-icon>
-            <v-icon color="indigo">
+            <v-icon color="teal">
               mdi-account-outline
             </v-icon>
           </v-list-item-icon>
@@ -55,30 +66,30 @@
           </v-list-item-content>
        <v-btn icon>
           <v-list-item-button>
-            <v-icon> mdi-pencil</v-icon>
+            <v-icon color="teal"> mdi-pencil</v-icon>
           </v-list-item-button>
        </v-btn>
         </v-list-item>
 
         <v-list-item>
           <v-list-item-icon>
-            <v-icon color="indigo">
+            <v-icon color="teal">
                mdi-account-circle
             </v-icon>
           </v-list-item-icon>
 
 
           <v-list-item-content>
-            <v-list-item-title>{{user.first_name}}</v-list-item-title>
-            <v-list-item-subtitle>Firstname</v-list-item-subtitle>
+            <v-list-item-title>{{user.first_name}} {{user.last_name}}</v-list-item-title>
+            <v-list-item-subtitle>Name</v-list-item-subtitle>
           </v-list-item-content>
            <v-btn icon>
           <v-list-item-button>
-            <v-icon>mdi-pencil</v-icon>
+            <v-icon color="teal">mdi-pencil</v-icon>
           </v-list-item-button>
            </v-btn>
         </v-list-item>
-
+<!--
         <v-list-item>
           <v-list-item-icon>
             <v-icon color="indigo">
@@ -95,14 +106,14 @@
             <v-icon> mdi-pencil</v-icon>
           </v-list-item-button>
               </v-btn>
-        </v-list-item>
+        </v-list-item>-->
 
 
         <v-divider inset></v-divider>
 
         <v-list-item>
           <v-list-item-icon>
-            <v-icon color="indigo">
+            <v-icon color="teal">
               mdi-email
             </v-icon>
           </v-list-item-icon>
@@ -113,7 +124,7 @@
           </v-list-item-content>
           <v-btn icon>
           <v-list-item-button>
-            <v-icon> mdi-pencil</v-icon>
+            <v-icon color="teal"> mdi-pencil</v-icon>
           </v-list-item-button>
               </v-btn>
         </v-list-item>
@@ -122,7 +133,7 @@
 
         <v-list-item>
           <v-list-item-icon>
-            <v-icon color="indigo">
+            <v-icon color="teal">
               mdi-account-key
             </v-icon>
           </v-list-item-icon>
@@ -133,7 +144,7 @@
           </v-list-item-content>
           <v-btn icon>
           <v-list-item-button>
-            <v-icon> mdi-pencil</v-icon>
+            <v-icon color="teal"> mdi-pencil</v-icon>
           </v-list-item-button>
               </v-btn>
         </v-list-item>
