@@ -6,8 +6,8 @@ import Login from '../views/Login'
 import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
-import MyVoting from "../views/MyVoting";
-import MyVote from "../views/MyVote";
+import MyPolls from "../views/MyPolls";
+import MyVotes from "../views/MyVotes";
 
 Vue.use(VueRouter)
 
@@ -28,14 +28,14 @@ const routes = [
     component: NewPoll
   },
   {
-    path: '/my-voting',
-    name: 'My Voting',
-    component: MyVoting
+    path: '/profile/:id/polls',
+    name: 'My polls',
+    component: MyPolls
   },
   {
-    path: '/my-vote',
+    path: '/votes',
     name: 'My Vote',
-    component: MyVote
+    component: MyVotes
   },
   {
     path: '/login',

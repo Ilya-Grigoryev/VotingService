@@ -184,6 +184,8 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+    </v-row>
+    <v-row justify="center">
       <v-dialog
           v-model="rewrite1"
           max-width="500px"
@@ -217,8 +219,10 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+    </v-row>
   </v-app>
 </div>
+
 </template>
 
 <script>

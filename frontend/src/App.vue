@@ -42,7 +42,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link to="/my-voting">
+        <v-list-item link :to="'/profile/'+user.id+'/polls'">
           <v-list-item-icon>
             <v-icon> mdi-check-all</v-icon>
           </v-list-item-icon>
@@ -51,7 +51,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link to="/my-vote">
+        <v-list-item link to="/votes">
           <v-list-item-icon>
             <v-icon> mdi-checkbox-marked-circle-outline</v-icon>
           </v-list-item-icon>
