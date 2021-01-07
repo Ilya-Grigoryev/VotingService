@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 
 from api.models import Voting, Options, VotedUsers
-from api.serializers import serialize_vote, serialize_option, serialize_voteduser
+from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user
 
 from rest_framework.authtoken.models import Token
 
@@ -195,3 +195,14 @@ def votedusers_req(request):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET'])
+def user_req(request, user_id):
+    #try:
+        if request.method == 'GET':
+            snippet = User.objects.get(id=user_id)
+            user = serialize_user(snippet)
+            return JsonResponse(user, safe=False)
+    # except:
+    #     return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
