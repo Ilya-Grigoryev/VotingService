@@ -64,9 +64,9 @@
             <v-list-item-title>{{user.username}}</v-list-item-title>
             <v-list-item-subtitle>Username</v-list-item-subtitle>
           </v-list-item-content>
-       <v-btn icon>
+       <v-btn icon @click="rewrite = true">
           <v-list-item-button>
-            <v-icon color="teal"> mdi-pencil</v-icon>
+            <v-icon color="teal" > mdi-pencil</v-icon>
           </v-list-item-button>
        </v-btn>
         </v-list-item>
@@ -83,7 +83,7 @@
             <v-list-item-title>{{user.first_name}} {{user.last_name}}</v-list-item-title>
             <v-list-item-subtitle>Name</v-list-item-subtitle>
           </v-list-item-content>
-           <v-btn icon>
+           <v-btn @click="rewrite1 = true" icon>
           <v-list-item-button>
             <v-icon color="teal">mdi-pencil</v-icon>
           </v-list-item-button>
@@ -122,14 +122,14 @@
             <v-list-item-title>{{user.email}}</v-list-item-title>
             <v-list-item-subtitle>Email</v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn icon>
+          <v-btn icon @click="rewrite2 = true">
           <v-list-item-button>
             <v-icon color="teal"> mdi-pencil</v-icon>
           </v-list-item-button>
               </v-btn>
         </v-list-item>
 
-               <v-divider inset></v-divider>
+        <v-divider inset></v-divider>
 
         <v-list-item>
           <v-list-item-icon>
@@ -142,7 +142,7 @@
             <v-list-item-title>{{user.password}}</v-list-item-title>
             <v-list-item-subtitle>Password</v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn icon>
+          <v-btn icon @click="rewrite3 = true">
           <v-list-item-button>
             <v-icon color="teal"> mdi-pencil</v-icon>
           </v-list-item-button>
@@ -150,6 +150,73 @@
         </v-list-item>
       </v-list>
     </v-card>
+    <v-row justify="center">
+      <v-dialog
+            v-model="rewrite"
+            max-width="500px"
+          >
+            <v-card>
+              <v-card-title>
+                Username
+              </v-card-title>
+              <v-card-text>
+                <v-text-field
+                full-width
+                label="New username"
+                single-line
+                ></v-text-field>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="rewrite = false"
+                >
+                  Save
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="rewrite = false"
+                >
+                  Close
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+      <v-dialog
+          v-model="rewrite1"
+          max-width="500px"
+        >
+          <v-card>
+            <v-card-title>
+              Name
+            </v-card-title>
+            <v-card-text>
+              <v-text-field
+              full-width
+              label="New name"
+              single-line
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                text
+                @click="rewrite1 = false"
+              >
+                Save
+              </v-btn>
+              <v-btn
+                color="primary"
+                text
+                @click="rewrite1 = false"
+              >
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
   </v-app>
 </div>
 </template>
