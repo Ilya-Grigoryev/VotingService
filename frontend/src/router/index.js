@@ -28,7 +28,7 @@ const routes = [
     component: NewPoll
   },
   {
-    path: '/profile/:id/polls',
+    path: '/user/:id/polls',
     name: 'My polls',
     component: MyPolls
   },

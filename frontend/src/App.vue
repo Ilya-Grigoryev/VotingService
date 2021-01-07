@@ -42,7 +42,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link :to="'/profile/'+user.id+'/polls'">
+        <v-list-item link :to="'/user/'+user.id+'/polls'">
           <v-list-item-icon>
             <v-icon> mdi-check-all</v-icon>
           </v-list-item-icon>
