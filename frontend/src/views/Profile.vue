@@ -126,6 +126,33 @@
                     </v-row>
                 </v-col>
             </v-row>
+    <br>
+    <v-list-group style="border: 1px solid gray;" >
+          <template v-slot:activator>
+            <v-list-item>
+              <v-list-item-title><h3>My polls</h3></v-list-item-title>
+            </v-list-item>
+          </template>
+      <br>
+          <v-row justify="space-between" no-gutters class="px-6">
+            <v-col md="10">
+              <v-text-field
+                v-for="(voting, index) in voting_list" :key="index"
+                class="mx-auto pa-3 ma-3"
+                elevation="4"
+                outlined
+                width="65%">
+            </v-text-field>
+            </v-col>
+            <v-col md="2">
+              <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+                    <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+                  </v-btn>
+                  <Poll v-bind="voting" :user="user"/>
+            </v-col>
+          </v-row>
+        </v-list-group>
+
         </v-card>
     </div>
 </template>

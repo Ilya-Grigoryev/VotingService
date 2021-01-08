@@ -6,8 +6,6 @@ import Login from '../views/Login'
 import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
-import MyPolls from "../views/MyPolls";
-import MyVotes from "../views/MyVotes";
 import PollWindow from "../views/PollWindow";
 
 Vue.use(VueRouter)
@@ -27,16 +25,6 @@ const routes = [
     path: '/new-poll',
     name: 'New Voting',
     component: NewPoll
-  },
-  {
-    path: '/user/:id/polls',
-    name: 'My polls',
-    component: MyPolls
-  },
-  {
-    path: '/votes',
-    name: 'My Vote',
-    component: MyVotes
   },
   {
     path: '/poll/:id',

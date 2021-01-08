@@ -42,24 +42,6 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link :to="'/user/'+user.id+'/polls'">
-          <v-list-item-icon>
-            <v-icon> mdi-check-all</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Мои голосования</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item link to="/votes">
-          <v-list-item-icon>
-            <v-icon> mdi-checkbox-marked-circle-outline</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Мои голоса</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
         <v-list-item link to="/voting">
           <v-list-item-icon>
             <v-icon>mdi-checkbox-multiple-marked-outline</v-icon>
