@@ -43,3 +43,28 @@ def serialize_user(user) -> Dict[str, Any]:
         'polls_count': len(Voting.objects.filter(user_id=user.id)),
         'vote_count': len(VotedUsers.objects.filter(user_id=user.id))
     }
+
+
+def serialize_like(like) -> Dict[str, Any]:
+    return {
+        'id': like.id,
+        'voting_id': like.voting_id,
+        'user_id': like.user_id
+    }
+
+
+def serialize_dislike(dislike) -> Dict[str, Any]:
+    return {
+        'id': dislike.id,
+        'voting_id': dislike.voting_id,
+        'user_id': dislike.user_id
+    }
+
+
+def serialize_comment(comment) -> Dict[str, Any]:
+    return {
+        'id': comment.id,
+        'voting_id': comment.voting_id,
+        'user_id': comment.user_id,
+        'text': comment.text
+    }

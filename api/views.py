@@ -4,8 +4,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework.decorators import api_view
 
-from api.models import Voting, Options, VotedUsers
-from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments
+from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user, serialize_like, \
+    serialize_dislike, serialize_comment
 
 from rest_framework.authtoken.models import Token
 
@@ -236,3 +237,37 @@ def user_req(request, user_id):
 
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET', 'POST'])
+def likes_req(request):
+    if request.method == 'GET':
+        try:
+            snippets = Likes.objects.all()
+            likes = [serialize_like(snippet) for snippet in snippets]
+            return JsonResponse(likes, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+
+@api_view(['GET', 'POST'])
+def dislikes_req(request):
+    if request.method == 'GET':
+        try:
+            snippets = Dislikes.objects.all()
+            dislikes = [serialize_dislike(snippet) for snippet in snippets]
+            return JsonResponse(dislikes, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+
+@api_view(['GET', 'POST'])
+def comments_req(request):
+    if request.method == 'GET':
+        try:
+            snippets = Comments.objects.all()
+            comments = [serialize_comment(snippet) for snippet in snippets]
+            return JsonResponse(comments, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+

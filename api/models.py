@@ -27,3 +27,19 @@ class AbuseReports(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     text = models.TextField()
     status = models.TextField()
+
+
+class Likes(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
+
+
+class Dislikes(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
+
+
+class Comments(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    text = models.TextField()
+    voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
