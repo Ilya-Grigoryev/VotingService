@@ -199,10 +199,10 @@ def votedusers_req(request):
 
 @api_view(['GET'])
 def user_req(request, user_id):
-    #try:
+    try:
         if request.method == 'GET':
             snippet = User.objects.get(id=user_id)
             user = serialize_user(snippet)
             return JsonResponse(user, safe=False)
-    # except:
-    #     return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+    except:
+        return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
