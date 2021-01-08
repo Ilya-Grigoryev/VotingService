@@ -5,6 +5,9 @@
       elevation="4"
       outlined
       width="65%">
+    <v-btn depressed color="#ff734d" style="position: absolute; left: 10px;">
+      <v-icon @click="$router.go(-1);">mdi-arrow-left-bold-outline</v-icon>
+    </v-btn>
     <Poll v-if="voting" v-bind="voting" :user="user"/>
     <br>
     <v-progress-linear
