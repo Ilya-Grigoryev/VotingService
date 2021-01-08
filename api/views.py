@@ -197,12 +197,42 @@ def votedusers_req(request):
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def user_req(request, user_id):
-    try:
-        if request.method == 'GET':
+    if request.method == 'GET':
+        try:
             snippet = User.objects.get(id=user_id)
             user = serialize_user(snippet)
             return JsonResponse(user, safe=False)
-    except:
-        return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+    elif request.method == 'POST':
+        """
+            Request body format:
+            {
+                "first_name": "Ilya",
+                "last_name": "Grigoryev",
+                "username": "grig",
+                "email": "mail@mail.ru",
+                "password": "1234"
+            }
+        """
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            if not user.check_password(body['password']):
+                return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
+            user.first_name = body['first_name']
+            user.last_name = body['last_name']
+            user.username = body['username']
+            user.email = body['email']
+            user.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+
+        except Token.DoesNotExist:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
