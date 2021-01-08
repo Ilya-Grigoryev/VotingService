@@ -6,6 +6,9 @@
             elevation="4"
             outlined
             width="65%">
+      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+      </v-btn>
       <Poll v-bind="voting" :user="user"/>
     </v-card>
   </div>
@@ -49,6 +52,7 @@
             let start = new Date(vote.start_date)
             let end = new Date(vote.end_date)
             this.voting_list.unshift({
+                id: vote.id,
                 question: vote.title,
                 description: vote.description,
                 author: vote.user,
