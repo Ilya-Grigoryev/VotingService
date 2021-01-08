@@ -55,5 +55,7 @@ def serialize_user(user) -> Dict[str, Any]:
         'email': user.email,
         'username': user.username,
         'first_name': user.first_name,
-        'last_name': user.last_name
+        'last_name': user.last_name,
+        'polls_count': len(Voting.objects.filter(user_id=user.id)),
+        'vote_count': len(VotedUsers.objects.filter(user_id=user.id))
     }
