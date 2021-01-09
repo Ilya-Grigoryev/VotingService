@@ -43,6 +43,7 @@ def serialize_user(user) -> Dict[str, Any]:
         'last_name': user.last_name,
         'polls_count': len(Voting.objects.filter(user_id=user.id)),
         'vote_count': len(VotedUsers.objects.filter(user_id=user.id))
+
     }
 
 
@@ -69,3 +70,4 @@ def serialize_comment(comment) -> Dict[str, Any]:
         'author': {'name': comment.user.username, 'id': comment.user_id},
         'text': comment.text
     }
+
