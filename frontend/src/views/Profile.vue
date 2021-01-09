@@ -143,7 +143,7 @@
               </v-btn>
           </v-row>
           <v-list-item v-for="(voting, index) in voting_list_polls" :key="index">
-            <v-card class="mx-auto pa-3 ma-3"
+            <v-card  class="mx-auto pa-3 ma-3"
                     elevation="4"
                     outlined
                     width="95%">
