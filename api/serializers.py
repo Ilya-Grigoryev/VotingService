@@ -65,6 +65,6 @@ def serialize_comment(comment) -> Dict[str, Any]:
     return {
         'id': comment.id,
         'voting_id': comment.voting_id,
-        'user_id': comment.user_id,
+        'author': {'name': comment.user.username, 'id': comment.user_id},
         'text': comment.text
     }

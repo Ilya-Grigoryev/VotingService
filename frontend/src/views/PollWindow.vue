@@ -5,8 +5,8 @@
       elevation="4"
       outlined
       width="65%">
-    <v-btn depressed color="#ff734d" style="position: absolute; left: 10px;">
-      <v-icon @click="$router.go(-1);">mdi-arrow-left-bold-outline</v-icon>
+    <v-btn @click="$router.go(-1);" depressed color="#ff734d" style="position: absolute; left: 10px;">
+      <v-icon>mdi-arrow-left-bold-outline</v-icon>
     </v-btn>
     <Poll v-if="voting" v-bind="voting" :user="user"/>
     <br>
@@ -101,20 +101,11 @@
       },
       data: () => ({
         voting: null,
-        likes: 10,
-        dislikes: 3,
+        likes: 0,
+        dislikes: 0,
         liked: false,
         disliked: false,
-        comments: [
-          {
-            author: { name: 'noname', id: 0 },
-            text: 'А у меня Ubuntu))'
-          },
-          {
-            author: { name: 'lexa', id: 4 },
-            text: 'Ubuntu это дистрибутив Linux'
-          }
-        ],
+        comments: [],
         comment: '',
       }),
       methods: {
@@ -163,6 +154,17 @@
               multiple: false,
               voted_answer: voted_answer
             }
+            this.likes = vote.likes.length
+            this.dislikes = vote.dislikes.length
+            for (let like of vote.likes) {
+              if (like.user_id === this.user.id)
+                this.liked = true
+            }
+            for (let dislike of vote.dislikes) {
+              if (dislike.user_id === this.user.id)
+                this.disliked = true
+            }
+            this.comments = vote.comments
           })
         }
       },

@@ -13,6 +13,7 @@ urlpatterns = [
     path('register/', register_req),
     path('user/<int:user_id>/', user_req),
     path('likes/', likes_req),
+    path('likes/<int:vote_id>/', likes_req),
     path('dislikes/', dislikes_req),
     path('comments/', comments_req),
 ]

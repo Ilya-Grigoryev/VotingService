@@ -12,8 +12,8 @@
             elevation="4"
             outlined
             width="65%">
-      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
-        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+      <v-btn @click="$router.push(`/poll/${voting.id}/`)" icon depressed color="teal" style="position: absolute; right: 10px;">
+        <v-icon>mdi-arrow-expand-all</v-icon>
       </v-btn>
       <Poll v-bind="voting" :user="user"/>
     </v-card>

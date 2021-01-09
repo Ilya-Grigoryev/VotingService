@@ -42,11 +42,18 @@ def voting_req(request):
         snippets = Voting.objects.all()
         serializers = [serialize_vote(snippet) for snippet in snippets]
         for serializer in serializers:
-            vote_options = Options.objects.filter(voting_id=serializer['id'])
+            vote_id = serializer['id']
+            vote_options = Options.objects.filter(voting_id=vote_id)
             serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
             for option in serializer['options']:
                 option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
                 option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+            vote_comments = Comments.objects.filter(voting_id=vote_id)
+            serializer['comments'] = [serialize_comment(comment) for comment in vote_comments]
+            vote_likes = Likes.objects.filter(voting_id=vote_id)
+            serializer['likes'] = [serialize_like(like) for like in vote_likes]
+            vote_dislikes = Dislikes.objects.filter(voting_id=vote_id)
+            serializer['dislikes'] = [serialize_dislike(dislike) for dislike in vote_dislikes]
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
@@ -59,30 +66,30 @@ def voting_req(request):
             "options": ['Котики', 'Собачки']
         }
         """
-        # try:
-        body = request.data
-        if not request.user.is_authenticated:
-            token = request.headers['Authorization'].replace('Token ', '')
-            user = Token.objects.get(key=token).user
-        else:
-            user = request.user
-        end_date = timezone.now()
-        end_date += timezone.timedelta(hours=int(body['hours']))
-        vote = Voting(title=body['title'],
-                      description=body['description'],
-                      user=user,
-                      start_date=timezone.now(),
-                      end_date=end_date,
-                      status="active",
-                      type=0)
-        vote.save()
-        for option in body['options']:
-            Options(text=option, voting=vote).save()
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            end_date = timezone.now()
+            end_date += timezone.timedelta(hours=int(body['hours']))
+            vote = Voting(title=body['title'],
+                          description=body['description'],
+                          user=user,
+                          start_date=timezone.now(),
+                          end_date=end_date,
+                          status="active",
+                          type=0)
+            vote.save()
+            for option in body['options']:
+                Options(text=option, voting=vote).save()
 
-        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        # except:
-        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])
@@ -95,19 +102,17 @@ def vote_req(request, vote_id):
         for option in serializer['options']:
             option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
             option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+        vote_comments = Comments.objects.filter(voting_id=vote_id)
+        serializer['comments'] = [serialize_comment(comment) for comment in vote_comments]
+        vote_likes = Likes.objects.filter(voting_id=vote_id)
+        serializer['likes'] = [serialize_like(like) for like in vote_likes]
+        vote_dislikes = Dislikes.objects.filter(voting_id=vote_id)
+        serializer['dislikes'] = [serialize_dislike(dislike) for dislike in vote_dislikes]
         return JsonResponse(serializer, safe=False)
 
 
 @api_view(['GET', 'POST'])
 def options_req(request):
-    try:
-        if not request.user.is_authenticated:
-            token = request.headers['Authorization'].replace('Token ', '')
-            user = Token.objects.get(key=token).user
-        else:
-            user = request.user
-    except:
-        return JsonResponse({"status": 401, "description": " Unauthorized"}, safe=False)
     if request.method == 'GET':
         snippets = Options.objects.all()
         serializer = [serialize_option(snippet) for snippet in snippets]
@@ -118,6 +123,14 @@ def options_req(request):
         return JsonResponse(serializer, safe=False)
 
     elif request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+        except:
+            return JsonResponse({"status": 401, "description": " Unauthorized"}, safe=False)
         """
             Request body format:
             {
@@ -240,10 +253,13 @@ def user_req(request, user_id):
 
 
 @api_view(['GET', 'POST'])
-def likes_req(request):
+def likes_req(request, vote_id=None):
     if request.method == 'GET':
         try:
-            snippets = Likes.objects.all()
+            if vote_id:
+                snippets = Likes.objects.filter(voting_id=vote_id)
+            else:
+                snippets = Likes.objects.all()
             likes = [serialize_like(snippet) for snippet in snippets]
             return JsonResponse(likes, safe=False)
         except:
