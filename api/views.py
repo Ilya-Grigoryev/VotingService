@@ -271,3 +271,78 @@ def comments_req(request):
         except:
             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
 
+
+@api_view(['POST'])
+def comments_post(request):
+    if request.method == 'POST':
+        """
+        {
+            "user_id": "user_id",
+            "id": "id",
+            "voting_id": "voting_id",
+            "text": "text",
+
+        }
+        """
+        try:
+            body = request.data
+            comments = Comments(user_id=body['user_id'],
+                        id=body['id'],
+                        voting_id=body['voting_id'],
+                        text=body['text'])
+
+            comments.save()
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+
+
+@api_view(['POST'])
+def likes_post(request):
+    if request.method == 'POST':
+        """
+        {
+            "user_id": "user_id",
+            "id": "id",
+            "voting_id": "voting_id",
+            
+
+        }
+        """
+        try:
+            body = request.data
+            likes = Likes(user_id=body['user_id'],
+                        id=body['id'],
+                        voting_id=body['voting_id'])
+
+
+            likes.save()
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+
+
+@api_view(['POST'])
+def dislikes_post(request):
+    if request.method == 'POST':
+        """
+        Request body format:
+        {
+            "user_id": "user_id",
+            "id": "id",
+            "voting_id": "voting_id",
+
+
+        }
+        """
+        try:
+            body = request.data
+            dislikes = Dislikes(user_id=body['user_id'],
+                        id=body['id'],
+                        voting_id=body['voting_id'])
+
+            dislikes.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
