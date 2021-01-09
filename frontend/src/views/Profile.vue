@@ -126,32 +126,54 @@
                     </v-row>
                 </v-col>
             </v-row>
-    <br>
-    <v-list-group style="border: 1px solid gray;" >
-          <template v-slot:activator>
-            <v-list-item>
-              <v-list-item-title><h3>My polls</h3></v-list-item-title>
-            </v-list-item>
-          </template>
-      <br>
+          <br>
+    <v-expansion-panels>
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+         My polls
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <br>
           <v-row justify="space-between" no-gutters class="px-6">
-            <v-col md="10">
-              <v-text-field
-                v-for="(voting, index) in voting_list" :key="index"
-                class="mx-auto pa-3 ma-3"
-                elevation="4"
-                outlined
-                width="65%">
-            </v-text-field>
-            </v-col>
-            <v-col md="2">
-              <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
-                    <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
-                  </v-btn>
-                  <Poll v-bind="voting" :user="user"/>
-            </v-col>
+            <v-btn width="100%"
+                     color="teal"
+                     elevation="10"
+                     @click="$router.push('/new-poll')">
+                add new poll
+              </v-btn>
           </v-row>
-        </v-list-group>
+          <v-list-item v-for="(voting, index) in voting_list_polls" :key="index">
+            <v-card class="mx-auto pa-3 ma-3"
+                    elevation="4"
+                    outlined
+                    width="95%">
+                      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+                        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+                      </v-btn>
+                    <Poll v-bind="voting" :user="user"/>
+            </v-card>
+          </v-list-item>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+         My votes
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-list-item v-for="(voting, index) in voting_list_votes" :key="index">
+            <v-card class="mx-auto pa-3 ma-3"
+                    elevation="4"
+                    outlined
+                    width="95%">
+                      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+                        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+                      </v-btn>
+                    <Poll v-bind="voting" :user="user"/>
+            </v-card>
+          </v-list-item>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
         </v-card>
     </div>
@@ -160,6 +182,7 @@
 <script>
     import { validationMixin } from 'vuelidate'
     import { required, maxLength, email } from 'vuelidate/lib/validators'
+    import Poll from '../components/Poll.vue'
 
     export default {
         mixins: [validationMixin],
@@ -168,8 +191,11 @@
             last_name: { required },
             username: { required, maxLength: maxLength(20) },
             email: { required, email },
-            password: { required }
+            password: { required },
         },
+        components: {
+                Poll
+            },
         name: "Profile",
         props: ['user', 'id'],
         data: () => ({
@@ -180,6 +206,8 @@
             password: '',
             profile: null,
             dialog: false,
+            voting_list_votes: [],
+            voting_list_polls: [],
         }),
         methods: {
             save_changes() {
@@ -218,6 +246,57 @@
                     this.username = this.profile.username
                     this.email = this.profile.email
                 })
+            },
+            get_voting_list() {
+              this.axios.get('http://localhost:8000/api/voting/')
+              .then(response => {
+                this.voting_list_votes = []
+                this.voting_list_polls = []
+                let data = response.data
+                for (let vote of data) {
+                  let answers = []
+                  let voted_answer = -1
+                  for (let i = 0; i < vote.options.length; i++) {
+                    for (let j = 0; j < vote.options[i].users.length; j++)
+                      if (vote.options[i].users[j].user.id === this.user.id)
+                        voted_answer = i
+
+                    answers.push({
+                      id: vote.options[i].id,
+                      text: vote.options[i].text,
+                      votes: vote.options[i].users.length
+                    })
+                  }
+                  let start = new Date(vote.start_date)
+                  let end = new Date(vote.end_date)
+                  if (voted_answer !== -1) {
+                    this.voting_list_votes.unshift({
+                      id: vote.id,
+                      question: vote.title,
+                      description: vote.description,
+                      author: vote.user,
+                      start_date: start,
+                      end_date: end,
+                      answers: answers,
+                      multiple: false,
+                      voted_answer: voted_answer
+                    })
+                  }
+                  if (vote.user.id === this.user.id) {
+                    this.voting_list_polls.unshift({
+                      id: vote.id,
+                      question: vote.title,
+                      description: vote.description,
+                      author: vote.user,
+                      start_date: start,
+                      end_date: end,
+                      answers: answers,
+                      multiple: false,
+                      voted_answer: voted_answer
+                    })
+                  }
+                }
+              })
             }
         },
         computed: {
@@ -255,6 +334,7 @@
           }
         },
         mounted() {
+            this.get_voting_list()
             this.loadProfile()
         }
     }
