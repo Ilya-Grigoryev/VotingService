@@ -63,11 +63,17 @@ def voting_req(request):
             "title": "Котики или собачки?",
             "description": "Кто милее?",
             "hours": 24,
-            "options": ['Котики', 'Собачки']
+            "options": ['Котики', 'Собачки'],
+            "image": file (or null)
         }
         """
         try:
-            body = request.data
+            body = dict(request.data)
+            body['title'] = body['title'][0]
+            body['description'] = body['description'][0]
+            body['hours'] = int(body['hours'][0])
+            body['options'] = body['options'][0].split(',')
+            body['file'] = body['file'][0]
             if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
                 user = Token.objects.get(key=token).user
@@ -75,9 +81,12 @@ def voting_req(request):
                 user = request.user
             end_date = timezone.now()
             end_date += timezone.timedelta(hours=int(body['hours']))
+            if body['file'] == 'undefined':
+                body['file'] = None
             vote = Voting(title=body['title'],
                           description=body['description'],
                           user=user,
+                          image=body['file'],
                           start_date=timezone.now(),
                           end_date=end_date,
                           status="active",
@@ -95,7 +104,7 @@ def voting_req(request):
 @api_view(['GET'])
 def vote_req(request, vote_id):
     if request.method == 'GET':
-        vote_snippet = Voting.objects.filter(id=vote_id)[0]
+        vote_snippet = Voting.objects.get(id=vote_id)
         serializer = serialize_vote(vote_snippet)
         vote_options = Options.objects.filter(voting_id=vote_id)
         serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]

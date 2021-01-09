@@ -8,6 +8,7 @@ def serialize_vote(vote) -> Dict[str, Any]:
         'title': vote.title,
         'description': vote.description,
         'user': {'name': vote.user.username, 'id': vote.user.id},
+        'image_url': vote.image.url if vote.image else 'no-image',
         'start_date': vote.start_date,
         'end_date': vote.end_date,
         'status': vote.status,

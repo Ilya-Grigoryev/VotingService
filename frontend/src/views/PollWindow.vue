@@ -80,8 +80,8 @@
         </v-row>
       </v-col>
       <v-col md="6">
-        <v-card class="">
-          <v-img src="https://picsum.photos/id/11/500/300"></v-img>
+        <v-card>
+          <v-img v-if="image_url !== 'no-image'" :src="`http://localhost:8000${image_url}`"></v-img>
         </v-card>
       </v-col>
     </v-row>
@@ -107,6 +107,7 @@
         disliked: false,
         comments: [],
         comment: '',
+        image_url: 'no-image',
       }),
       methods: {
         send_comment() {
@@ -132,7 +133,7 @@
             let voted_answer = -1
             for (let i = 0; i < vote.options.length; i++) {
               for (let j = 0; j < vote.options[i].users.length; j++)
-                if (vote.options[i].users[j].id === this.user.id)
+                if (vote.options[i].users[j].user.id === this.user.id)
                   voted_answer = i
 
               answers.push({
@@ -165,6 +166,7 @@
                 this.disliked = true
             }
             this.comments = vote.comments
+            this.image_url = vote.image_url
           })
         }
       },

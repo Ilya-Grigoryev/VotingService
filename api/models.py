@@ -6,6 +6,7 @@ from django.utils import timezone
 class Voting(models.Model):
     title = models.TextField()
     description = models.TextField()
+    image = models.ImageField(null=True, blank=True, upload_to='images/')
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField()
