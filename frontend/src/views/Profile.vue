@@ -194,8 +194,8 @@
             password: { required },
         },
         components: {
-                Poll
-            },
+            Poll
+        },
         name: "Profile",
         props: ['user', 'id'],
         data: () => ({
