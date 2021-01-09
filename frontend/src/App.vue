@@ -42,10 +42,9 @@
           </v-list-item-content>
         </v-list-item>
 
-
         <v-list-item link to="/voting">
           <v-list-item-icon>
-            <v-icon>mdi-account-multiple-plus-outline</v-icon>
+            <v-icon>mdi-checkbox-multiple-marked-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
             <v-list-item-title class="text-left">Все голосования</v-list-item-title>
@@ -55,7 +54,7 @@
 
         <v-list-item link to="/reports">
           <v-list-item-icon>
-            <v-icon>mdi-account-multiple-plus-outline</v-icon>
+            <v-icon>mdi-alert-octagon</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
             <v-list-item-title class="text-left">Мои жалобы</v-list-item-title>

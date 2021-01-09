@@ -30,6 +30,7 @@ const routes = [
     path: '/poll/:id',
     name: 'Poll',
     component: PollWindow
+
   },
   {
     path: '/login',
