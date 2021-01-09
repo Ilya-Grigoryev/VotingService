@@ -298,9 +298,9 @@ def comments_req(request):
 
 @api_view(['GET', 'POST'])
 def logout_req(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         try:
-            if request.user.is_authenticated:
+            if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
                 Token.objects.get(key=token).delete()
                 return JsonResponse({"status": 200, "description": "OK"}, safe=False)
@@ -320,26 +320,23 @@ def logout_req(request):
     #     return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
-# @api_view (['POST', 'DELETE'])
-# def change_password_req(request):
-#     if request.method =='POST':
-#         try:
-#             body = request.data
-#             if not request.user.is_authenticated:
-#                 token = request.headers['Authorization'].replace('Token ', '')
-#                 user = Token.objects.get(key=token).user
-#             else:
-#                 user = request.user
-#             if user.new_password1((body['password']):
-#                 return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
-#             user.first_name = body['first_name']
-#             user.last_name = body['last_name']
-#             user.username = body['username']
-#             user.email = body['email']
-#             user.save()
-#             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
-#         except Token.DoesNotExist:
-#             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+@api_view(['POST', 'DELETE'])
+def change_password_req(request):
+    if request.method == 'POST':
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            if user.check_password(body['old_password']):
+                return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
+            user.password = make_password(body['new_password'])
+            user.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except Token.DoesNotExist:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 # @api_view(['POST'])
 # def update_last_login_req(sender, request, user, **kwargs):
