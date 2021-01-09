@@ -97,13 +97,31 @@ export default {
         this.user = user
       },
       logout() {
-        this.user = {}
-        this.$router.push('/login')
+        this.axios.post('http://localhost:8000/api/logout/',
+                {},{headers: {
+                  Authorization: `Token ${this.user.token}`}})
+        .then(() => {
+          this.user = {}
+          this.$router.push('/login')
+        })
+      },
+      getUser(token){
+        this.axios.get('http://localhost:8000/api/user_by_token/', {
+               headers: { Authorization: `Token ${token}`}
+        }).then(response => {
+          if (response.data.status === 200)
+            this.user = response.data
+          else
+            this.$router.push('/login')
+        })
       }
   },
   mounted(){
-        if (this.user.id == null)
-            this.$router.push('/login');
+    let token = localStorage.getItem('token')
+    if (token)
+      this.getUser(token)
+    else
+      this.$router.push('/login')
     },
 }
 </script>

@@ -1,11 +1,18 @@
 <template>
     <div>
+        <v-btn width="65%"
+               color="teal"
+               elevation="10"
+               @click="$router.push('/new-poll')"
+               v-if="Number(this.$route.params.id) === user.id">
+          add new poll
+        </v-btn>
         <v-card v-if="profile"
           class="mx-auto pa-3 ma-3"
           elevation="4"
           outlined
           width="65%">
-            <v-dialog v-model="dialog" persistent max-width="600px" v-if="Number($route.params.id) === user.id">
+            <v-dialog v-model="dialog" persistent max-width="600px" v-if="Number(this.$route.params.id) === user.id">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn large
                     icon outlined color="orange"
@@ -130,18 +137,9 @@
     <v-expansion-panels>
       <v-expansion-panel>
         <v-expansion-panel-header>
-         My polls
+         <h3 class="ml-5">Polls</h3>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <br>
-          <v-row justify="space-between" no-gutters class="px-6">
-            <v-btn width="100%"
-                     color="teal"
-                     elevation="10"
-                     @click="$router.push('/new-poll')">
-                add new poll
-              </v-btn>
-          </v-row>
           <v-list-item v-for="(voting, index) in voting_list_polls" :key="index">
             <v-card  class="mx-auto pa-3 ma-3"
                     elevation="4"
@@ -157,7 +155,7 @@
       </v-expansion-panel>
       <v-expansion-panel>
         <v-expansion-panel-header>
-         My votes
+         <h3 class="ml-5">Votes</h3>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-list-item v-for="(voting, index) in voting_list_votes" :key="index">
@@ -213,7 +211,7 @@
             save_changes() {
                 this.$v.$touch()
                 if (!this.$v.$invalid) {
-                    this.axios.post(`http://localhost:8000/api/user/${this.$route.params.id}/`,
+                    this.axios.post(`http://localhost:8000/api/user/${Number(this.$route.params.id)}/`,
                         {
                             first_name: this.first_name,
                             last_name: this.last_name,
@@ -238,7 +236,7 @@
                 }
             },
             loadProfile() {
-                this.axios.get(`http://localhost:8000/api/user/${this.$route.params.id}/`)
+                this.axios.get(`http://localhost:8000/api/user/${Number(this.$route.params.id)}/`)
                 .then(response => {
                     this.profile = response.data
                     this.first_name = this.profile.first_name
@@ -256,6 +254,7 @@
                 for (let vote of data) {
                   let answers = []
                   let voted_answer = -1
+                  let user_voted_answer = -1
                   for (let i = 0; i < vote.options.length; i++) {
                     for (let j = 0; j < vote.options[i].users.length; j++)
                       if (vote.options[i].users[j].user.id === this.user.id)
@@ -267,9 +266,14 @@
                       votes: vote.options[i].users.length
                     })
                   }
+                  for (let i = 0; i < vote.options.length; i++)
+                    for (let j = 0; j < vote.options[i].users.length; j++)
+                      if (vote.options[i].users[j].user.id === Number(this.$route.params.id))
+                        user_voted_answer = i
+
                   let start = new Date(vote.start_date)
                   let end = new Date(vote.end_date)
-                  if (voted_answer !== -1) {
+                  if (user_voted_answer !== -1) {
                     this.voting_list_votes.unshift({
                       id: vote.id,
                       question: vote.title,
@@ -282,7 +286,7 @@
                       voted_answer: voted_answer
                     })
                   }
-                  if (vote.user.id === this.user.id) {
+                  if (vote.user.id === Number(this.$route.params.id)) {
                     this.voting_list_polls.unshift({
                       id: vote.id,
                       question: vote.title,
@@ -336,6 +340,12 @@
         mounted() {
             this.get_voting_list()
             this.loadProfile()
+        },
+        watch:{
+            $route (){
+                this.get_voting_list()
+                this.loadProfile()
+            }
         }
     }
 </script>

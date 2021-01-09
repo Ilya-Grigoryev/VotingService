@@ -81,7 +81,7 @@
       </v-col>
       <v-col md="6">
         <v-card>
-          <v-img v-if="image_url !== 'no-image'" :src="`http://localhost:8000${image_url}`"></v-img>
+          <v-img v-if="image_url !== 'no-image' && image_url !== '/media/null'" :src="`http://localhost:8000${image_url}`"></v-img>
         </v-card>
       </v-col>
     </v-row>

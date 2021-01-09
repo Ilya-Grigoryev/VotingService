@@ -191,9 +191,8 @@ def votedusers_req(request):
             else:
                 user = request.user
 
-            voted_user = VotedUsers(user=user,
-                                    option_id=int(body['option_id']))
-            voted_user.save()
+            VotedUsers.objects.get_or_create(user=user,
+                                             option_id=int(body['option_id']))
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
@@ -218,6 +217,22 @@ def votedusers_req(request):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET'])
+def user_by_token_req(request):
+    try:
+        token = request.headers['Authorization'].replace('Token ', '')
+        user = Token.objects.get(key=token).user
+        return JsonResponse({'status': 200,
+                             'token': token,
+                             'id': user.id,
+                             'email': user.email,
+                             'username': user.username,
+                             'first_name': user.first_name,
+                             'last_name': user.last_name}, safe=False)
+    except:
+        return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
 @api_view(['GET', 'POST'])
@@ -305,28 +320,15 @@ def comments_req(request):
             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def logout_req(request):
     if request.method == 'POST':
         try:
-            if not request.user.is_authenticated:
-                token = request.headers['Authorization'].replace('Token ', '')
-                Token.objects.get(key=token).delete()
-                return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+            token = request.headers['Authorization'].replace('Token ', '')
+            Token.objects.get(key=token).delete()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
-    # try:
-    #     body = request.data
-    #     if request.user.is_authenticated:
-    #         token = request.headers['Authorization'].replace('Token ', '')
-    #         user = Token.objects.get(key=token).delete
-    #         return JsonResponse({"status": 200, "description": "OK"}, safe=False)
-    #     else:
-    #         user = request.user
-    #     if not user.check_password(body['password']):
-    #         return JsonResponse({"status": 401, "description": "Invalid password"}, safe=False)
-    # except Token.DoesNotExist:
-    #     return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
 @api_view(['POST', 'DELETE'])
@@ -346,20 +348,3 @@ def change_password_req(request):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
-
-# @api_view(['POST'])
-# def update_last_login_req(sender, request, user, **kwargs):
-#     if request.method == 'POST':
-#         try:
-#             user.last_login = timezone.now()
-#             user.save(update_fields=['last_login'])
-#             return JsonResponse(user.save('last_login'), safe=False)
-#         except:
-#             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
-
-    # """
-    # A signal receiver which updates the last_login date for
-    # the user logging in.
-    # """
-    # user.last_login = timezone.now()
-    # user.save(update_fields=['last_login'])

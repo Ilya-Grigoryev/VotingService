@@ -79,6 +79,7 @@
                 password: this.password
             }).then(response => {
                 if (response.data.status === 200) {
+                    localStorage.setItem('token', response.data.token)
                     this.$emit('login', {
                         token: response.data.token,
                         id: response.data.id,

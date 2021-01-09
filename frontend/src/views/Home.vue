@@ -1,11 +1,5 @@
 <template>
   <div class="home">
-    <v-btn width="65%"
-           color="teal"
-           elevation="10"
-           @click="$router.push('/new-poll')">
-      add new poll
-    </v-btn>
     <v-card
             v-for="(voting, index) in voting_list" :key="index"
             class="mx-auto pa-3 ma-3"
