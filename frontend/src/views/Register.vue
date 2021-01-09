@@ -113,7 +113,7 @@
       usernameErrors () {
         const errors = []
         if (!this.$v.username.$dirty) return errors
-        !this.$v.username.maxLength && errors.push('Username must be at most 10 characters long.')
+        !this.$v.username.maxLength && errors.push('Username must be at most 20 characters long.')
         !this.$v.username.required && errors.push('Username is required.')
         return errors
       },

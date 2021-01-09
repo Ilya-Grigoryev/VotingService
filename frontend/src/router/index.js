@@ -6,6 +6,7 @@ import Login from '../views/Login'
 import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
+import PollWindow from "../views/PollWindow";
 
 Vue.use(VueRouter)
 
@@ -24,6 +25,11 @@ const routes = [
     path: '/new-poll',
     name: 'New Voting',
     component: NewPoll
+  },
+  {
+    path: '/poll/:id',
+    name: 'Poll',
+    component: PollWindow
   },
   {
     path: '/login',

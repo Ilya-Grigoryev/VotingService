@@ -4,8 +4,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework.decorators import api_view
 
-from api.models import Voting, Options, VotedUsers
-from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments
+from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user, serialize_like, \
+    serialize_dislike, serialize_comment
 
 from rest_framework.authtoken.models import Token
 
@@ -41,11 +42,18 @@ def voting_req(request):
         snippets = Voting.objects.all()
         serializers = [serialize_vote(snippet) for snippet in snippets]
         for serializer in serializers:
-            vote_options = Options.objects.filter(voting_id=serializer['id'])
+            vote_id = serializer['id']
+            vote_options = Options.objects.filter(voting_id=vote_id)
             serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
             for option in serializer['options']:
                 option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
                 option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+            vote_comments = Comments.objects.filter(voting_id=vote_id)
+            serializer['comments'] = [serialize_comment(comment) for comment in vote_comments]
+            vote_likes = Likes.objects.filter(voting_id=vote_id)
+            serializer['likes'] = [serialize_like(like) for like in vote_likes]
+            vote_dislikes = Dislikes.objects.filter(voting_id=vote_id)
+            serializer['dislikes'] = [serialize_dislike(dislike) for dislike in vote_dislikes]
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
@@ -58,30 +66,30 @@ def voting_req(request):
             "options": ['Котики', 'Собачки']
         }
         """
-        # try:
-        body = request.data
-        if not request.user.is_authenticated:
-            token = request.headers['Authorization'].replace('Token ', '')
-            user = Token.objects.get(key=token).user
-        else:
-            user = request.user
-        end_date = timezone.now()
-        end_date += timezone.timedelta(hours=int(body['hours']))
-        vote = Voting(title=body['title'],
-                      description=body['description'],
-                      user=user,
-                      start_date=timezone.now(),
-                      end_date=end_date,
-                      status="active",
-                      type=0)
-        vote.save()
-        for option in body['options']:
-            Options(text=option, voting=vote).save()
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            end_date = timezone.now()
+            end_date += timezone.timedelta(hours=int(body['hours']))
+            vote = Voting(title=body['title'],
+                          description=body['description'],
+                          user=user,
+                          start_date=timezone.now(),
+                          end_date=end_date,
+                          status="active",
+                          type=0)
+            vote.save()
+            for option in body['options']:
+                Options(text=option, voting=vote).save()
 
-        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        # except:
-        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])
@@ -94,19 +102,17 @@ def vote_req(request, vote_id):
         for option in serializer['options']:
             option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
             option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+        vote_comments = Comments.objects.filter(voting_id=vote_id)
+        serializer['comments'] = [serialize_comment(comment) for comment in vote_comments]
+        vote_likes = Likes.objects.filter(voting_id=vote_id)
+        serializer['likes'] = [serialize_like(like) for like in vote_likes]
+        vote_dislikes = Dislikes.objects.filter(voting_id=vote_id)
+        serializer['dislikes'] = [serialize_dislike(dislike) for dislike in vote_dislikes]
         return JsonResponse(serializer, safe=False)
 
 
 @api_view(['GET', 'POST'])
 def options_req(request):
-    try:
-        if not request.user.is_authenticated:
-            token = request.headers['Authorization'].replace('Token ', '')
-            user = Token.objects.get(key=token).user
-        else:
-            user = request.user
-    except:
-        return JsonResponse({"status": 401, "description": " Unauthorized"}, safe=False)
     if request.method == 'GET':
         snippets = Options.objects.all()
         serializer = [serialize_option(snippet) for snippet in snippets]
@@ -117,6 +123,14 @@ def options_req(request):
         return JsonResponse(serializer, safe=False)
 
     elif request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+        except:
+            return JsonResponse({"status": 401, "description": " Unauthorized"}, safe=False)
         """
             Request body format:
             {
@@ -197,8 +211,9 @@ def votedusers_req(request):
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def user_req(request, user_id):
+
     try:
         if request.method == 'GET':
             snippet = User.objects.get(id=user_id)
@@ -206,3 +221,79 @@ def user_req(request, user_id):
             return JsonResponse(user, safe=False)
     except:
         return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+    if request.method == 'GET':
+        try:
+            snippet = User.objects.get(id=user_id)
+            user = serialize_user(snippet)
+            return JsonResponse(user, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+    elif request.method == 'POST':
+        """
+            Request body format:
+            {
+                "first_name": "Ilya",
+                "last_name": "Grigoryev",
+                "username": "grig",
+                "email": "mail@mail.ru",
+                "password": "1234"
+            }
+        """
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            if not user.check_password(body['password']):
+                return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
+            user.first_name = body['first_name']
+            user.last_name = body['last_name']
+            user.username = body['username']
+            user.email = body['email']
+            user.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+
+        except Token.DoesNotExist:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET', 'POST'])
+def likes_req(request, vote_id=None):
+    if request.method == 'GET':
+        try:
+            if vote_id:
+                snippets = Likes.objects.filter(voting_id=vote_id)
+            else:
+                snippets = Likes.objects.all()
+            likes = [serialize_like(snippet) for snippet in snippets]
+            return JsonResponse(likes, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+
+@api_view(['GET', 'POST'])
+def dislikes_req(request):
+    if request.method == 'GET':
+        try:
+            snippets = Dislikes.objects.all()
+            dislikes = [serialize_dislike(snippet) for snippet in snippets]
+            return JsonResponse(dislikes, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+
+@api_view(['GET', 'POST'])
+def comments_req(request):
+    if request.method == 'GET':
+        try:
+            snippets = Comments.objects.all()
+            comments = [serialize_comment(snippet) for snippet in snippets]
+            return JsonResponse(comments, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+

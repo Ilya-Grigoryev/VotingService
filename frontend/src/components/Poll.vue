@@ -1,10 +1,5 @@
 <template>
     <div class="vue-poll">
-        <v-btn icon depressed color="teal"
-               style="position: absolute; right: 10px;">
-            <v-icon>mdi-arrow-expand-all</v-icon>
-        </v-btn>
-
         <h2 class="qst"><strong>{{ question }}</strong></h2>
         <h4 class="qst">{{ description }}</h4>
         <div class="ans-cnt">
@@ -83,6 +78,10 @@
             voted_answer: {
                 type: Number,
                 default: -1
+            },
+            id: {
+                type: Number,
+                required: true
             },
             question: {
                 type: String,
