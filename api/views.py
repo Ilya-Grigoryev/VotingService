@@ -1,8 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.utils import timezone
 from rest_framework.decorators import api_view
+from django.utils import timezone
 
 from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user, serialize_like, \
@@ -213,7 +213,6 @@ def votedusers_req(request):
 
 @api_view(['GET', 'POST'])
 def user_req(request, user_id):
-
     try:
         if request.method == 'GET':
             snippet = User.objects.get(id=user_id)
@@ -331,7 +330,7 @@ def logout_req(request):
 #                 user = Token.objects.get(key=token).user
 #             else:
 #                 user = request.user
-#             if not user.new_password1((body['password']):
+#             if user.new_password1((body['password']):
 #                 return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
 #             user.first_name = body['first_name']
 #             user.last_name = body['last_name']
@@ -341,3 +340,20 @@ def logout_req(request):
 #             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 #         except Token.DoesNotExist:
 #             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+# @api_view(['POST'])
+# def update_last_login_req(sender, request, user, **kwargs):
+#     if request.method == 'POST':
+#         try:
+#             user.last_login = timezone.now()
+#             user.save(update_fields=['last_login'])
+#             return JsonResponse(user.save('last_login'), safe=False)
+#         except:
+#             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+    # """
+    # A signal receiver which updates the last_login date for
+    # the user logging in.
+    # """
+    # user.last_login = timezone.now()
+    # user.save(update_fields=['last_login'])

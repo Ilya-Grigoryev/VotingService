@@ -1,6 +1,6 @@
 from django.urls import path
 from api.views import voting_req, options_req, votedusers_req, vote_req, option_req, register_req, user_req, likes_req, \
-    dislikes_req, comments_req, logout_req
+    dislikes_req, comments_req, logout_req, update_last_login_req
 from api.authentication import CustomAuthToken
 
 urlpatterns = [
@@ -17,4 +17,6 @@ urlpatterns = [
     path('likes/<int:vote_id>/', likes_req),
     path('dislikes/', dislikes_req),
     path('comments/', comments_req),
+    # path('update_last_login/', update_last_login_req),
+
 ]
