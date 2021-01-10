@@ -7,6 +7,7 @@ import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
 import PollWindow from "../views/PollWindow";
+import Reports from "../views/MyReports";
 
 Vue.use(VueRouter)
 
@@ -41,6 +42,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/reports',
+    name: 'Reports',
+    component: Reports
   },
 ]
 

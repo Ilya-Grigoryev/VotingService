@@ -56,7 +56,14 @@
                 @input="$v.repeatPassword.$touch()"
                 @blur="$v.repeatPassword.$touch()"
             ></v-text-field>
-
+            <v-text-field
+              v-model="avatar"
+              :error-messages="avatarErrors"
+              label="Photo"
+              required clearable
+              @input="$v.avatar.$touch()"
+              @blur="$v.avatar.$touch()"
+            ></v-text-field>
             <v-btn
                 class="mr-4"
                 @click="register"
@@ -85,7 +92,8 @@
         username: { required, maxLength: maxLength(20) },
         email: { required, email },
         password: { required },
-        repeatPassword: {  }
+        repeatPassword: {  },
+        avatar: { required  }
     },
 
     data: () => ({
@@ -94,7 +102,8 @@
         username: '',
         email: '',
         password: '',
-        repeatPassword: ''
+        repeatPassword: '',
+        avatar: ''
     }),
 
     computed: {
@@ -135,6 +144,12 @@
           if (this.password === this.repeatPassword) return errors;
           errors.push('Passwords do not match.')
           return errors
+      },
+      avatarErrors () {
+        const errors = []
+        if (!this.$v.avatar.$dirty) return errors
+        !this.$v.avatar.required && errors.push('Photo is required.')
+        return errors
       }
     },
 
@@ -147,7 +162,8 @@
                   last_name: this.last_name,
                   username: this.username,
                   email: this.email,
-                  password: this.password
+                  password: this.password,
+                  avatar: this.avatar
               }).then(response => {
                   console.log(response.data)
                   if (response.data.status === 200) {
@@ -158,6 +174,7 @@
                           username: response.data.username,
                           first_name: response.data.first_name,
                           last_name: response.data.last_name,
+                          avatar: response.data.avatar,
                       });
                       this.$router.push('/login');
                   } else {
@@ -172,6 +189,7 @@
           this.last_name = ''
           this.username = ''
           this.email = ''
+          this.avatar = ''
       },
     },
   }
