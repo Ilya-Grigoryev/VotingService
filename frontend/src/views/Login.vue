@@ -81,6 +81,7 @@
                 if (response.data.status === 200) {
                     localStorage.setItem('token', response.data.token)
                     this.$emit('login', {
+                        avatar: response.data.avatar,
                         token: response.data.token,
                         id: response.data.id,
                         email: response.data.email,

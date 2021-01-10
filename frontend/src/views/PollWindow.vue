@@ -107,23 +107,58 @@
         disliked: false,
         comments: [],
         comment: '',
-        image_url: 'no-image',
+        image_url: 'null',
       }),
       methods: {
         send_comment() {
-          console.log(this.comment)
+          this.axios.post(
+                  'http://localhost:8000/api/comments/',
+                  {
+                    "user_id": this.user.id,
+                    "voting_id": this.voting.id,
+                    "text": this.comment
+                  },
+                  {
+                    headers: {Authorization: `Token ${this.user.token}`}
+                  }
+          ).then(response => {
+            if (response.data.status === 200) {
+              this.comments.push(response.data.comment)
+              this.comment = ''
+            }
+          })
         },
         like() {
           this.liked = !this.liked
           this.dislikes -= this.disliked ? 1 : 0
           this.disliked = false
           this.likes += this.liked ? 1 : -1
+          this.axios.post(
+                  'http://localhost:8000/api/likes/',
+                  {
+                    "user_id": this.user.id,
+                    "voting_id": this.voting.id
+                  },
+                  {
+                    headers: {Authorization: `Token ${this.user.token}`}
+                  }
+          )
         },
         dislike() {
           this.disliked = !this.disliked
           this.likes -= this.liked ? 1 : 0
           this.liked = false
           this.dislikes += this.disliked ? 1 : -1
+          this.axios.post(
+                  'http://localhost:8000/api/dislikes/',
+                  {
+                    "user_id": this.user.id,
+                    "voting_id": this.voting.id
+                  },
+                  {
+                    headers: {Authorization: `Token ${this.user.token}`}
+                  }
+          )
         },
         get_poll() {
           this.axios.get(`http://localhost:8000/api/voting/${this.$route.params.id}/`)
