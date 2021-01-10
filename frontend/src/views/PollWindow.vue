@@ -5,8 +5,8 @@
       elevation="4"
       outlined
       width="65%">
-    <v-btn depressed color="#ff734d" style="position: absolute; left: 10px;">
-      <v-icon @click="$router.go(-1);">mdi-arrow-left-bold-outline</v-icon>
+    <v-btn @click="$router.go(-1);" depressed color="#ff734d" style="position: absolute; left: 10px;">
+      <v-icon>mdi-arrow-left-bold-outline</v-icon>
     </v-btn>
     <Poll v-if="voting" v-bind="voting" :user="user"/>
     <br>
@@ -80,8 +80,8 @@
         </v-row>
       </v-col>
       <v-col md="6">
-        <v-card class="">
-          <v-img src="https://picsum.photos/id/11/500/300"></v-img>
+        <v-card>
+          <v-img v-if="image_url !== 'no-image' && image_url !== '/media/null'" :src="`http://localhost:8000${image_url}`"></v-img>
         </v-card>
       </v-col>
     </v-row>
@@ -101,21 +101,13 @@
       },
       data: () => ({
         voting: null,
-        likes: 10,
-        dislikes: 3,
+        likes: 0,
+        dislikes: 0,
         liked: false,
         disliked: false,
-        comments: [
-          {
-            author: { name: 'noname', id: 0 },
-            text: 'А у меня Ubuntu))'
-          },
-          {
-            author: { name: 'lexa', id: 4 },
-            text: 'Ubuntu это дистрибутив Linux'
-          }
-        ],
+        comments: [],
         comment: '',
+        image_url: 'no-image',
       }),
       methods: {
         send_comment() {
@@ -141,7 +133,7 @@
             let voted_answer = -1
             for (let i = 0; i < vote.options.length; i++) {
               for (let j = 0; j < vote.options[i].users.length; j++)
-                if (vote.options[i].users[j].id === this.user.id)
+                if (vote.options[i].users[j].user.id === this.user.id)
                   voted_answer = i
 
               answers.push({
@@ -163,6 +155,18 @@
               multiple: false,
               voted_answer: voted_answer
             }
+            this.likes = vote.likes.length
+            this.dislikes = vote.dislikes.length
+            for (let like of vote.likes) {
+              if (like.user_id === this.user.id)
+                this.liked = true
+            }
+            for (let dislike of vote.dislikes) {
+              if (dislike.user_id === this.user.id)
+                this.disliked = true
+            }
+            this.comments = vote.comments
+            this.image_url = vote.image_url
           })
         }
       },

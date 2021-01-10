@@ -61,7 +61,18 @@
           </v-list-item-content>
         </v-list-item>
         </v-list>
-
+        <template v-slot:append>
+          <v-list>
+            <v-list-item link @click="logout" style="border: 1px solid black;">
+              <v-list-item-icon>
+                <v-icon>mdi-logout-variant</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content class="text-left">
+                <v-list-item-title>Logout</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </template>
         </v-navigation-drawer>
 
       <v-content class="px-12 py-3">
@@ -85,10 +96,32 @@ export default {
       login(user){
         this.user = user
       },
+      logout() {
+        this.axios.post('http://localhost:8000/api/logout/',
+                {},{headers: {
+                  Authorization: `Token ${this.user.token}`}})
+        .then(() => {
+          this.user = {}
+          this.$router.push('/login')
+        })
+      },
+      getUser(token){
+        this.axios.get('http://localhost:8000/api/user_by_token/', {
+               headers: { Authorization: `Token ${token}`}
+        }).then(response => {
+          if (response.data.status === 200)
+            this.user = response.data
+          else
+            this.$router.push('/login')
+        })
+      }
   },
   mounted(){
-        if (this.user.id == null)
-            this.$router.push('/login');
+    let token = localStorage.getItem('token')
+    if (token)
+      this.getUser(token)
+    else
+      this.$router.push('/login')
     },
 }
 </script>

@@ -8,6 +8,7 @@ def serialize_vote(vote) -> Dict[str, Any]:
         'title': vote.title,
         'description': vote.description,
         'user': {'name': vote.user.username, 'id': vote.user.id},
+        'image_url': vote.image.url if vote.image else 'no-image',
         'start_date': vote.start_date,
         'end_date': vote.end_date,
         'status': vote.status,
@@ -42,4 +43,31 @@ def serialize_user(user) -> Dict[str, Any]:
         'last_name': user.last_name,
         'polls_count': len(Voting.objects.filter(user_id=user.id)),
         'vote_count': len(VotedUsers.objects.filter(user_id=user.id))
+
     }
+
+
+def serialize_like(like) -> Dict[str, Any]:
+    return {
+        'id': like.id,
+        'voting_id': like.voting_id,
+        'user_id': like.user_id
+    }
+
+
+def serialize_dislike(dislike) -> Dict[str, Any]:
+    return {
+        'id': dislike.id,
+        'voting_id': dislike.voting_id,
+        'user_id': dislike.user_id
+    }
+
+
+def serialize_comment(comment) -> Dict[str, Any]:
+    return {
+        'id': comment.id,
+        'voting_id': comment.voting_id,
+        'author': {'name': comment.user.username, 'id': comment.user_id},
+        'text': comment.text
+    }
+

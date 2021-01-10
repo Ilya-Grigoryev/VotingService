@@ -71,6 +71,29 @@
                     </v-btn>
                 </v-list-item>
             </v-list>
+
+            <v-row justify="space-between">
+                <v-col md="auto">
+                    <h3 class="mr-7">Image:</h3>
+                </v-col>
+                <v-col>
+                    <v-file-input accept="image/*"
+                        label="Select image"
+                        prepend-icon="mdi-camera"
+                        outlined
+                        dense
+                        v-model="file"
+                        @change="addFiles">
+                    </v-file-input>
+                </v-col>
+            </v-row>
+            <v-img max-height="300"
+                   contain
+                   v-if="file"
+                   :ref="'file'"
+                   title="photo">
+            </v-img>
+            <br>
             <v-btn @click="create_poll()">
                 create new poll
             </v-btn>
@@ -103,11 +126,20 @@
             title: '',
             description: '',
             hours: 1,
-            options: [
-                ''
-            ]
+            options: [''],
+            file: null,
+            reader: null,
         }),
         methods: {
+            addFiles(){
+                    this.reader = new FileReader();
+                    this.reader.onloadend = () => {
+                        let fileData = this.reader.result
+                        let imgRef = this.$refs.file
+                        imgRef.src = fileData
+                    }
+                    this.reader.readAsDataURL(this.file);
+            },
             addOption() {
                 if (this.options.length  < 7)
                     this.options.push('')
@@ -131,20 +163,23 @@
                     console.log('invalid')
                     return
                 }
+                let formData = new FormData();
+                formData.append('file', this.file)
+                formData.append('title', this.title)
+                formData.append('description', this.description)
+                formData.append('hours', this.hours)
+                formData.append('options', this.options)
                 this.axios.post(
                     'http://localhost:8000/api/voting/',
-                    {
-                        title:  this.title,
-                        description: this.description,
-                        hours: this.hours,
-                        options: this.options,
-                    },
+                    formData,
                     {
                         headers: {Authorization: `Token ${this.user.token}`}
-                    }).then(response => {
-                        if (response.data.status === 200) {
-                            this.$router.push('/')
-                        }
+                    }
+                ).then(response => {
+                    if (response.data.status === 200) {
+                        this.$router.push('/')
+                    }
+                    else window.alert(response.data.description)
                 })
             }
         },
