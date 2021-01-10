@@ -44,3 +44,9 @@ class Comments(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     text = models.TextField()
     voting = models.ForeignKey(to=Voting, on_delete=models.CASCADE)
+
+
+class Profile(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    avatar = models.ImageField(null=True, blank=True, upload_to='images/')
+    status = models.TextField()

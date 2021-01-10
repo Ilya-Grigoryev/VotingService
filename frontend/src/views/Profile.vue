@@ -93,18 +93,43 @@
               </v-card>
             </v-dialog>
 
-            <v-row>
+            <v-row justify="space-around">
                 <v-col md="3">
-                    <v-avatar width="100%" height="auto" class="ml-3">
-                        <img src="https://ishwortimilsina.com/images/icon_no_avatar.svg"
-                             alt="John">
-                    </v-avatar>
+                    <div class="ml-5">
+                        <input v-if="Number(this.$route.params.id) === user.id"
+                            type="file"
+                            accept="image/*"
+                            ref="file"
+                            class="d-none"
+                            @change="onFileChanged">
+                        <v-avatar style="border: 3px solid #3d365c;"
+                                width="100%" height="100%">
+                            <v-img v-if="file"
+                                   max-height="300"
+                                   contain
+                                   ref="image"
+                                   title="photo">
+                            </v-img>
+                            <img v-else-if="profile.avatar === 'null'"
+                                 src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
+                            <img v-else
+                                 :src="`http://localhost:8000${profile.avatar}`">
+                            <v-btn v-if="Number(this.$route.params.id) === user.id"
+                                   fab @click="onButtonClick"
+                                   @mouseover="mouseover=true" @mouseleave="mouseover=false"
+                                   :style="`position: absolute;
+                                          width: 100%; height: 100%;
+                                          opacity: ${mouseover ? 0.5 : 0}`">
+                                <v-icon size="70">mdi-camera-outline</v-icon>
+                            </v-btn>
+                        </v-avatar>
+                    </div>
                 </v-col>
                 <v-col md="1" class="ma-0 pa-0">
                     <v-divider vertical></v-divider>
                 </v-col>
 
-                <v-col md="8">
+                <v-col md="max">
                     <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
                     <strong style="color: gray; font-family: Roboto, sans-serif;">
                         @{{ profile.username }}
@@ -206,8 +231,41 @@
             dialog: false,
             voting_list_votes: [],
             voting_list_polls: [],
+            mouseover: false,
+            file: null,
         }),
         methods: {
+            onButtonClick() {
+                this.$refs.file.click()
+            },
+            onFileChanged(e) {
+                if (!e.target.files[0])
+                    return
+                this.file = e.target.files[0]
+                this.reader = new FileReader();
+                this.reader.onloadend = () => {
+                    let fileData = this.reader.result
+                    let imgRef = this.$refs.image
+                    imgRef.src = fileData
+                }
+                this.reader.readAsDataURL(this.file);
+                this.load_new_avatar()
+            },
+            load_new_avatar() {
+                let formData = new FormData();
+                formData.append('file', this.file)
+                this.axios.post(
+                    `http://localhost:8000/api/user/${this.user.id}/new_avatar/`,
+                    formData,
+                    {
+                        headers: {Authorization: `Token ${this.user.token}`}
+                    }
+                ).then(response => {
+                    if (response.data.status === 200) {
+                        this.profile.avatar = response.data.avatar
+                    } else window.alert(response.data.description)
+                })
+            },
             save_changes() {
                 this.$v.$touch()
                 if (!this.$v.$invalid) {

@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.utils import timezone
 
-from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile
 from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user, serialize_like, \
     serialize_dislike, serialize_comment
 
@@ -237,14 +237,6 @@ def user_by_token_req(request):
 
 @api_view(['GET', 'POST'])
 def user_req(request, user_id):
-    try:
-        if request.method == 'GET':
-            snippet = User.objects.get(id=user_id)
-            user = serialize_user(snippet)
-            return JsonResponse(user, safe=False)
-    except:
-        return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
-
     if request.method == 'GET':
         try:
             snippet = User.objects.get(id=user_id)
@@ -282,6 +274,26 @@ def user_req(request, user_id):
 
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def change_avatar_req(request, user_id):
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            file = dict(request.data)['file'][0]
+            profile = Profile.objects.get(user=user)
+            if profile.avatar:
+                profile.avatar.delete()
+            profile.avatar = file
+            profile.save()
+            return JsonResponse({"status": 200, "description": "OK", "avatar": profile.avatar.url}, safe=False)
+        except:
+            return JsonResponse({"status": 400, "description": "Bad Request"})
 
 
 @api_view(['GET', 'POST'])
