@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from api.models import Voting, VotedUsers
+from api.models import Voting, VotedUsers, Profile
 
 
 def serialize_vote(vote) -> Dict[str, Any]:
@@ -8,7 +8,7 @@ def serialize_vote(vote) -> Dict[str, Any]:
         'title': vote.title,
         'description': vote.description,
         'user': {'name': vote.user.username, 'id': vote.user.id},
-        'image_url': vote.image.url if vote.image else 'no-image',
+        'image_url': vote.image.url if vote.image else 'null',
         'start_date': vote.start_date,
         'end_date': vote.end_date,
         'status': vote.status,
@@ -25,10 +25,12 @@ def serialize_option(option) -> Dict[str, Any]:
 
 
 def serialize_voteduser(voteduser) -> Dict[str, Any]:
+    profile = Profile.objects.get(user_id=voteduser.user_id)
     return {
         'user': {
             'name': voteduser.user.username,
-            'id': voteduser.user.id
+            'id': voteduser.user.id,
+            'avatar': profile.avatar.url if profile.avatar else 'null'
         },
         'option id': voteduser.option_id,
         'voting_id': voteduser.option.voting_id
@@ -36,14 +38,16 @@ def serialize_voteduser(voteduser) -> Dict[str, Any]:
 
 
 def serialize_user(user) -> Dict[str, Any]:
+    profile = Profile.objects.get(user=user)
     return {
+        'avatar': profile.avatar.url if profile.avatar else 'null',
+        'status': profile.status,
         'email': user.email,
         'username': user.username,
         'first_name': user.first_name,
         'last_name': user.last_name,
         'polls_count': len(Voting.objects.filter(user_id=user.id)),
         'vote_count': len(VotedUsers.objects.filter(user_id=user.id))
-
     }
 
 
