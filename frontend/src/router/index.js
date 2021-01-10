@@ -7,6 +7,9 @@ import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
 import PollWindow from "../views/PollWindow";
+import Reports from "../views/MyReports";
+import AllPolls from "../views/Allpolls";
+
 
 Vue.use(VueRouter)
 
@@ -15,6 +18,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/all-polls',
+    name: 'AllPolls',
+    component: AllPolls
   },
   {
     path: '/profile/:id',
@@ -41,6 +49,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/reports',
+    name: 'Reports',
+    component: Reports
   },
 ]
 

@@ -44,7 +44,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link to="/voting">
+        <v-list-item link to="/all-polls">
           <v-list-item-icon>
             <v-icon>mdi-checkbox-multiple-marked-outline</v-icon>
           </v-list-item-icon>
@@ -63,9 +63,10 @@
           </v-list-item-content>
         </v-list-item>
         </v-list>
+        <br>
         <template v-slot:append>
           <v-list>
-            <v-list-item link @click="logout" style="border: 1px solid black;">
+            <v-list-item link @click="logout" >
               <v-list-item-icon>
                 <v-icon>mdi-logout-variant</v-icon>
               </v-list-item-icon>
