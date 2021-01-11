@@ -13,7 +13,9 @@
       <v-list nav shaped dense>
         <v-list-item class="pl-0">
           <v-list-item-avatar>
-              <v-img src="https://ishwortimilsina.com/images/icon_no_avatar.svg"></v-img>
+              <img v-if="user.avatar === 'null'"
+                   src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
+              <img v-else :src="`http://localhost:8000${user.avatar}/`">
           </v-list-item-avatar>
           <v-list-item-content class="text-left">
             <v-list-item-title class="font-weight-black">{{ user.first_name }} {{ user.last_name }}</v-list-item-title>
@@ -78,7 +80,7 @@
 
       <v-content class="px-12 py-3">
         <v-container fluid>
-          <router-view @login="login" :user="user"/>
+          <router-view @login="login" @change-avatar="change_avatar" :user="user"/>
         </v-container>
       </v-content>
 
@@ -94,6 +96,9 @@ export default {
     }
   },
   methods:{
+      change_avatar(new_avatar) {
+        this.user.avatar = new_avatar
+      },
       login(user){
         this.user = user
       },

@@ -68,10 +68,15 @@ def serialize_dislike(dislike) -> Dict[str, Any]:
 
 
 def serialize_comment(comment) -> Dict[str, Any]:
+    profile = Profile.objects.get(user_id=comment.user_id)
     return {
         'id': comment.id,
         'voting_id': comment.voting_id,
-        'author': {'name': comment.user.username, 'id': comment.user_id},
+        'author': {
+            'name': comment.user.username,
+            'id': comment.user_id,
+            'avatar': profile.avatar.url if profile.avatar else 'null'
+        },
         'text': comment.text
     }
 

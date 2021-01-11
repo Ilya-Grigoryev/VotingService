@@ -224,7 +224,9 @@ def user_by_token_req(request):
     try:
         token = request.headers['Authorization'].replace('Token ', '')
         user = Token.objects.get(key=token).user
+        profile = Profile.objects.get(user=user)
         return JsonResponse({'status': 200,
+                             'avatar': profile.avatar.url if profile.avatar else 'null',
                              'token': token,
                              'id': user.id,
                              'email': user.email,
@@ -309,6 +311,35 @@ def likes_req(request, vote_id=None):
         except:
             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
 
+    elif request.method == 'POST':
+        """
+        {
+            "user_id": 1,
+            "voting_id": 1
+        }
+        """
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            body = request.data
+            if user.id != body['user_id']:
+                return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+            like, created = Likes.objects.get_or_create(user_id=body['user_id'],
+                                                        voting_id=body['voting_id'])
+            if not created:
+                like.delete()
+            else:
+                try:
+                    Dislikes.objects.get(user_id=body['user_id'], voting_id=body['voting_id']).delete()
+                except:
+                    pass
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
 
 @api_view(['GET', 'POST'])
 def dislikes_req(request):
@@ -320,6 +351,35 @@ def dislikes_req(request):
         except:
             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
 
+    elif request.method == 'POST':
+        """
+        {
+            "user_id": 1,
+            "voting_id": 1
+        }
+        """
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            body = request.data
+            if user.id != body['user_id']:
+                return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+            dislike, created = Dislikes.objects.get_or_create(user_id=body['user_id'],
+                                                              voting_id=body['voting_id'])
+            if not created:
+                dislike.delete()
+            else:
+                try:
+                    Likes.objects.get(user_id=body['user_id'], voting_id=body['voting_id']).delete()
+                except:
+                    pass
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
 
 @api_view(['GET', 'POST'])
 def comments_req(request):
@@ -328,6 +388,31 @@ def comments_req(request):
             snippets = Comments.objects.all()
             comments = [serialize_comment(snippet) for snippet in snippets]
             return JsonResponse(comments, safe=False)
+        except:
+            return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
+
+    elif request.method == 'POST':
+        """
+        {
+            "user_id": 1,
+            "voting_id": 1,
+            "text": "comment text"
+        }
+        """
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            body = request.data
+            if user.id != body['user_id']:
+                return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+            comment = Comments(user_id=body['user_id'],
+                               voting_id=body['voting_id'],
+                               text=body['text'])
+            comment.save()
+            return JsonResponse({"status": 200, "description": "OK", "comment": serialize_comment(comment)}, safe=False)
         except:
             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
 

@@ -264,6 +264,7 @@
                 ).then(response => {
                     if (response.data.status === 200) {
                         this.profile.avatar = response.data.avatar
+                        this.$emit('change-avatar', this.profile.avatar)
                     } else window.alert(response.data.description)
                 })
             },

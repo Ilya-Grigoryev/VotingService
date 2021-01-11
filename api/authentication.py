@@ -2,6 +2,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 
+from api.models import Profile
+
 
 class CustomAuthToken(ObtainAuthToken):
 
@@ -17,7 +19,9 @@ class CustomAuthToken(ObtainAuthToken):
                 'status': 401,
                 'description': 'Invalid username or password.'
             })
+        profile = Profile.objects.get(user_id=user.pk)
         return Response({
+            'avatar': profile.avatar.url if profile.avatar else 'null',
             'token': token.key,
             'id': user.pk,
             'email': user.email,
