@@ -9,7 +9,7 @@
           <v-col cols="11">
               <v-text-field
                         ref="search"
-                        v-model="search"
+                        v-model="request"
                         hide-details
                         label="Search"
                         single-line
@@ -18,7 +18,7 @@
           <v-col cols="1">
               <v-btn
                     icon
-                    @click="get_voting_list"
+                    @click="filter_polls"
                   >
                 <v-icon>mdi-magnify</v-icon>
               </v-btn>
@@ -26,7 +26,7 @@
         </v-row>
     </v-card>
       <v-card
-            v-for="(voting, index) in voting_list" :key="index"
+            v-for="(voting, index) in search" :key="index"
             class="mx-auto pa-3 ma-3"
             elevation="4"
             outlined
@@ -38,8 +38,9 @@
     </v-card>
     <div class="text-center">
     <v-pagination
-        v-model="page"
+        v-model="request_page"
         :length="6"
+        @click="page"
       ></v-pagination>
     </div>
   </div>
@@ -57,13 +58,25 @@ import Poll from '../components/Poll.vue'
     data: () => ({
       voting_list: [],
       search: [],
+      request: '',
+      page_poll: [],
+      request_page: 1
     }),
     methods: {
+      page() {
+        for(let page of "3"){
+          if (page === (this.request_page)) {
+            this.page_poll = this.voting_list.filter(poll => poll.id.includes(this.request_page))
+          }
+        }
+      },
+      filter_polls() {
+        this.search = this.voting_list.filter(poll => poll.question.includes(this.request))
+      },
       get_voting_list() {
         this.axios.get('http://localhost:8000/api/voting/')
         .then(response => {
           this.voting_list = []
-          this.search = []
           let data = response.data
           for (let vote of data) {
             let answers = []
@@ -81,8 +94,7 @@ import Poll from '../components/Poll.vue'
             }
             let start = new Date(vote.start_date)
             let end = new Date(vote.end_date)
-            if (vote.title === this.search) {
-              this.voting_list[vote].unshift({
+            this.voting_list.unshift({
                 id: vote.id,
                 question: vote.title,
                 description: vote.description,
@@ -93,22 +105,8 @@ import Poll from '../components/Poll.vue'
                 multiple: false,
                 voted_answer: voted_answer
               })
-            }
-
-            else {
-              this.voting_list.unshift({
-                id: vote.id,
-                question: vote.title,
-                description: vote.description,
-                author: vote.user,
-                start_date: start,
-                end_date: end,
-                answers: answers,
-                multiple: false,
-                voted_answer: voted_answer
-              })
-            }
           }
+        this.search = this.voting_list
         })
       }
     },

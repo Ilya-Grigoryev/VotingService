@@ -104,12 +104,13 @@
                             @change="onFileChanged">
                         <v-avatar style="border: 3px solid #3d365c;"
                                 width="100%" height="100%">
-                            <v-img v-if="file"
+                            <v-avatar v-if="file"
                                    max-height="300"
+                                   max-width="300"
                                    contain
                                    ref="image"
                                    title="photo">
-                            </v-img>
+                            </v-avatar>
                             <img v-else-if="profile.avatar === 'null'"
                                  src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
                             <img v-else
