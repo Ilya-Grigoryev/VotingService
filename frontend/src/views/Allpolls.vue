@@ -60,7 +60,7 @@ import Poll from '../components/Poll.vue'
       search: [],
       request: '',
       page_poll: [],
-      request_page: 1
+      request_page: "1"
     }),
     methods: {
       page() {
