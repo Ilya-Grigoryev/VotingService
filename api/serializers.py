@@ -40,6 +40,7 @@ def serialize_voteduser(voteduser) -> Dict[str, Any]:
 def serialize_user(user) -> Dict[str, Any]:
     profile = Profile.objects.get(user=user)
     return {
+        'id': user.id,
         'avatar': profile.avatar.url if profile.avatar else 'null',
         'status': profile.status,
         'email': user.email,

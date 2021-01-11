@@ -238,12 +238,17 @@ def user_by_token_req(request):
 
 
 @api_view(['GET', 'POST'])
-def user_req(request, user_id):
+def user_req(request, user_id=None):
     if request.method == 'GET':
         try:
-            snippet = User.objects.get(id=user_id)
-            user = serialize_user(snippet)
-            return JsonResponse(user, safe=False)
+            if user_id:
+                snippet = User.objects.get(id=user_id)
+                user = serialize_user(snippet)
+                return JsonResponse(user, safe=False)
+            else:
+                snippets = User.objects.all()
+                users = [serialize_user(snippet) for snippet in snippets]
+                return JsonResponse(users, safe=False)
         except:
             return JsonResponse({"status": 404, "description": "Bad Request"}, safe=False)
 

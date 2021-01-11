@@ -44,12 +44,23 @@
           </v-list-item-content>
         </v-list-item>
 
+
         <v-list-item link to="/all-polls">
           <v-list-item-icon>
             <v-icon>mdi-checkbox-multiple-marked-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
             <v-list-item-title class="text-left">Все голосования</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+
+        <v-list-item link to="/users">
+          <v-list-item-icon>
+            <v-icon>mdi-account-group-outline</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content class="text-left">
+            <v-list-item-title class="text-left">Все пользователиы</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
