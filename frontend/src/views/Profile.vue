@@ -77,7 +77,16 @@
                         type="password"
                         v-model="password"
                         :error-messages="passwordErrors"
-                        label="Password"
+                        label="New password"
+                        required clearable
+                        @input="$v.password.$touch()"
+                        @blur="$v.password.$touch()"
+                    ></v-text-field>
+                    <v-text-field
+                        type="password"
+                        v-model="password"
+                        :error-messages="passwordErrors"
+                        label="Repeat new password"
                         required clearable
                         @input="$v.password.$touch()"
                         @blur="$v.password.$touch()"

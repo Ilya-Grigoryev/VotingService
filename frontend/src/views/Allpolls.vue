@@ -36,13 +36,35 @@
       </v-btn>
       <Poll v-bind="voting" :user="user"/>
     </v-card>
-    <div class="text-center">
-    <v-pagination
-        v-model="request_page"
-        :length="6"
-        @click="page"
-      ></v-pagination>
-    </div>
+    <v-card
+            v-for="(voting, index) in search_2" :key="index"
+            class="mx-auto pa-3 ma-3"
+            elevation="4"
+            outlined
+            width="65%">
+      <v-btn @click="$router.push(`/poll/${voting.id}/`)" icon depressed color="teal" style="position: absolute; right: 10px;">
+        <v-icon>mdi-arrow-expand-all</v-icon>
+      </v-btn>
+      <Poll v-bind="voting" :user="user"/>
+    </v-card>
+    <v-card
+            v-for="(voting, index) in search_3" :key="index"
+            class="mx-auto pa-3 ma-3"
+            elevation="4"
+            outlined
+            width="65%">
+      <v-btn @click="$router.push(`/poll/${voting.id}/`)" icon depressed color="teal" style="position: absolute; right: 10px;">
+        <v-icon>mdi-arrow-expand-all</v-icon>
+      </v-btn>
+      <Poll v-bind="voting" :user="user"/>
+    </v-card>
+        <div class="text-center">
+          <v-pagination
+              v-model="pagination.page"
+              :length="pages"
+          >
+          </v-pagination>
+        </div>
   </div>
 </template>
 
@@ -58,21 +80,16 @@ import Poll from '../components/Poll.vue'
     data: () => ({
       voting_list: [],
       search: [],
+      search_2: [],
+      search_3: [],
       request: '',
-      page_poll: [],
-      request_page: "1"
+      pagination: {
+        rowsPerPage: false
+      },
+      page: ''
     }),
     methods: {
-      page() {
-        for(let page of "3"){
-          if (page === (this.request_page)) {
-            this.page_poll = this.voting_list.filter(poll => poll.id.includes(this.request_page))
-          }
-        }
-      },
-      filter_polls() {
-        this.search = this.voting_list.filter(poll => poll.question.includes(this.request))
-      },
+
       get_voting_list() {
         this.axios.get('http://localhost:8000/api/voting/')
         .then(response => {
@@ -108,12 +125,23 @@ import Poll from '../components/Poll.vue'
           }
         this.search = this.voting_list
         })
-      }
+      },
+      filter_polls() {
+        this.search = this.voting_list.filter(poll => poll.description.includes(this.request))
+        this.search_2 = this.voting_list.filter(poll => poll.question.includes(this.request))
+        this.search_3 = this.voting_list.filter(poll => poll.options.text.includes(this.request))
+      },
     },
     mounted() {
       this.get_voting_list()
+    },
+    computed: {
+      pages () {
+      return this.pagination.rowsPerPage ? Math.ceil(this.items.length / this.pagination.rowsPerPage) : 0
     }
+    },
   }
+
 </script>
 
 <style scoped>

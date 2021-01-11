@@ -83,6 +83,15 @@
           <router-view @login="login" @change-avatar="change_avatar" :user="user"/>
         </v-container>
       </v-content>
+      <v-scroll target="callback">
+        <v-btn @click="scroll_up" icon depressed class="mx-2"
+          fab
+          dark
+          color="teal"
+          style="position: absolute; right: 10px; z-index: 9999;">
+        <v-icon dark>mdi-chevron-double-up</v-icon>
+      </v-btn>
+      </v-scroll>
 
     </v-app>
 </template>
@@ -96,6 +105,13 @@ export default {
     }
   },
   methods:{
+      scroll_up() {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: 'smooth'
+        });
+      },
       change_avatar(new_avatar) {
         this.user.avatar = new_avatar
       },
