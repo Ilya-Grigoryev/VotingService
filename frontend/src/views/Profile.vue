@@ -113,16 +113,18 @@
                             @change="onFileChanged">
                         <v-avatar style="border: 3px solid #3d365c;"
                                 width="100%" height="100%">
-                            <v-avatar v-if="file"
-                                   max-height="300"
-                                   max-width="300"
-                                   contain
+                            <img v-if="file"
+                                    style="max-width: 300px;
+                                           max-height: 300px;"
                                    ref="image"
                                    title="photo">
-                            </v-avatar>
                             <img v-else-if="profile.avatar === 'null'"
+                                 style="max-width: 300px;
+                                        max-height: 300px;"
                                  src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
                             <img v-else
+                                 style="max-width: 300px;
+                                        max-height: 300px;"
                                  :src="`http://localhost:8000${profile.avatar}`">
                             <v-btn v-if="Number(this.$route.params.id) === user.id"
                                    fab @click="onButtonClick"

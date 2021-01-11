@@ -9,6 +9,7 @@ import NewPoll from "../views/NewPoll";
 import PollWindow from "../views/PollWindow";
 import Reports from "../views/MyReports";
 import AllPolls from "../views/Allpolls";
+import Users from "../views/Users";
 
 
 Vue.use(VueRouter)
@@ -54,6 +55,11 @@ const routes = [
     path: '/reports',
     name: 'Reports',
     component: Reports
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    component: Users
   },
 ]
 

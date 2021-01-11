@@ -14,6 +14,7 @@ urlpatterns = [
     path('logout/', logout_req),
     path('user_by_token/', user_by_token_req),
     path('register/', register_req),
+    path('users/', user_req),
     path('user/<int:user_id>/', user_req),
     path('user/<int:user_id>/new_avatar/', change_avatar_req),
     path('likes/', likes_req),
