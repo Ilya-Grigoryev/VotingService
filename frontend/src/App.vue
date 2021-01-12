@@ -60,7 +60,7 @@
             <v-icon>mdi-account-group-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Все пользователиы</v-list-item-title>
+            <v-list-item-title class="text-left">Все пользователи</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
