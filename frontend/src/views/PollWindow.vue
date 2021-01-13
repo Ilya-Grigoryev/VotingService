@@ -8,6 +8,9 @@
     <v-btn @click="$router.go(-1);" depressed color="#ff734d" style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
     </v-btn>
+    <v-btn @click="delete_vote()" dark color="red darken-3" style="position: absolute; right: 10px;">
+      <v-icon> mdi-delete</v-icon>
+    </v-btn>
     <Poll v-if="voting" v-bind="voting" :user="user"/>
     <br>
     <v-progress-linear
@@ -110,6 +113,9 @@
         image_url: 'null',
       }),
       methods: {
+        delete_vote() {
+          this.voting.status === 'deleted'
+        },
         send_comment() {
           this.axios.post(
                   'http://localhost:8000/api/comments/',
@@ -188,7 +194,8 @@
               end_date: end,
               answers: answers,
               multiple: false,
-              voted_answer: voted_answer
+              voted_answer: voted_answer,
+              status: vote.status
             }
             this.likes = vote.likes.length
             this.dislikes = vote.dislikes.length

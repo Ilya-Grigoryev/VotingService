@@ -177,7 +177,13 @@
          <h3 class="ml-5">Polls</h3>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-list-item v-for="(voting, index) in voting_list_polls" :key="index">
+          <v-expansion-panels>
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+         <h3 class="ml-5">Active</h3>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-list-item v-for="(voting, index) in voting_list_polls_active" :key="index">
             <v-card  class="mx-auto pa-3 ma-3"
                     elevation="4"
                     outlined
@@ -191,6 +197,46 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
+        <v-expansion-panel-header>
+         <h3 class="ml-5">Ended</h3>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-list-item v-for="(voting, index) in voting_list_polls_ended" :key="index">
+            <v-card  class="mx-auto pa-3 ma-3"
+                    elevation="4"
+                    outlined
+                    width="95%">
+                      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+                        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+                      </v-btn>
+                    <Poll v-bind="voting" :user="user"/>
+            </v-card>
+          </v-list-item>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+         <h3 class="ml-5">Deleted</h3>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-list-item v-for="(voting, index) in voting_list_polls_deleted" :key="index">
+            <v-card  class="mx-auto pa-3 ma-3"
+                    elevation="4"
+                    outlined
+                    width="95%">
+                      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+                        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+                      </v-btn>
+                    <Poll v-bind="voting" :user="user"/>
+            </v-card>
+          </v-list-item>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+        </v-expansion-panels>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+            <v-expansion-panel>
         <v-expansion-panel-header>
          <h3 class="ml-5">Votes</h3>
         </v-expansion-panel-header>
@@ -242,7 +288,9 @@
             profile: null,
             dialog: false,
             voting_list_votes: [],
-            voting_list_polls: [],
+            voting_list_polls_active: [],
+            voting_list_polls_ended: [],
+            voting_list_polls_deleted: [],
             mouseover: false,
             file: null,
         }),
@@ -320,7 +368,9 @@
               this.axios.get('http://localhost:8000/api/voting/')
               .then(response => {
                 this.voting_list_votes = []
-                this.voting_list_polls = []
+                this.voting_list_polls_active = []
+                this.voting_list_polls_ended = []
+                this.voting_list_polls_deleted = []
                 let data = response.data
                 for (let vote of data) {
                   let answers = []
@@ -354,21 +404,53 @@
                       end_date: end,
                       answers: answers,
                       multiple: false,
-                      voted_answer: voted_answer
+                      voted_answer: voted_answer,
+                      status: vote.status
                     })
                   }
                   if (vote.user.id === Number(this.$route.params.id)) {
-                    this.voting_list_polls.unshift({
-                      id: vote.id,
-                      question: vote.title,
-                      description: vote.description,
-                      author: vote.user,
-                      start_date: start,
-                      end_date: end,
-                      answers: answers,
-                      multiple: false,
-                      voted_answer: voted_answer
-                    })
+                    if (vote.status === 'active') {
+                      this.voting_list_polls_active.unshift({
+                        id: vote.id,
+                        question: vote.title,
+                        description: vote.description,
+                        author: vote.user,
+                        start_date: start,
+                        end_date: end,
+                        answers: answers,
+                        multiple: false,
+                        voted_answer: voted_answer,
+                        status: 'active'
+                      })
+                    }
+                    if (vote.status === 'ended') {
+                      this.voting_list_polls_ended.unshift({
+                        id: vote.id,
+                        question: vote.title,
+                        description: vote.description,
+                        author: vote.user,
+                        start_date: start,
+                        end_date: end,
+                        answers: answers,
+                        multiple: false,
+                        voted_answer: voted_answer,
+                        status: 'ended'
+                      })
+                    }
+                    if (vote.status === 'deleted') {
+                      this.voting_list_polls_deleted.unshift({
+                        id: vote.id,
+                        question: vote.title,
+                        description: vote.description,
+                        author: vote.user,
+                        start_date: start,
+                        end_date: end,
+                        answers: answers,
+                        multiple: false,
+                        voted_answer: voted_answer,
+                        status: 'deleted'
+                      })
+                    }
                   }
                 }
               })
