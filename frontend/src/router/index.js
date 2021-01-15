@@ -11,7 +11,7 @@ import Reports from "../views/MyReports";
 import AllPolls from "../views/Allpolls";
 import Users from "../views/Users";
 import Settings from "../views/Settings";
-import Admin from "../views/Admin";
+// import Admin from "../views/Admin";
 
 Vue.use(VueRouter)
 
@@ -48,12 +48,12 @@ const routes = [
     component: Settings
 
   },
-  {
-    path: '/admin',
-    name: 'Admin',
-    component: Admin
-
-  },
+  // {
+  //   path: '/admin',
+  //   name: 'Admin',
+  //   component: Admin
+  //
+  // },
   {
     path: '/login',
     name: 'Login',
