@@ -10,6 +10,7 @@ import PollWindow from "../views/PollWindow";
 import Reports from "../views/MyReports";
 import AllPolls from "../views/Allpolls";
 import Users from "../views/Users";
+import Settings from "../views/Settings";
 
 
 Vue.use(VueRouter)
@@ -39,6 +40,12 @@ const routes = [
     path: '/poll/:id',
     name: 'Poll',
     component: PollWindow
+
+  },
+  {
+    path: '/settings/:id',
+    name: 'Settings',
+    component: Settings
 
   },
   {

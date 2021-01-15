@@ -77,6 +77,15 @@
         <br>
         <template v-slot:append>
           <v-list>
+<!--          <v-list-item link to="/settings/">-->
+<!--          <v-list-item-icon>-->
+<!--            <v-icon>mdi-cog-outline</v-icon>-->
+<!--          </v-list-item-icon>-->
+<!--          <v-list-item-content class="text-left">-->
+<!--            <v-list-item-title class="text-left">Settings</v-list-item-title>-->
+<!--          </v-list-item-content>-->
+<!--        </v-list-item>-->
+
             <v-list-item link @click="logout" >
               <v-list-item-icon>
                 <v-icon>mdi-logout-variant</v-icon>
