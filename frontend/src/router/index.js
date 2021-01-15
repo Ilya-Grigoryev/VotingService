@@ -43,7 +43,7 @@ const routes = [
 
   },
   {
-    path: '/settings/:id',
+    path: '/settings',
     name: 'Settings',
     component: Settings
 

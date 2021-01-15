@@ -29,7 +29,7 @@
       </v-col>
             <v-divider vertical></v-divider>
       <v-col cols="8">
-      <v-btn @click="$router.push(`/settings/${user.id}/`)" icon depressed color="teal" style="position: absolute; right: 20px;">
+      <v-btn @click="$router.push(`/settings`)" icon depressed color="teal" style="position: absolute; right: 20px;">
         <v-icon>mdi-cog-outline</v-icon>
       </v-btn>
       <v-container fluid>

@@ -72,25 +72,6 @@
                         @input="$v.email.$touch()"
                         @blur="$v.email.$touch()"
                     ></v-text-field>
-                      <br><br>
-                    <v-text-field
-                        type="password"
-                        v-model="password"
-                        :error-messages="passwordErrors"
-                        label="New password"
-                        required clearable
-                        @input="$v.password.$touch()"
-                        @blur="$v.password.$touch()"
-                    ></v-text-field>
-                    <v-text-field
-                        type="password"
-                        v-model="password"
-                        :error-messages="passwordErrors"
-                        label="Repeat new password"
-                        required clearable
-                        @input="$v.password.$touch()"
-                        @blur="$v.password.$touch()"
-                    ></v-text-field>
                   </v-container>
                   <v-btn
                     color="purple"
