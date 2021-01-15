@@ -108,8 +108,7 @@ export default {
   },
   methods: {
     submit() {
-      this.$v.$touch()
-                this.$v.$touch()
+        this.$v.$touch()
                 if (!this.$v.$invalid) {
                     this.axios.post(`http://localhost:8000/api/change_password/`,
                         {
