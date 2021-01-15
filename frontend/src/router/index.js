@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Home from '../views/Home.vue'
-import Login from '../views/Login'
+import Home from '../views/Home.vue';
+import Login from '../views/Login';
 import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
@@ -11,7 +11,7 @@ import Reports from "../views/MyReports";
 import AllPolls from "../views/Allpolls";
 import Users from "../views/Users";
 import Settings from "../views/Settings";
-
+import Admin from "../views/Admin";
 
 Vue.use(VueRouter)
 
@@ -46,6 +46,12 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: Settings
+
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: Admin
 
   },
   {
