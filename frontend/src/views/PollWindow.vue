@@ -8,7 +8,7 @@
     <v-btn @click="$router.go(-1);" depressed color="teal" style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
     </v-btn>
-    <v-btn v-if="Number(this.$route.params.id) === user.id"
+    <v-btn v-if="Number(this.voting.author.id) === user.id"
         @click="end_vote()"
         dark
         color="red darken-3"
@@ -18,7 +18,7 @@
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
 
-    <v-btn v-if="Number(this.$route.params.id) === user.id"
+    <v-btn v-if="Number(this.voting.author.id) === user.id"
         @click="delete_vote()"
         dark
         color="red darken-3" style="position: absolute; right: 10px;">
