@@ -450,3 +450,19 @@ def change_password_req(request):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def delete_poll_req(request):
+    if request.method == 'POST':
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            Voting.objects.get(user=user, id=body['poll_id']).delete()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
