@@ -18,84 +18,15 @@
             <v-text-field
               v-model="description"
               :error-messages="descriptionErrors"
+              :counter="500"
               label="Description"
               required clearable
               @input="$v.description.$touch()"
               @blur="$v.description.$touch()"
             ></v-text-field>
-
-            <v-radio-group
-              v-model="hours"
-              row>
-                <h3 class="mr-12">Duration:</h3>
-              <v-radio
-                label="1 hour"
-                :value="1"
-                selected
-              ></v-radio>
-              <v-radio
-                label="3 hours"
-                :value="3"
-              ></v-radio>
-              <v-radio
-                label="6 hours"
-                :value="6"
-              ></v-radio>
-              <v-radio
-                label="1 day"
-                :value="24"
-              ></v-radio>
-              <v-radio
-                label="1 week"
-                :value="24*7"
-              ></v-radio>
-            </v-radio-group>
-
             <br>
-            <v-radio-group row>
-                <h3 class="mr-7">Options:   {{ options.length }}</h3>
-                <v-btn x-small @click="addOption">add option</v-btn>
-            </v-radio-group>
-            <v-list>
-                <v-list-item v-for="(option, ind) of options" :key="ind">
-                    <v-text-field
-                        v-model="options[ind]"
-                        :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
-                        @input="$v.options.$each[ind].$touch()"
-                        @blur="$v.options.$each[ind].$touch()"
-                        label="Option"
-                        required clearable
-                    ></v-text-field>
-                    <v-btn icon large @click="removeOption(ind)">
-                        <v-icon color="red">mdi-close-box</v-icon>
-                    </v-btn>
-                </v-list-item>
-            </v-list>
-
-            <v-row justify="space-between">
-                <v-col md="auto">
-                    <h3 class="mr-7">Image:</h3>
-                </v-col>
-                <v-col>
-                    <v-file-input accept="image/*"
-                        label="Select image"
-                        prepend-icon="mdi-camera"
-                        outlined
-                        dense
-                        v-model="file"
-                        @change="addFiles">
-                    </v-file-input>
-                </v-col>
-            </v-row>
-            <v-img max-height="300"
-                   contain
-                   v-if="file"
-                   :ref="'file'"
-                   title="photo">
-            </v-img>
-            <br>
-            <v-btn @click="create_poll()">
-                create new poll
+            <v-btn @click="create_report()">
+                create new report
             </v-btn>
         </v-card>
     </div>
@@ -125,30 +56,10 @@
         data: () => ({
             title: '',
             description: '',
-            hours: 1,
-            options: [''],
-            file: null,
             reader: null,
         }),
         methods: {
-            addFiles(){
-                    this.reader = new FileReader();
-                    this.reader.onloadend = () => {
-                        let fileData = this.reader.result
-                        let imgRef = this.$refs.file
-                        imgRef.src = fileData
-                    }
-                    this.reader.readAsDataURL(this.file);
-            },
-            addOption() {
-                if (this.options.length  < 7)
-                    this.options.push('')
-            },
-            removeOption(ind) {
-                if (this.options.length > 1)
-                    this.options.splice(ind, 1)
-            },
-            create_poll() {
+            create_report() {
                 let option_error = false
                 for (let option of this.options) {
                     if (option.replace(/^\s+|\s+$/g, '') === '') {
@@ -170,7 +81,7 @@
                 formData.append('hours', this.hours)
                 formData.append('options', this.options)
                 this.axios.post(
-                    'http://localhost:8000/api/voting/',
+                    'http://localhost:8000/api/report/',
                     formData,
                     {
                         headers: {Authorization: `Token ${this.user.token}`}
@@ -194,6 +105,7 @@
             descriptionErrors () {
                 const errors = []
                 if (!this.$v.description.$dirty) return errors
+                !this.$v.description.maxLength && errors.push('Description must be at most 500 characters long.')
                 !this.$v.description.required && errors.push('Description is required.')
                 return errors
             }

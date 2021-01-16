@@ -8,12 +8,20 @@
     <v-btn @click="$router.go(-1);" depressed color="teal" style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
     </v-btn>
-    <v-btn @click="end_vote()" dark color="red darken-3" style="position: absolute; right: 90px;">
+    <v-btn v-if="Number(this.$route.params.id) === user.id"
+        @click="end_vote()"
+        dark
+        color="red darken-3"
+        style="position: absolute; right: 90px;">
       Finish
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-    <v-btn @click="delete_vote()" dark color="red darken-3" style="position: absolute; right: 10px;">
+
+    <v-btn v-if="Number(this.$route.params.id) === user.id"
+        @click="delete_vote()"
+        dark
+        color="red darken-3" style="position: absolute; right: 10px;">
       <v-icon> mdi-delete</v-icon>
     </v-btn>
     <Poll v-if="voting" v-bind="voting" :user="user"/>

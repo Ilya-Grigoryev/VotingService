@@ -6,6 +6,7 @@ import Login from '../views/Login';
 import Register from "../views/Register";
 import Profile from "../views/Profile";
 import NewPoll from "../views/NewPoll";
+import NewReport from "../views/NewReport";
 import PollWindow from "../views/PollWindow";
 import Reports from "../views/MyReports";
 import AllPolls from "../views/Allpolls";
@@ -35,6 +36,11 @@ const routes = [
     path: '/new-poll',
     name: 'New Voting',
     component: NewPoll
+  },
+  {
+    path: '/new-report',
+    name: 'New Report',
+    component: NewReport
   },
   {
     path: '/poll/:id',
