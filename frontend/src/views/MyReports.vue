@@ -20,20 +20,21 @@
   </div>
 </template>
 
-<!--<script>-->
-<!--import Report from '../components/Report.vue'-->
+<script>
+import Report from '../components/Report.vue'
 
-<!--export default {-->
-<!--  name: "MyReports",-->
-<!--  components: {-->
-<!--    Report-->
-<!--  },-->
-<!--  data: () => ({-->
-<!--    reports: [],-->
-<!--  }),-->
-<!--}-->
-<!--</script>-->
+export default {
+  name: "MyReports",
+  props: ['user', 'id', 'admin'],
+  components: {
+    Report
+  },
+  data: () => ({
+    reports: [],
+  }),
+}
+</script>
 
-<!--<style scoped>-->
+<style scoped>
 
-<!--</style>-->
+</style>
