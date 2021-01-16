@@ -5,8 +5,13 @@
       elevation="4"
       outlined
       width="65%">
-    <v-btn @click="$router.go(-1);" depressed color="#ff734d" style="position: absolute; left: 10px;">
+    <v-btn @click="$router.go(-1);" depressed color="teal" style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
+    </v-btn>
+    <v-btn @click="end_vote()" dark color="red darken-3" style="position: absolute; right: 90px;">
+      Finish
+      <v-divider vertical></v-divider>
+      <v-icon> mdi-timer-off</v-icon>
     </v-btn>
     <v-btn @click="delete_vote()" dark color="red darken-3" style="position: absolute; right: 10px;">
       <v-icon> mdi-delete</v-icon>
@@ -115,6 +120,9 @@
       methods: {
         delete_vote() {
           this.voting.status === 'deleted'
+        },
+        end_vote(){
+          this.voting.status === 'ended'
         },
         send_comment() {
           this.axios.post(

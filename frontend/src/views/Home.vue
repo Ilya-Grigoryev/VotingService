@@ -54,13 +54,13 @@
           <div><strong>Choose to show on sparkline:</strong></div>
         </template>
        <v-radio value="Polls" color="teal">
-          <template v-slot:label>
-            <div><strong class="text">My polls</strong></div>
+          <template v-slot:label @click="sparkline_of_polls">
+            <div><strong class="text">Polls</strong></div>
           </template>
         </v-radio>
         <v-radio value="Votes" color="teal">
-          <template v-slot:label>
-            <div><strong class="text">My votes</strong></div>
+          <template v-slot:label @click="sparkline_of_votes">
+            <div><strong class="text">Votes</strong></div>
           </template>
         </v-radio>
       </v-radio-group>
@@ -120,5 +120,86 @@
       ],
       picker: new Date().toISOString().substr(0, 10),
     }),
+    methods: {
+      sparkline_of_polls(){
+        this.axios.get('http://localhost:8000/api/voting/')
+              .then(response => {
+                this.voting_list_polls = []
+                let data = response.data
+                for (let vote of data) {
+                  let answers = []
+                  let voted_answer = -1
+                  for (let i = 0; i < vote.options.length; i++) {
+                    for (let j = 0; j < vote.options[i].users.length; j++)
+                      if (vote.options[i].users[j].user.id === this.user.id)
+                        voted_answer = i
+
+                    answers.push({
+                      id: vote.options[i].id,
+                      text: vote.options[i].text,
+                      votes: vote.options[i].users.length
+                    })
+                  }
+
+                  let start = new Date(vote.start_date)
+                  let end = new Date(vote.end_date)
+                  if (voted_answer !== -1) {
+                    this.voting_list_votes.unshift({
+                      id: vote.id,
+                      question: vote.title,
+                      description: vote.description,
+                      author: vote.user,
+                      start_date: start,
+                      end_date: end,
+                      answers: answers,
+                      multiple: false,
+                      voted_answer: voted_answer,
+                      status: vote.status
+                    })
+                  }
+                }
+              })
+        this.value = this.voting_list_polls
+      },
+      sparkline_of_votes() {
+        this.axios.get('http://localhost:8000/api/voting/')
+              .then(response => {
+                this.voting_list_votes = []
+                let data = response.data
+                for (let vote of data) {
+                  let answers = []
+                  let voted_answer = -1
+                  for (let i = 0; i < vote.options.length; i++) {
+                    for (let j = 0; j < vote.options[i].users.length; j++)
+                      if (vote.options[i].users[j].user.id === this.user.id)
+                        voted_answer = i
+
+                    answers.push({
+                      id: vote.options[i].id,
+                      text: vote.options[i].text,
+                      votes: vote.options[i].users.length
+                    })
+                  }
+                  let start = new Date(vote.start_date)
+                  let end = new Date(vote.end_date)
+                  if (voted_answer !== -1) {
+                    this.voting_list_votes.unshift({
+                      id: vote.id,
+                      question: vote.title,
+                      description: vote.description,
+                      author: vote.user,
+                      start_date: start,
+                      end_date: end,
+                      answers: answers,
+                      multiple: false,
+                      voted_answer: voted_answer,
+                      status: vote.status
+                    })
+                  }
+                }
+              })
+        this.value = this.voting_list_votes
+      },
+    },
   }
 </script>
