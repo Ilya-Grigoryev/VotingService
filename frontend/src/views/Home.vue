@@ -25,6 +25,7 @@
       <v-date-picker
         v-model="picker"
         color="teal"
+        width="99%"
       ></v-date-picker>
       </v-col>
             <v-divider vertical></v-divider>
@@ -32,6 +33,7 @@
       <v-btn @click="$router.push(`/settings`)" icon depressed color="teal" style="position: absolute; right: 20px;">
         <v-icon>mdi-cog-outline</v-icon>
       </v-btn>
+
       <v-container fluid>
       <v-sparkline
         :value="value"
