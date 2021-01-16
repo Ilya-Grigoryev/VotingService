@@ -119,7 +119,20 @@
       }),
       methods: {
         delete_vote() {
-          this.voting.status === 'deleted'
+          this.axios.post(
+                  `http://localhost:8000/api/delete_poll/`,
+                  {
+                    "poll_id": this.$route.params.id,
+                  },
+                  {
+                    headers: { Authorization: `Token ${this.user.token}` }
+                  }
+          ).then(response => {
+            if (response.data.status === 200)
+              this.$router.go(-1)
+            else
+              window.alert(response.data.description)
+          })
         },
         end_vote(){
           this.voting.status === 'ended'
