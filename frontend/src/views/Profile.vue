@@ -72,6 +72,15 @@
                         @input="$v.email.$touch()"
                         @blur="$v.email.$touch()"
                     ></v-text-field>
+                    <v-text-field
+                        type="password"
+                        v-model="password"
+                        :error-messages="passwordErrors"
+                        label="Password"
+                        required clearable
+                        @input="$v.password.$touch()"
+                        @blur="$v.password.$touch()"
+                    ></v-text-field>
                   </v-container>
                   <v-btn
                     color="purple"
