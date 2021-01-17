@@ -49,8 +49,18 @@
                 label="1 week"
                 :value="24*7"
               ></v-radio>
+              <v-radio
+                  label="Infinite"
+                  :value="24*7*4*10000000"
+              ></v-radio>
             </v-radio-group>
-
+            <v-checkbox
+                v-model="first"
+                label=""
+                color="teal"
+                value=""
+                hide-details
+              ></v-checkbox>
             <br>
             <v-radio-group row>
                 <h3 class="mr-7">Options:   {{ options.length }}</h3>

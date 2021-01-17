@@ -29,12 +29,8 @@
       ></v-date-picker>
       </v-col>
             <v-divider vertical></v-divider>
-      <v-col cols="8">
-      <v-btn @click="$router.push(`/settings`)" icon depressed color="teal" style="position: absolute; right: 20px;">
-        <v-icon>mdi-cog-outline</v-icon>
-      </v-btn>
-
-      <v-container fluid>
+      <v-col cols="8,5">
+      <v-container fluid >
       <v-sparkline
         :value="value"
         :gradient="gradient"
@@ -48,20 +44,20 @@
         :auto-line-width="autoLineWidth"
         auto-draw
       ></v-sparkline>
-        <v-divider></v-divider>
+        <v-divider ></v-divider>
         <v-radio-group
         v-model="radios"
         mandatory
       ><template v-slot:label>
           <div><strong>Choose to show on sparkline:</strong></div>
         </template>
-       <v-radio value="Polls" color="teal">
-          <template v-slot:label @click="sparkline_of_polls">
+       <v-radio value="Polls" color="teal"  @click="sparkline_of_polls">
+          <template v-slot:label >
             <div><strong class="text">Polls</strong></div>
           </template>
         </v-radio>
-        <v-radio value="Votes" color="teal">
-          <template v-slot:label @click="sparkline_of_votes">
+        <v-radio value="Votes" color="teal"  @click="sparkline_of_votes">
+          <template v-slot:label >
             <div><strong class="text">Votes</strong></div>
           </template>
         </v-radio>
@@ -126,7 +122,7 @@
       sparkline_of_polls(){
         this.axios.get('http://localhost:8000/api/voting/')
               .then(response => {
-                this.voting_list_polls = []
+                this.voting_list = []
                 let data = response.data
                 for (let vote of data) {
                   let answers = []
@@ -161,7 +157,7 @@
                   }
                 }
               })
-        this.value = this.voting_list_polls
+        this.value = this.voting_list
       },
       sparkline_of_votes() {
         this.axios.get('http://localhost:8000/api/voting/')

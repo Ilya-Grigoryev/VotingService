@@ -159,6 +159,24 @@
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-expansion-panels>
+            <v-expansion-panel>
+        <v-expansion-panel-header v-if="user.id === Number(this.$route.params.id)">
+         <h3 class="ml-5">Not started</h3>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-list-item v-for="(voting, index) in voting_list_polls_not_started" :key="index">
+            <v-card  class="mx-auto pa-3 ma-3"
+                    elevation="4"
+                    outlined
+                    width="95%">
+                      <v-btn icon depressed color="teal" style="position: absolute; right: 10px;">
+                        <v-icon @click="$router.push(`/poll/${voting.id}/`)">mdi-arrow-expand-all</v-icon>
+                      </v-btn>
+                    <Poll v-bind="voting" :user="user"/>
+            </v-card>
+          </v-list-item>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
       <v-expansion-panel>
         <v-expansion-panel-header>
          <h3 class="ml-5">Active</h3>
@@ -253,6 +271,7 @@
             voting_list_votes: [],
             voting_list_polls_active: [],
             voting_list_polls_ended: [],
+            voting_list_polls_not_started: [],
             mouseover: false,
             file: null,
         }),
@@ -332,6 +351,7 @@
                 this.voting_list_votes = []
                 this.voting_list_polls_active = []
                 this.voting_list_polls_ended = []
+                this.voting_list_polls_not_started = []
                 let data = response.data
                 for (let vote of data) {
                   let answers = []
@@ -372,6 +392,20 @@
                   if (vote.user.id === Number(this.$route.params.id)) {
                     if (vote.status === 'active') {
                       this.voting_list_polls_active.unshift({
+                        id: vote.id,
+                        question: vote.title,
+                        description: vote.description,
+                        author: vote.user,
+                        start_date: start,
+                        end_date: end,
+                        answers: answers,
+                        multiple: false,
+                        voted_answer: voted_answer,
+                        status: 'active'
+                      })
+                    }
+                    if (vote.status === 'not-started') {
+                      this.voting_list_polls_not_started.unshift({
                         id: vote.id,
                         question: vote.title,
                         description: vote.description,

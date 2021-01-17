@@ -129,6 +129,7 @@ export default {
       if (!this.$v.checkbox.$dirty) return errors
       !this.$v.checkbox.checked && errors.push('You must agree to continue!')
       this.password_1 === this.password_2 && errors.push('Passwords match')
+      //this.password_1 !== this.user.password && errors.push('Old passwords don\'t match')
       !this.$v.password_1.required && !this.$v.password_2.required && errors.push('Passwords aren\'t entered')
       return errors
     },
@@ -148,7 +149,7 @@ export default {
       const errors = []
       if (!this.$v.admin_password.$dirty) return errors
       !this.$v.admin_password.required && errors.push('Password is required')
-      this.$v.admin_password !== this.admin.password && errors.push('You are not admin')
+      //this.$v.admin_password !== this.admin.password && errors.push('You are not admin!')
       return errors
         },
   },
@@ -167,8 +168,9 @@ export default {
                         }
                     ).then(response => {
                         if (response.data.status === 200) {
-                            this.password = response.data.password_1,
-                            this.user.password = response.data.password_1
+                            this.password = response.data.password_2,
+                            this.user.password = response.data.password_2
+                            this.$router.push('/')
                         }
                         else window.alert(response.data.description)
                     })
