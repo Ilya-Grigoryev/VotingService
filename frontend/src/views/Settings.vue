@@ -90,6 +90,8 @@
         @blur="$v.checkbox.$touch()"
       ></v-checkbox>
       <v-btn
+          color="purple"
+          outlined
           class="mr-4"
           @click="submit()"
       >
