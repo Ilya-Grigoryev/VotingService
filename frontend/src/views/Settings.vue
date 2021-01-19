@@ -34,8 +34,9 @@
             <v-btn
                 @click="$router.go(-1);"
                 icon
+                large
                 depressed
-                color="teal"
+                color="red"
                 style="position: absolute; right: 20px;"
             >
               <v-icon>mdi-close-circle-outline</v-icon>
@@ -52,14 +53,16 @@
                       @blur="$v.admin_password.$touch()"
                     ></v-text-field>
                       <v-btn
-                      class="mr-4"
-                      @click="$router.push(`/admin`)"
+                          color="purple"
+                          outlined
+                          @click="$router.push(`/admin`);"
                     >
                       Enter
                     </v-btn>
               </form>
       </v-card>
           </v-dialog>
+       <span class="headline">Password change</span>
             <form class="mx-auto pa-3 ma-3">
       <v-text-field
         type="password"
