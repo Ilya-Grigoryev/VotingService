@@ -57,48 +57,71 @@ def voting_req(request):
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
-        """
-        Request body format:
-        {
-            "title": "Котики или собачки?",
-            "description": "Кто милее?",
-            "hours": 24,
-            "options": ['Котики', 'Собачки'],
-            "image": file (or null)
-        }
-        """
-        try:
+            """
+            Request body format:
+            {
+                "title": "Котики или собачки?",
+                "description": "Кто милее?",
+                "hours": 24,
+                "options": ['Котики', 'Собачки'],
+                "image": file (or null),
+                "start": "now" or "<datetime>"
+            }
+            """
+        # try:
             body = dict(request.data)
             body['title'] = body['title'][0]
             body['description'] = body['description'][0]
-            body['hours'] = int(body['hours'][0])
+            body['hours'] = body['hours'][0]
+            if body['hours'] == 'infinite':
+                body['hours'] = None
+            else:
+                body['hours'] = int(body['hours'])
             body['options'] = body['options'][0].split(',')
             body['file'] = body['file'][0]
+            body['start'] = body['start'][0]
+            status = 'not started'
             if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
                 user = Token.objects.get(key=token).user
             else:
                 user = request.user
-            end_date = timezone.now()
-            end_date += timezone.timedelta(hours=int(body['hours']))
+
+            end_date = None
             if body['file'] == 'undefined':
                 body['file'] = None
-            vote = Voting(title=body['title'],
-                          description=body['description'],
-                          user=user,
-                          image=body['file'],
-                          start_date=timezone.now(),
-                          end_date=end_date,
-                          status="active",
-                          type=0)
+            if body['start'] == 'now':
+                if body['hours']:
+                    end_date = timezone.now() + timezone.timedelta(hours=int(body['hours']))
+                body['start'] = timezone.now()
+                status = 'active'
+            elif body['hours']:
+                end_date = timezone.now() + timezone.timedelta(hours=int(body['hours']))
+            if end_date:
+                vote = Voting(title=body['title'],
+                              description=body['description'],
+                              user=user,
+                              image=body['file'],
+                              start_date=body['start'],
+                              end_date=end_date,
+                              status=status,
+                              type=0)
+            else:
+                vote = Voting(title=body['title'],
+                              description=body['description'],
+                              user=user,
+                              image=body['file'],
+                              start_date=body['start'],
+                              status=status,
+                              type=0)
             vote.save()
             for option in body['options']:
                 Options(text=option, voting=vote).save()
 
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        except:
-            return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+        # except:
+        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])

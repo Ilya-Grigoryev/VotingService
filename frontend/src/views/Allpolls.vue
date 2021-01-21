@@ -112,6 +112,7 @@ import Poll from '../components/Poll.vue'
             let start = new Date(vote.start_date)
             let end = new Date(vote.end_date)
             this.voting_list.unshift({
+                status: vote.status,
                 id: vote.id,
                 question: vote.title,
                 description: vote.description,

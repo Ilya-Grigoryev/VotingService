@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
 
 
 class Voting(models.Model):
@@ -10,8 +9,8 @@ class Voting(models.Model):
     description = models.TextField()
     image = models.ImageField(null=True, blank=True, upload_to='images/')
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    start_date = models.DateTimeField(default=timezone.now)
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField(null=True)
     status = models.TextField()
     type = models.SmallIntegerField()
 

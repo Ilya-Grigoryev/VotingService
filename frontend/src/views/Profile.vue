@@ -398,7 +398,7 @@
                       status: vote.status
                     })
                   }
-                  if (vote.user.id === Number(this.$route.params.id)) {
+                  if (this.user.id === Number(this.$route.params.id)) {
                     if (vote.status === 'active') {
                       this.voting_list_polls_active.unshift({
                         id: vote.id,
@@ -413,7 +413,7 @@
                         status: 'active'
                       })
                     }
-                    if (vote.status === 'not-started') {
+                    if (vote.status === 'not started') {
                       this.voting_list_polls_not_started.unshift({
                         id: vote.id,
                         question: vote.title,

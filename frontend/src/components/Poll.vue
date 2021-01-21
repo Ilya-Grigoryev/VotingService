@@ -42,12 +42,17 @@
             </u></div>
             <v-btn v-if="!finalResults && visibleResults"
                    @click="removeVote" depressed>remove vote</v-btn>
-            <div v-if="time.s >= 0">will end in: <br>
+            <div v-if="status === 'active'">will end in: <br>
                 <b>{{ time.h }} h.</b> <br>
                 <b>{{ time.m }} m.</b> <br>
                 <b>{{ time.s }} s.</b>
             </div>
-            <div v-else>
+            <div v-else-if="status === 'not started'">will start in: <br>
+                <b>{{ time.h }} h.</b> <br>
+                <b>{{ time.m }} m.</b> <br>
+                <b>{{ time.s }} s.</b>
+            </div>
+            <div v-else-if="status === 'ended'">
                 poll ended
             </div>
         </div>
@@ -59,6 +64,10 @@
     export default{
         name: 'Poll',
         props: {
+            status: {
+                type: String,
+                required: true
+            },
             author: {
                 type: Object,
                 required: true
@@ -165,12 +174,30 @@
         },
         methods: {
             getTime () {
-                let now = new Date(Date.now())
-                let delta = this.end_date - now
-                this.time.h = Math.floor((delta/1000)/3600)
-                this.time.m = Math.floor((delta/1000)%3600/60)
-                this.time.s = Math.floor((delta/1000)%60)
-                if (this.time.h < 0 || this.time.m < 0 || this.time.s < 0) {
+                if (this.status === 'active') {
+                    let now = new Date(Date.now())
+                    let delta = this.end_date - now
+                    this.time.h = Math.floor((delta / 1000) / 3600)
+                    this.time.m = Math.floor((delta / 1000) % 3600 / 60)
+                    this.time.s = Math.floor((delta / 1000) % 60)
+                    if (this.time.h < 0 || this.time.m < 0 || this.time.s < 0) {
+                        this.finalResults = true
+                        this.status = 'ended'
+                        clearInterval(this.interval)
+                    }
+                } else if (this.status === 'not started') {
+                    this.finalResults = true
+                    let now = new Date(Date.now())
+                    now.setHours(now.getHours() + 3)
+                    let delta = this.start_date - now
+                    this.time.h = Math.floor((delta / 1000) / 3600)
+                    this.time.m = Math.floor((delta / 1000) % 3600 / 60)
+                    this.time.s = Math.floor((delta / 1000) % 60)
+                    if (this.time.h < 0 || this.time.m < 0 || this.time.s < 0) {
+                        this.finalResults = false
+                        this.status = 'active'
+                    }
+                } else if (this.status === 'ended'){
                     this.finalResults = true
                     clearInterval(this.interval)
                 }
