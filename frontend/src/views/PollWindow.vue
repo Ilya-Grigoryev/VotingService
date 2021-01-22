@@ -1,6 +1,6 @@
 <template>
 <div>
-    {{voting}}
+
   <v-card  class="mx-auto pa-3 ma-3"
       elevation="4"
       outlined
@@ -682,7 +682,6 @@
         get_poll() {
           this.axios.get(`http://localhost:8000/api/voting/${this.$route.params.id}/`)
           .then(response => {
-            this.changed_voting = response.data
             let vote = response.data
             let answers = []
             let voted_answer = -1
@@ -698,11 +697,7 @@
               })
             }
             let start = new Date(vote.start_date)
-            let end
-            if (vote.end_date)
-                end = new Date(vote.end_date)
-            else
-                end = null
+            let end = new Date(vote.end_date)
             this.voting = {
               id: vote.id,
               question: vote.title,

@@ -151,9 +151,7 @@
                 </v-col>
             </v-row>
             <br>
-            <v-radio-group row>
-                <h3 class="mr-7">Options:   {{ options.length }}</h3>
-                <v-btn x-small @click="addOption">add option</v-btn>
+
             <v-radio-group row>
                       <h3 class="mr-12">Types:   </h3>
                       <v-radio
