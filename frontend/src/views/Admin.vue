@@ -65,7 +65,7 @@
                 :headers="headers"
                 :items="desserts"
                 :search="search_1"
-                :sort-by="['calories', 'fat']"
+                :sort-by="['user', 'id', 'date']"
                 :sort-desc="[false, true]"
                 multi-sort
                 class="elevation-1"
@@ -91,7 +91,7 @@
                 :headers="headers"
                 :items="desserts"
                 :search="search_2"
-                :sort-by="['calories', 'fat']"
+                :sort-by="['user', 'id', 'date']"
                 :sort-desc="[false, true]"
                 multi-sort
                 class="elevation-1"
@@ -117,7 +117,7 @@
                 :headers="headers"
                 :items="desserts"
                 :search="search_3"
-                :sort-by="['calories', 'fat']"
+                :sort-by="['user', 'id', 'date']"
                 :sort-desc="[false, true]"
                 multi-sort
                 class="elevation-1"
@@ -143,7 +143,7 @@
                 :headers="headers"
                 :items="desserts"
                 :search="search_4"
-                :sort-by="['calories', 'fat']"
+                :sort-by="['user', 'id', 'date']"
                 :sort-desc="[false, true]"
                 multi-sort
                 class="elevation-1"
