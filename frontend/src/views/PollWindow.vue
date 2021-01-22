@@ -1,5 +1,6 @@
 <template>
 <div>
+    {{voting}}
   <v-card  class="mx-auto pa-3 ma-3"
       elevation="4"
       outlined
@@ -9,7 +10,7 @@
         absolute
         dark
         prominent
-      >
+      ></v-app-bar>
         <v-spacer></v-spacer>
         <v-btn @click="$router.go(-1);"
                icon
@@ -19,7 +20,8 @@
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
       </v-btn>
 
-    <v-btn v-if="Number(this.voting.author.id) === user.id"
+    <v-btn v-if="Number(this.voting.author.id) === user.id
+                && voting.status === 'not started'"
         @click="end_vote()"
         dark
         color="red darken-3"
@@ -29,20 +31,16 @@
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
     <v-btn v-if="Number(this.voting.author.id) === user.id
-    //&& this.voting.status === 'not-started'
-                "
+            && this.voting.status === 'not started'"
         @click="start_vote()"
         dark
         color="teal"
-        style="position: absolute; right: 220px;">
+        style="position: absolute; right: 10px;">
       Start
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer</v-icon>
     </v-btn>
-    <v-dialog v-model="dialog" persistent max-width="800px"
-              v-if="Number(this.voting.author.id) === user.id
-              // && this.voting.status === 'not-started'
-              ">
+    <v-dialog v-model="dialog" persistent max-width="800px">
     <template v-slot:activator="{ on, attrs }">
     <v-btn
         @click="rewrite_vote()"
@@ -175,8 +173,6 @@
         color="red darken-3" style="position: absolute; right: 10px;">
       <v-icon> mdi-delete</v-icon>
     </v-btn>
-
-    </v-app-bar>
         <v-btn v-if="image_url === 'null'"
                @click="$router.go(-1);"
                dark
@@ -196,8 +192,7 @@
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
     <v-btn v-if="image_url === 'null' && Number(this.voting.author.id) === user.id
-    //&& this.voting.status === 'not-started'
-                "
+        && this.voting.status === 'not started'"
         @click="start_vote()"
         dark
         color="teal"
@@ -206,82 +201,121 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer</v-icon>
     </v-btn>
-<!--    <v-dialog v-model="dialog" persistent max-width="800px"-->
-<!--              v-if="Number(this.voting.author.id) === user.id-->
-<!--              // && this.voting.status === 'not-started'-->
-<!--              ">-->
-<!--    <template v-slot:activator="{ on, attrs }">-->
-<!--    <v-btn-->
-<!--        @click="rewrite_vote()"-->
-<!--        dark-->
-<!--        color="orange"-->
-<!--        style="position: absolute;-->
-<!--        right: 350px;"-->
-<!--        v-bind="attrs"-->
-<!--        v-on="on">-->
-<!--      <v-icon> mdi-pencil</v-icon>-->
-<!--    </v-btn>-->
-<!--        </template>-->
-<!--              <v-card>-->
-<!--                <v-card-title>-->
-<!--                    <v-btn icon outlined color="red" style="position: absolute; right: 10px;"-->
-<!--                        @click="dialog = false">-->
-<!--                        <v-icon color="red">-->
-<!--                            mdi-close-->
-<!--                        </v-icon>-->
-<!--                    </v-btn>-->
-<!--                  <span class="headline">Edit vote</span>-->
-<!--                </v-card-title>-->
-<!--                <v-card-text>-->
-<!--                    <v-text-field-->
-<!--                    v-model="title"-->
-<!--                    :error-messages="titleErrors"-->
-<!--                    label="New title"-->
-<!--                    required clearable-->
-<!--                    :counter="50"-->
-<!--                    @input="$v.title.$touch()"-->
-<!--                    @blur="$v.title.$touch()"-->
-<!--                  ></v-text-field>-->
+    <v-dialog v-model="dialog" persistent max-width="800px"
+              v-if="Number(this.voting.author.id) === user.id
+              // && this.voting.status === 'not-started'
+              ">
+    <template v-slot:activator="{ on, attrs }">
+    <v-btn
+        @click="rewrite_vote()"
+        dark
+        color="orange"
+        style="position: absolute;
+        right: 350px;"
+        v-bind="attrs"
+        v-on="on">
+      <v-icon> mdi-pencil</v-icon>
+    </v-btn>
+        </template>
+              <v-card>
+                <v-card-title>
+                    <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
+                        @click="dialog = false">
+                        <v-icon color="red">
+                            mdi-close
+                        </v-icon>
+                    </v-btn>
+                  <span class="headline">Edit vote</span>
+                </v-card-title>
+                <v-card-text>
+                    <v-text-field
+                    v-model="changed_voting.title"
+                    :error-messages="titleErrors"
+                    label="New title"
+                    required clearable
+                    :counter="50"
+                    @input="$v.title.$touch()"
+                    @blur="$v.title.$touch()"
+                  ></v-text-field>
 
-<!--                  <v-text-field-->
-<!--                    v-model="description"-->
-<!--                    :error-messages="descriptionErrors"-->
-<!--                    label="New description"-->
-<!--                    required clearable-->
-<!--                    @input="$v.description.$touch()"-->
-<!--                    @blur="$v.description.$touch()"-->
-<!--                  ></v-text-field>-->
+                  <v-text-field
+                    v-model="changed_voting.description"
+                    :error-messages="descriptionErrors"
+                    label="New description"
+                    required clearable
+                    @input="$v.description.$touch()"
+                    @blur="$v.description.$touch()"
+                  ></v-text-field>
 
-<!--                  <v-radio-group-->
-<!--                    v-model="hours"-->
-<!--                    row>-->
-<!--                      <h3 class="mr-12">Duration:</h3>-->
-<!--                    <v-radio-->
-<!--                      label="1 hour"-->
-<!--                      :value="1"-->
-<!--                      selected-->
-<!--                    ></v-radio>-->
-<!--                    <v-radio-->
-<!--                      label="3 hours"-->
-<!--                      :value="3"-->
-<!--                    ></v-radio>-->
-<!--                    <v-radio-->
-<!--                      label="6 hours"-->
-<!--                      :value="6"-->
-<!--                    ></v-radio>-->
-<!--                    <v-radio-->
-<!--                      label="1 day"-->
-<!--                      :value="24"-->
-<!--                    ></v-radio>-->
-<!--                    <v-radio-->
-<!--                      label="1 week"-->
-<!--                      :value="24*7"-->
-<!--                    ></v-radio>-->
-<!--                    <v-radio-->
-<!--                      label="Infinite"-->
-<!--                      :value="24*7*4*10000000"-->
-<!--                    ></v-radio>-->
-<!--                  </v-radio-group>-->
+                  <v-row>
+                    <v-col
+                      cols="11"
+                      sm="5"
+                    >
+                      <v-menu
+                        ref="menu"
+                        v-model="menu2"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        :return-value.sync="time"
+                        transition="scale-transition"
+                        offset-y
+                        max-width="290px"
+                        min-width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="time"
+                            label="Picker in menu"
+                            prepend-icon="mdi-clock-time-four-outline"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-time-picker
+                          v-if="menu2"
+                          v-model="time"
+                          full-width
+                          @click:minute="$refs.menu.save(time)"
+                        ></v-time-picker>
+                      </v-menu>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col
+                      cols="11"
+                      sm="5"
+                    >
+                      <v-menu
+                        ref="menu"
+                        v-model="menu2"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        :return-value.sync="time"
+                        transition="scale-transition"
+                        offset-y
+                        max-width="290px"
+                        min-width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="time"
+                            label="Picker in menu"
+                            prepend-icon="mdi-clock-time-four-outline"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-time-picker
+                          v-if="menu2"
+                          v-model="time"
+                          full-width
+                          @click:minute="$refs.menu.save(time)"
+                        ></v-time-picker>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
 
 <!--                              <v-radio-group row>-->
 <!--                      <h3 class="mr-12">Types:   </h3>-->
@@ -327,37 +361,37 @@
 <!--                      </v-list-item>-->
 <!--                  </v-list>-->
 
-<!--                  <v-row justify="space-between">-->
-<!--                      <v-col md="auto">-->
-<!--                          <h3 class="mr-7">Image:</h3>-->
-<!--                      </v-col>-->
-<!--                      <v-col>-->
-<!--                          <v-file-input accept="image/*"-->
-<!--                              label="Select image"-->
-<!--                              prepend-icon="mdi-camera"-->
-<!--                              outlined-->
-<!--                              dense-->
-<!--                              v-model="file"-->
-<!--                              @change="addFiles">-->
-<!--                          </v-file-input>-->
-<!--                      </v-col>-->
-<!--                  </v-row>-->
-<!--                  <v-img max-height="300"-->
-<!--                         contain-->
-<!--                         v-if="file"-->
-<!--                         :ref="'file'"-->
-<!--                         title="photo">-->
-<!--                  </v-img>-->
+                  <v-row justify="space-between">
+                      <v-col md="auto">
+                          <h3 class="mr-7">Image:</h3>
+                      </v-col>
+                      <v-col>
+                          <v-file-input accept="image/*"
+                              label="Select image"
+                              prepend-icon="mdi-camera"
+                              outlined
+                              dense
+                              v-model="file"
+                              @change="addFiles">
+                          </v-file-input>
+                      </v-col>
+                  </v-row>
+                  <v-img max-height="300"
+                         contain
+                         v-if="file"
+                         :ref="'file'"
+                         title="photo">
+                  </v-img>
 
-<!--                  <v-btn-->
-<!--                    color="purple"-->
-<!--                    outlined-->
-<!--                    @click="save_changes">-->
-<!--                    Save-->
-<!--                  </v-btn>-->
-<!--                </v-card-text>-->
-<!--              </v-card>-->
-<!--            </v-dialog>-->
+                  <v-btn
+                    color="purple"
+                    outlined
+                    @click="save_changes">
+                    Save
+                  </v-btn>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
 
     <v-btn v-if="image_url === 'null' && Number(this.voting.author.id) === user.id"
         @click="delete_vote()"
@@ -472,6 +506,8 @@
           }
         },
       data: () => ({
+        changed_voting: null,
+        dialog: false,
         voting: null,
         likes: 0,
         dislikes: 0,
@@ -588,7 +624,7 @@
           this.voting.status === 'ended'
         },
         rewrite_vote(){
-          this.voting.status === 'not-started'
+          this.voting.status === 'not-started changed'
         },
         start_vote(){
           this.voting.status === 'active'
@@ -646,6 +682,7 @@
         get_poll() {
           this.axios.get(`http://localhost:8000/api/voting/${this.$route.params.id}/`)
           .then(response => {
+            this.changed_voting = response.data
             let vote = response.data
             let answers = []
             let voted_answer = -1
@@ -661,7 +698,11 @@
               })
             }
             let start = new Date(vote.start_date)
-            let end = new Date(vote.end_date)
+            let end
+            if (vote.end_date)
+                end = new Date(vote.end_date)
+            else
+                end = null
             this.voting = {
               id: vote.id,
               question: vote.title,

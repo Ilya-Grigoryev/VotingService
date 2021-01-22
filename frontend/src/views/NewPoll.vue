@@ -57,9 +57,103 @@
               <v-radio
                   color="teal"
                   label="Infinite"
-                  :value="24*7*4*10000000"
+                  value="infinite"
               ></v-radio>
             </v-radio-group>
+            <v-row>
+                <v-col md="auto">
+                    <h3 class="mr-7">Start time:</h3>
+                    <v-checkbox
+                      v-model="start_now"
+                      label="Start now"
+                      hide-details
+                      class="shrink mr-2 mt-0"
+                    ></v-checkbox>
+                </v-col>
+                <v-col
+                  md="max"
+                >
+                  <v-menu
+                    ref="menu1"
+                    v-model="menu1"
+                    :close-on-content-click="false"
+                    :return-value.sync="date"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :disabled="start_now"
+                        v-model="date"
+                        label="Date"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="date"
+                      no-title
+                      scrollable
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="menu1 = false"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="$refs.menu1.save(date)"
+                      >
+                        OK
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                </v-col>
+                <v-col
+                  md="max"
+                >
+                  <v-menu
+                    ref="menu2"
+                    v-model="menu2"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="time"
+                    transition="scale-transition"
+                    offset-y
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :disabled="start_now"
+                        v-model="time"
+                        label="Time"
+                        prepend-icon="mdi-clock-time-four-outline"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="menu2"
+                      v-model="time"
+                      full-width
+                      @click:minute="$refs.menu2.save(time)"
+                    ></v-time-picker>
+                  </v-menu>
+                </v-col>
+            </v-row>
+            <br>
+            <v-radio-group row>
+                <h3 class="mr-7">Options:   {{ options.length }}</h3>
+                <v-btn x-small @click="addOption">add option</v-btn>
             <v-radio-group row>
                       <h3 class="mr-12">Types:   </h3>
                       <v-radio
@@ -185,6 +279,11 @@
             }
         },
         data: () => ({
+            start_now: true,
+            menu1: false,
+            menu2: false,
+            date: '',
+            time: '',
             title: '',
             description: '',
             hours: 1,
@@ -263,6 +362,10 @@
                 formData.append('options', this.options)
                 formData.append('hours', this.hours)
                 formData.append('options', this.options)
+                if (!this.start_now)
+                    formData.append('start', `${this.date} ${this.time}`)
+                else
+                    formData.append('start', 'now')
                 this.axios.post(
                     'http://localhost:8000/api/voting/',
                     formData,
@@ -271,7 +374,7 @@
                     }
                 ).then(response => {
                     if (response.data.status === 200) {
-                        this.$router.push('/')
+                        this.$router.push('/all-polls')
                     }
                     else window.alert(response.data.description)
                 })
