@@ -26,6 +26,7 @@
         v-model="picker"
         color="teal"
         width="99%"
+        @click="date()"
       ></v-date-picker>
       </v-col>
             <v-divider vertical></v-divider>
@@ -102,6 +103,8 @@
       fill: false,
       type: 'trend',
       autoLineWidth: false,
+      date: new Date(),
+      time: new Date(),
       items: [
         {
           src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
@@ -119,6 +122,9 @@
       picker: new Date().toISOString().substr(0, 10),
     }),
     methods: {
+      date(){
+      new Date().toISOString().substr(0, 10)
+      },
       sparkline_of_polls(){
         this.axios.get('http://localhost:8000/api/voting/')
               .then(response => {

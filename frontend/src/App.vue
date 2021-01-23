@@ -78,7 +78,7 @@
         <template v-slot:append>
           <v-list>
 
-            <v-list-item link @click="$router.push(`/settings`)" >
+            <v-list-item link to="/settings" >
               <v-list-item-icon>
                 <v-icon>mdi-cog-outline</v-icon>
               </v-list-item-icon>

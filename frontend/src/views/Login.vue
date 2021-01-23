@@ -22,7 +22,8 @@
                 @blur="$v.password.$touch()"
             ></v-text-field>
 
-            <v-btn
+            <v-btn color="purple"
+                    outlined
                     class="mr-4"
                     @click="submit"
                     width="25%">

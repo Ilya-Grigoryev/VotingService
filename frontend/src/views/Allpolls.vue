@@ -12,6 +12,7 @@
                         v-model="request"
                         hide-details
                         label="Search"
+                        required clearable
                         single-line
               ></v-text-field>
           </v-col>

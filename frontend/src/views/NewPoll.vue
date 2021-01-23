@@ -29,27 +29,33 @@
               row>
                 <h3 class="mr-12">Duration:</h3>
               <v-radio
-                label="1 hour"
-                :value="1"
-                selected
+                  color="teal"
+                  label="1 hour"
+                  :value="1"
+                  selected
               ></v-radio>
               <v-radio
-                label="3 hours"
-                :value="3"
+                  color="teal"
+                  label="3 hours"
+                  :value="3"
               ></v-radio>
               <v-radio
-                label="6 hours"
-                :value="6"
+                  color="teal"
+                  label="6 hours"
+                  :value="6"
               ></v-radio>
               <v-radio
-                label="1 day"
-                :value="24"
+                  color="teal"
+                  label="1 day"
+                  :value="24"
               ></v-radio>
               <v-radio
-                label="1 week"
-                :value="24*7"
+                  color="teal"
+                  label="1 week"
+                  :value="24*7"
               ></v-radio>
               <v-radio
+                  color="teal"
                   label="Infinite"
                   value="infinite"
               ></v-radio>
@@ -145,11 +151,66 @@
                 </v-col>
             </v-row>
             <br>
+
             <v-radio-group row>
-                <h3 class="mr-7">Options:   {{ options.length }}</h3>
-                <v-btn x-small @click="addOption">add option</v-btn>
+                      <h3 class="mr-12">Types:   </h3>
+                      <v-radio
+                          v-if="this.savingType === false"
+                          color="teal"
+                          @click="one_of_all"
+                          label="One of all"
+                      ></v-radio>
+                      <v-radio
+                          v-if="this.savingType === false"
+                          color="teal"
+                          @click="some_of_all"
+                          label="Some of all"
+                      ></v-radio>
+                      <v-radio
+                          v-if="this.savingType === false"
+                          color="teal"
+                          @click="true_false"
+                          label="True/False"
+                      ></v-radio>
+                      <v-btn v-if="this.savingType === false" color="teal" dark x-small @click="saveType">save type</v-btn>
+                      <v-btn v-if="this.savingType === true" color="teal" dark x-small @click="removeType">remove type</v-btn>
             </v-radio-group>
-            <v-list>
+            <v-radio-group row >
+                      <h3 class="mr-3">Options:  </h3>
+                      <v-icon class="mr-7">{{ options.length }}</v-icon>
+                      <v-btn dark color="teal" x-small @click="addOption">add option</v-btn>
+            </v-radio-group>
+            <v-list v-if="this.one  === true">
+                <v-list-item v-for="(option, ind) of options" :key="ind">
+                    <v-text-field
+                        v-model="options[ind]"
+                        :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
+                        @input="$v.options.$each[ind].$touch()"
+                        @blur="$v.options.$each[ind].$touch()"
+                        label="Option"
+                        required clearable
+                    ></v-text-field>
+                    <v-btn icon large @click="removeOption(ind)">
+                        <v-icon color="red">mdi-close-box</v-icon>
+                    </v-btn>
+                </v-list-item>
+            </v-list>
+            <v-list v-if="this.some === true">
+                <v-list-item v-for="(option, ind) of options" :key="ind">
+                    <v-text-field
+                        v-model="options[ind]"
+                        :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
+                        @input="$v.options.$each[ind].$touch()"
+                        @blur="$v.options.$each[ind].$touch()"
+                        label="Option"
+                        required clearable
+                    ></v-text-field>
+                    <v-btn icon large @click="removeOption(ind)">
+                        <v-icon color="red">mdi-close-box</v-icon>
+                    </v-btn>
+                </v-list-item>
+            </v-list>
+            <v-list v-if="this.true_false === true">
                 <v-list-item v-for="(option, ind) of options" :key="ind">
                     <v-text-field
                         v-model="options[ind]"
@@ -227,8 +288,39 @@
             options: [''],
             file: null,
             reader: null,
+            one: true,
+            some: false,
+            true_false: false,
+            savingType: false,
         }),
         methods: {
+          removeType(){
+            this.savingType === false
+          },
+          saveType(){
+            this.savingType === true
+            if(this.one === true){
+              this.some === false
+              this.true_false === false
+            }
+            if(this.some === true){
+              this.one === false
+              this.true_false === false
+            }
+            if(this.true_false === true){
+              this.one === false
+              this.some === false
+            }
+          },
+          one_of_all() {
+            this.one === true
+          },
+          some_of_all() {
+            this.some === true
+          },
+          true_false() {
+            this.true_false === true
+          },
             addFiles(){
                     this.reader = new FileReader();
                     this.reader.onloadend = () => {
@@ -265,6 +357,7 @@
                 formData.append('file', this.file)
                 formData.append('title', this.title)
                 formData.append('description', this.description)
+                formData.append('options', this.options)
                 formData.append('hours', this.hours)
                 formData.append('options', this.options)
                 if (!this.start_now)

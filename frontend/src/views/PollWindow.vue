@@ -1,18 +1,12 @@
 <template>
 <div>
-    {{voting}}
   <v-card  class="mx-auto pa-3 ma-3"
       elevation="4"
       outlined
       width="65%">
-    <v-app-bar
-        v-if="image_url !== 'null' && image_url !== '/media/null'" :src="`http://localhost:8000${image_url}`"
-        absolute
-        dark
-        prominent
-      ></v-app-bar>
+    <div>
         <v-spacer></v-spacer>
-        <v-btn @click="$router.go(-1);"
+              <v-btn @click="$router.go(-1);"
                icon
                depressed
                dark
@@ -21,19 +15,21 @@
       </v-btn>
 
     <v-btn
+        v-if="voting.author.id === user.id &&
+            (voting.status === 'active' || voting.status === 'infinite')"
         @click="end_vote()"
         dark
-        color="red darken-3"
-        style="position: absolute; right: 90px;">
+        color="red darken-3">
       Finish
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
     <v-btn
+        v-if="voting.author.id === user.id &&
+            voting.status === 'not started'"
         @click="start_vote()"
         dark
-        color="teal"
-        style="position: absolute; right: 10px;">
+        color="teal">
       Start
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer</v-icon>
@@ -41,11 +37,11 @@
     <v-dialog v-model="dialog" persistent max-width="800px">
     <template v-slot:activator="{ on, attrs }">
     <v-btn
+        v-if="voting.author.id === user.id &&
+            voting.status === 'not started'"
         @click="rewrite_vote()"
         dark
         color="orange"
-        style="position: absolute;
-        right: 350px;"
         v-bind="attrs"
         v-on="on">
       <v-icon> mdi-pencil</v-icon>
@@ -166,6 +162,7 @@
             </v-dialog>
 
     <v-btn
+        v-if="voting.author.id === user.id"
         @click="delete_vote()"
         dark
         color="red darken-3" style="position: absolute; right: 10px;">
@@ -179,203 +176,8 @@
        style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
     </v-btn>
-    {{Number(voting.author.id)}} | {{user.id}}
-    <v-btn
-        @click="end_vote()"
-        dark
-        color="red darken-3"
-        style="position: absolute; right: 90px;">
-      Finish
-      <v-divider vertical></v-divider>
-      <v-icon> mdi-timer-off</v-icon>
-    </v-btn>
-    <v-btn
-        @click="start_vote()"
-        dark
-        color="teal"
-        style="position: absolute; right: 220px;">
-      Start
-      <v-divider vertical></v-divider>
-      <v-icon> mdi-timer</v-icon>
-    </v-btn>
-    <v-dialog v-model="dialog" persistent max-width="800px">
-    <template v-slot:activator="{ on, attrs }">
-    <v-btn
-        @click="rewrite_vote()"
-        dark
-        color="orange"
-        style="position: absolute;
-        right: 350px;"
-        v-bind="attrs"
-        v-on="on">
-      <v-icon> mdi-pencil</v-icon>
-    </v-btn>
-        </template>
-              <v-card>
-                <v-card-title>
-                    <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
-                        @click="dialog = false">
-                        <v-icon color="red">
-                            mdi-close
-                        </v-icon>
-                    </v-btn>
-                  <span class="headline">Edit vote</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-text-field
-                    v-model="changed_voting.title"
-                    :error-messages="titleErrors"
-                    label="New title"
-                    required clearable
-                    :counter="50"
-                    @input="$v.title.$touch()"
-                    @blur="$v.title.$touch()"
-                  ></v-text-field>
-
-                  <v-text-field
-                    v-model="changed_voting.description"
-                    :error-messages="descriptionErrors"
-                    label="New description"
-                    required clearable
-                    @input="$v.description.$touch()"
-                    @blur="$v.description.$touch()"
-                  ></v-text-field>
-
-                  <v-row>
-                    <v-col
-                      cols="11"
-                      sm="5"
-                    >
-                      <v-menu
-                        ref="menu"
-                        v-model="menu2"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        :return-value.sync="time"
-                        transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="time"
-                            label="Picker in menu"
-                            prepend-icon="mdi-clock-time-four-outline"
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-time-picker
-                          v-if="menu2"
-                          v-model="time"
-                          full-width
-                          @click:minute="$refs.menu.save(time)"
-                        ></v-time-picker>
-                      </v-menu>
-                    </v-col>
-                    <v-spacer></v-spacer>
-                    <v-col
-                      cols="11"
-                      sm="5"
-                    >
-                      <v-menu
-                        ref="menu"
-                        v-model="menu2"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        :return-value.sync="time"
-                        transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="time"
-                            label="Picker in menu"
-                            prepend-icon="mdi-clock-time-four-outline"
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-time-picker
-                          v-if="menu2"
-                          v-model="time"
-                          full-width
-                          @click:minute="$refs.menu.save(time)"
-                        ></v-time-picker>
-                      </v-menu>
-                    </v-col>
-                  </v-row>
-
-                  <br>
-                  <v-radio-group row>
-                      <h3 class="mr-7">Options:   {{ options.length }}</h3>
-                      <v-btn x-small @click="addOption">add option</v-btn>
-                  </v-radio-group>
-                  <v-list>
-                      <v-list-item v-for="(option, ind) of options" :key="ind">
-                          <v-text-field
-                              v-model="options[ind]"
-                              :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
-                              @input="$v.options.$each[ind].$touch()"
-                              @blur="$v.options.$each[ind].$touch()"
-                              label="Option"
-                              required clearable
-                          ></v-text-field>
-                          <v-btn icon large @click="removeOption(ind)">
-                              <v-icon color="red">mdi-close-box</v-icon>
-                          </v-btn>
-                      </v-list-item>
-                  </v-list>
-
-                  <v-row justify="space-between">
-                      <v-col md="auto">
-                          <h3 class="mr-7">Image:</h3>
-                      </v-col>
-                      <v-col>
-                          <v-file-input accept="image/*"
-                              label="Select image"
-                              prepend-icon="mdi-camera"
-                              outlined
-                              dense
-                              v-model="file"
-                              @change="addFiles">
-                          </v-file-input>
-                      </v-col>
-                  </v-row>
-                  <v-img max-height="300"
-                         contain
-                         v-if="file"
-                         :ref="'file'"
-                         title="photo">
-                  </v-img>
-
-                  <v-btn
-                    color="purple"
-                    outlined
-                    @click="save_changes">
-                    Save
-                  </v-btn>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-
-    <v-btn v-if="image_url === 'null' && Number(this.voting.author.id) === user.id"
-        @click="delete_vote()"
-        dark
-        color="red darken-3" style="position: absolute; right: 10px;">
-      <v-icon> mdi-delete</v-icon>
-    </v-btn>
-
-    <br v-if="image_url !== 'null' && image_url !== '/media/null'">
-    <br v-if="image_url !== 'null' && image_url !== '/media/null'">
-    <br v-if="image_url !== 'null' && image_url !== '/media/null'">
-    <br v-if="image_url !== 'null' && image_url !== '/media/null'">
-    <br v-if="image_url !== 'null' && image_url !== '/media/null'">
+    </div>
+      <br>
     <Poll v-if="voting" v-bind="voting" :user="user"/>
     <br>
     <v-progress-linear
@@ -438,6 +240,12 @@
             <v-btn class="mx-2" :color="liked? 'green':'grey'" @click="like()">
               <v-icon dark>mdi-thumb-up</v-icon> <h2 class="ml-3">{{ likes }}</h2>
             </v-btn>
+          </v-col>
+          <v-col v-if="image_url !== 'null' && image_url !== '/image/null'">
+            <v-img max-height="150"
+                    max-width="250"
+                    :src="`http://localhost:8000${image_url}`">
+            </v-img>
           </v-col>
           <v-col>
             <v-btn class="mx-2" :color="disliked? 'red':'grey'" @click="dislike()">
@@ -563,13 +371,39 @@
           })
         },
         end_vote(){
-          this.voting.status === 'ended'
+            this.axios.post(`https://localhost:8000/api/end_vote/`,
+                {
+                    poll_id: this.voting.poll_id,
+                },
+                { headers: { Authorization: `Token ${this.user.token}` } }
+            ).then(response => {
+                if (response.data.status === 200)
+                    this.voting.status === 'ended'
+                else
+                    window.alert(response.data.description)
+
+            })
         },
         rewrite_vote(){
-          this.voting.status === 'not-started changed'
+          console.log('rewriting...')
         },
         start_vote(){
-          this.voting.status === 'active'
+          this.axios.post(`https://localhost:8000/api/end_vote/`,
+                {
+                    poll_id: this.voting.poll_id,
+                },
+                { headers: { Authorization: `Token ${this.user.token}` } }
+          ).then(response => {
+                if (response.data.status === 200) {
+                    if (this.voting.end_date)
+                        this.voting.status === 'active'
+                    else
+                        this.voting.status === 'infinite'
+                }
+                else
+                    window.alert(response.data.description)
+
+          })
         },
         send_comment() {
           this.axios.post(
