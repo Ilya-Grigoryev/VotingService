@@ -84,6 +84,9 @@
                   >
                     <template v-slot:activator="{ on, attrs }">
                       <v-text-field
+                        :error-messages="date === '' ? ['Date is required.'] : []"
+                        @input="$v.date.$touch()"
+                        @blur="$v.date.$touch()"
                         :disabled="start_now"
                         v-model="date"
                         label="Date"
@@ -132,6 +135,9 @@
                   >
                     <template v-slot:activator="{ on, attrs }">
                       <v-text-field
+                        :error-messages="time === '' ? ['Time is required.'] : []"
+                        @input="$v.time.$touch()"
+                        @blur="$v.time.$touch()"
                         :disabled="start_now"
                         v-model="time"
                         label="Time"
@@ -150,31 +156,31 @@
                   </v-menu>
                 </v-col>
             </v-row>
-            <br>
-
-            <v-radio-group row>
-                      <h3 class="mr-12">Types:   </h3>
-                      <v-radio
-                          v-if="this.savingType === false"
-                          color="teal"
-                          @click="one_of_all"
-                          label="One of all"
-                      ></v-radio>
-                      <v-radio
-                          v-if="this.savingType === false"
-                          color="teal"
-                          @click="some_of_all"
-                          label="Some of all"
-                      ></v-radio>
-                      <v-radio
-                          v-if="this.savingType === false"
-                          color="teal"
-                          @click="true_false"
-                          label="True/False"
-                      ></v-radio>
-                      <v-btn v-if="this.savingType === false" color="teal" dark x-small @click="saveType">save type</v-btn>
-                      <v-btn v-if="this.savingType === true" color="teal" dark x-small @click="removeType">remove type</v-btn>
-            </v-radio-group>
+<!--            <br>-->
+<!---->
+<!--            <v-radio-group row>-->
+<!--                      <h3 class="mr-12">Types:   </h3>-->
+<!--                      <v-radio-->
+<!--                          v-if="this.savingType === false"-->
+<!--                          color="teal"-->
+<!--                          @click="one_of_all"-->
+<!--                          label="One of all"-->
+<!--                      ></v-radio>-->
+<!--                      <v-radio-->
+<!--                          v-if="this.savingType === false"-->
+<!--                          color="teal"-->
+<!--                          @click="some_of_all"-->
+<!--                          label="Some of all"-->
+<!--                      ></v-radio>-->
+<!--                      <v-radio-->
+<!--                          v-if="this.savingType === false"-->
+<!--                          color="teal"-->
+<!--                          @click="true_false"-->
+<!--                          label="True/False"-->
+<!--                      ></v-radio>-->
+<!--                      <v-btn v-if="this.savingType === false" color="teal" dark x-small @click="saveType">save type</v-btn>-->
+<!--                      <v-btn v-if="this.savingType === true" color="teal" dark x-small @click="removeType">remove type</v-btn>-->
+<!--            </v-radio-group>-->
             <v-radio-group row >
                       <h3 class="mr-3">Options:  </h3>
                       <v-icon class="mr-7">{{ options.length }}</v-icon>
@@ -274,7 +280,9 @@
             options: {
                 required,
                 $each: { required }
-            }
+            },
+            date: { required },
+            time: { required },
         },
         data: () => ({
             start_now: true,

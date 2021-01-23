@@ -6,10 +6,9 @@ from api.models import Voting, VotedUsers, Profile
 
 
 def serialize_vote(vote) -> Dict[str, Any]:
-    if vote.status == 'active' and vote.end_date:
-        if vote.end_date < timezone.now() + timezone.timedelta(hours=3):
+    if vote.status == 'active':
+        if vote.end_date and vote.end_date < timezone.now() + timezone.timedelta(hours=3):
             vote.status = 'ended'
-            vote.save()
     elif vote.status == 'not started' and vote.start_date < timezone.now() + timezone.timedelta(hours=3):
         vote.status = 'active'
         vote.save()

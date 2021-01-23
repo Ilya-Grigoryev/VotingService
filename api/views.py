@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -80,6 +82,10 @@ def voting_req(request):
             body['options'] = body['options'][0].split(',')
             body['file'] = body['file'][0]
             body['start'] = body['start'][0]
+            if body['start'] == 'now':
+                body['start'] = timezone.now() + timezone.timedelta(hours=3)
+            else:
+                body['start'] = datetime.datetime.strptime(body['start'], "%Y-%m-%d %H:%M")
             status = 'not started'
             if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
@@ -91,12 +97,10 @@ def voting_req(request):
             if body['file'] == 'undefined':
                 body['file'] = None
             if body['start'] == 'now':
-                if body['hours']:
-                    end_date = timezone.now() + timezone.timedelta(hours=int(body['hours']))
-                body['start'] = timezone.now()
-                status = 'active'
-            elif body['hours']:
-                end_date = timezone.now() + timezone.timedelta(hours=int(body['hours']))
+                body['start'] = timezone.now() + timezone.timedelta(hours=3)
+
+            if body['hours']:
+                end_date = body['start'] + timezone.timedelta(hours=int(body['hours']))
             if end_date:
                 vote = Voting(title=body['title'],
                               description=body['description'],
@@ -486,6 +490,49 @@ def delete_poll_req(request):
             else:
                 user = request.user
             Voting.objects.get(user=user, id=body['poll_id']).delete()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def end_poll_req(request):
+    if request.method == 'POST':
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            voting = Voting.objects.get(id=body['poll_id'])
+            if voting.status == "active" or voting.status == "infinite":
+                voting.end_date = timezone.now()
+                voting.status = "ended"
+                voting.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def start_poll_req(request):
+    if request.method == 'POST':
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            voting = Voting.objects.get(id=body['poll_id'])
+            if voting.status == "not started":
+                voting.start_date = timezone.now()
+                if voting.end_date:
+                    voting.status = "active"
+                else:
+                    voting.status = "infinite"
+                voting.save()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

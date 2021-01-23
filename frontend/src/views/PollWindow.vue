@@ -19,9 +19,9 @@
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
       </v-btn>
 
-    <v-btn v-if="Number(this.voting.author.id) === user.id
-          && this.voting.status === 'active'
-              "
+    <v-btn
+        v-if="voting.author.id === user.id &&
+            (voting.status === 'active' || voting.status === 'infinite')"
         @click="end_vote()"
         dark
         color="red darken-3"
@@ -30,9 +30,9 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-    <v-btn v-if="Number(this.voting.author.id) === user.id
-              && this.voting.status === 'not started'
-              "
+    <v-btn
+        v-if="voting.author.id === user.id &&
+            voting.status === 'not started'"
         @click="start_vote()"
         dark
         color="teal"
@@ -41,12 +41,11 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer</v-icon>
     </v-btn>
-    <v-dialog v-model="dialog" persistent max-width="800px"
-              v-if="Number(this.voting.author.id) === user.id
-              && this.voting.status === 'not started'
-              ">
+    <v-dialog v-model="dialog" persistent max-width="800px">
     <template v-slot:activator="{ on, attrs }">
     <v-btn
+        v-if="voting.author.id === user.id &&
+            voting.status === 'not started'"
         @click="rewrite_vote()"
         dark
         color="orange"
@@ -69,7 +68,7 @@
                 </v-card-title>
                 <v-card-text>
                     <v-text-field
-                    v-model="changed_voting.title"
+                    v-model="title"
                     :error-messages="titleErrors"
                     label="New title"
                     required clearable
@@ -79,7 +78,7 @@
                   ></v-text-field>
 
                   <v-text-field
-                    v-model="changed_voting.description"
+                    v-model="description"
                     :error-messages="descriptionErrors"
                     label="New description"
                     required clearable
@@ -87,75 +86,36 @@
                     @blur="$v.description.$touch()"
                   ></v-text-field>
 
-                  <v-row>
-                    <v-col
-                      cols="11"
-                      sm="5"
-                    >
-                      <v-menu
-                        ref="menu"
-                        v-model="menu2"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        :return-value.sync="time"
-                        transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="time"
-                            label="Picker in menu"
-                            prepend-icon="mdi-clock-time-four-outline"
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-time-picker
-                          v-if="menu2"
-                          v-model="time"
-                          full-width
-                          @click:minute="$refs.menu.save(time)"
-                        ></v-time-picker>
-                      </v-menu>
-                    </v-col>
-                    <v-spacer></v-spacer>
-                    <v-col
-                      cols="11"
-                      sm="5"
-                    >
-                      <v-menu
-                        ref="menu"
-                        v-model="menu2"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        :return-value.sync="time"
-                        transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="time"
-                            label="Picker in menu"
-                            prepend-icon="mdi-clock-time-four-outline"
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-time-picker
-                          v-if="menu2"
-                          v-model="time"
-                          full-width
-                          @click:minute="$refs.menu.save(time)"
-                        ></v-time-picker>
-                      </v-menu>
-                    </v-col>
-                  </v-row>
+                  <v-radio-group
+                    v-model="hours"
+                    row>
+                      <h3 class="mr-12">Duration:</h3>
+                    <v-radio
+                      label="1 hour"
+                      :value="1"
+                      selected
+                    ></v-radio>
+                    <v-radio
+                      label="3 hours"
+                      :value="3"
+                    ></v-radio>
+                    <v-radio
+                      label="6 hours"
+                      :value="6"
+                    ></v-radio>
+                    <v-radio
+                      label="1 day"
+                      :value="24"
+                    ></v-radio>
+                    <v-radio
+                      label="1 week"
+                      :value="24*7"
+                    ></v-radio>
+                    <v-radio
+                      label="Infinite"
+                      :value="24*7*4*10000000"
+                    ></v-radio>
+                  </v-radio-group>
 
                   <br>
                   <v-radio-group row>
@@ -210,7 +170,8 @@
               </v-card>
             </v-dialog>
 
-    <v-btn v-if="Number(this.voting.author.id) === user.id"
+    <v-btn
+        v-if="voting.author.id === user.id"
         @click="delete_vote()"
         dark
         color="red darken-3" style="position: absolute; right: 10px;">
@@ -222,7 +183,18 @@
     <br v-if="image_url !== 'null' && image_url !== '/media/null'">
     <br v-if="image_url !== 'null' && image_url !== '/media/null'">
     <br v-if="image_url !== 'null' && image_url !== '/media/null'">
-    <Poll v-if="voting" v-bind="voting" :user="user"/>
+<!--    <v-btn-->
+<!--       @click="$router.go(-1);"-->
+<!--       dark-->
+<!--       color="teal"-->
+<!--       depressed-->
+<!--       style="position: absolute; left: 10px;">-->
+<!--      <v-icon>mdi-arrow-left-bold-outline</v-icon>-->
+<!--    </v-btn>-->
+      <br>
+    <Poll v-if="voting" v-bind="voting" :user="user"
+          @start="(new_status) => (voting.status = new_status)"
+          @end="voting.status = 'ended'"/>
     <br>
     <v-progress-linear
       color="cyan darken-2"
@@ -323,6 +295,8 @@
           }
         },
       data: () => ({
+        menu1: false,
+        menu2: false,
         changed_voting: null,
         dialog: false,
         voting: null,
@@ -382,7 +356,7 @@
               'http://localhost:8000/api/voting/',
               formData,
               {
-                headers: {Authorization: `Token ${this.user.token}`}
+                headers: { Authorization: `Token ${this.user.token}`}
               }
           ).then(response => {
             if (response.data.status === 200) {
@@ -407,13 +381,47 @@
           })
         },
         end_vote(){
-          this.voting.status === 'ended'
+            this.axios.post(`http://localhost:8000/api/end_poll/`,
+                {
+                    poll_id: this.voting.id,
+                },
+                { headers: { Authorization: `Token ${this.user.token}` } }
+            ).then(response => {
+                if (response.data.status === 200) {
+                    this.voting.status = 'ended'
+                    this.get_poll()
+                }
+                else
+                    window.alert(response.data.description)
+
+            })
         },
         rewrite_vote(){
-          this.voting.status === 'not started'
+          console.log('rewriting...')
         },
         start_vote(){
-          this.voting.status === 'active'
+          console.log('start')
+          this.axios.post(`http://localhost:8000/api/start_poll/`,
+                {
+                    poll_id: this.voting.id,
+                },
+                {
+                    headers: { Authorization: `Token ${this.user.token}` }
+                }
+          ).then(response => {
+                if (response.data.status === 200) {
+                    if (this.voting.end_date) {
+                        this.voting.status = 'active'
+                    }
+                    else
+                        this.voting.status = 'infinite'
+                    this.get_poll()
+                    this.voting.visibleResults = true
+                }
+                else
+                    window.alert(response.data.description)
+
+          })
         },
         send_comment() {
           this.axios.post(
@@ -484,11 +492,13 @@
               })
             }
             let start = new Date(vote.start_date)
-            let end
-            if (vote.end_date)
-                end = new Date(vote.end_date)
-            else
-                end = null
+            start.setHours(start.getHours()-3)
+              let end
+              if (vote.end_date) {
+                  end = new Date(vote.end_date)
+                  end.setHours(end.getHours() - 3)
+              } else
+                  end = null
             this.voting = {
               id: vote.id,
               question: vote.title,
