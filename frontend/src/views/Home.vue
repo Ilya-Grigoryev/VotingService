@@ -123,7 +123,7 @@
     }),
     methods: {
       date(){
-
+      new Date().toISOString().substr(0, 10)
       },
       sparkline_of_polls(){
         this.axios.get('http://localhost:8000/api/voting/')

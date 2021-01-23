@@ -66,23 +66,23 @@
             <form class="mx-auto pa-3 ma-3">
       <v-text-field
         type="password"
-        v-model="password_1"
-        :error-messages="password_1Errors"
+        v-model="old_password"
+        :error-messages="old_passwordErrors"
         :counter="10"
         label="Old password"
         required
-        @input="$v.password_1.$touch()"
-        @blur="$v.password_1.$touch()"
+        @input="$v.old_password.$touch()"
+        @blur="$v.old_password.$touch()"
       ></v-text-field>
       <v-text-field
          type="password"
-         v-model="password_2"
-         :error-messages="password_2Errors"
+         v-model="new_password"
+         :error-messages="new_passwordErrors"
          :counter="10"
          label="New password"
          required
-         @input="$v.password_2.$touch()"
-         @blur="$v.password_2.$touch()"
+         @input="$v.new_password.$touch()"
+         @blur="$v.new_password.$touch()"
       ></v-text-field>
       <v-checkbox
         v-model="checkbox"
@@ -112,8 +112,8 @@ export default {
   name: "Settings",
   props: ['user', 'id', 'admin'],
   validations: {
-    password_1: {required},
-    password_2: {required},
+    old_password: {required},
+    new_password: {required},
     admin_password: {required},
     checkbox: {
       checked (val) {
@@ -122,8 +122,8 @@ export default {
       },
   },
   data: () => ({
-    password_1: '',
-    password_2: '',
+    old_password: '',
+    new_password: '',
     admin_password: '',
     dialog: false,
     checkbox: false,
@@ -133,21 +133,21 @@ export default {
       const errors = []
       if (!this.$v.checkbox.$dirty) return errors
       !this.$v.checkbox.checked && errors.push('You must agree to continue!')
-      this.password_1 === this.password_2 && errors.push('Passwords match')
-      //this.password_1 !== this.user.password && errors.push('Old passwords don\'t match')
-      !this.$v.password_1.required && !this.$v.password_2.required && errors.push('Passwords aren\'t entered')
+      this.old_password === this.new_password && errors.push('Passwords match')
+      //this.old_password !== this.user.password && errors.push('Old passwords don\'t match')
+      !this.$v.old_password.required && !this.$v.new_password.required && errors.push('Passwords aren\'t entered')
       return errors
     },
-    password_1Errors() {
+    old_passwordErrors() {
       const errors = []
-      if (!this.$v.password_1.$dirty) return errors
-      !this.$v.password_1.required && errors.push('Password is required')
+      if (!this.$v.old_password.$dirty) return errors
+      !this.$v.old_password.required && errors.push('Password is required')
       return errors
     },
-    password_2Errors() {
+    new_passwordErrors() {
       const errors = []
-      if (!this.$v.password_2.$dirty) return errors
-      !this.$v.password_2.required && errors.push('Password is required')
+      if (!this.$v.new_password.$dirty) return errors
+      !this.$v.new_password.required && errors.push('Password is required')
       return errors
     },
     admin_passwordErrors() {
@@ -159,23 +159,22 @@ export default {
         },
   },
   methods: {
-    enter() { },
     submit() {
         this.$v.$touch()
                 if (!this.$v.$invalid) {
                     this.axios.post(`http://localhost:8000/api/change_password/`,
                         {
-                           old_password: this.password_1,
-                           new_password: this.password_2
+                           old_password: this.old_password,
+                           new_password: this.new_password
                         },
                         {
                         headers: { Authorization: `Token ${this.user.token}` }
                         }
                     ).then(response => {
                         if (response.data.status === 200) {
-                            this.password = response.data.password_2,
-                            this.user.password = response.data.password_2
-                            this.$router.push('/')
+                            this.new_password = response.data.new_password,
+                            this.user.password = response.data.new_password
+
                         }
                         else window.alert(response.data.description)
                     })

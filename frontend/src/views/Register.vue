@@ -56,7 +56,8 @@
                 @input="$v.repeatPassword.$touch()"
                 @blur="$v.repeatPassword.$touch()"
             ></v-text-field>
-            <v-btn
+            <v-btn color="purple"
+                outlined
                 class="mr-4"
                 @click="register"
                 width="25%">
