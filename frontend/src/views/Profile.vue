@@ -398,7 +398,7 @@
                       status: vote.status
                     })
                   }
-                  if (this.user.id === Number(this.$route.params.id)) {
+                  if (vote.user.id === Number(this.$route.params.id)) {
                     if (vote.status === 'active') {
                       this.voting_list_polls_active.unshift({
                         id: vote.id,
@@ -489,6 +489,11 @@
             $route (){
                 this.get_voting_list()
                 this.loadProfile()
+                window.scrollTo({
+                  top: 0,
+                  left: 0,
+                  behavior: 'smooth'
+                });
             }
         }
     }
