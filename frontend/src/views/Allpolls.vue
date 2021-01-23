@@ -111,7 +111,13 @@ import Poll from '../components/Poll.vue'
               })
             }
             let start = new Date(vote.start_date)
-            let end = new Date(vote.end_date)
+            start.setHours(start.getHours()-3)
+              let end
+              if (vote.end_date) {
+                  end = new Date(vote.end_date)
+                  end.setHours(end.getHours() - 3)
+              } else
+                  end = null
             this.voting_list.unshift({
                 status: vote.status,
                 id: vote.id,

@@ -9,9 +9,6 @@ def serialize_vote(vote) -> Dict[str, Any]:
     if vote.status == 'active':
         if vote.end_date and vote.end_date < timezone.now() + timezone.timedelta(hours=3):
             vote.status = 'ended'
-        else:
-            vote.status = 'infinite'
-        vote.save()
     elif vote.status == 'not started' and vote.start_date < timezone.now() + timezone.timedelta(hours=3):
         vote.status = 'active'
         vote.save()

@@ -176,12 +176,15 @@
         },
         methods: {
             getTime () {
-                if (this.status === 'active') {
+                if (this.status === 'infinite') {
+                    this.finalResults = false
+                }
+                else if (this.status === 'active') {
                     if (this.end_date === null) {
                         this.status = 'infinite'
-                        clearInterval(this.interval)
                         return
                     }
+                    this.finalResults = false
                     let now = new Date(Date.now())
                     let delta = this.end_date - now
                     this.time.h = Math.floor((delta / 1000) / 3600)
@@ -189,23 +192,27 @@
                     this.time.s = Math.floor((delta / 1000) % 60)
                     if (this.time.h < 0 || this.time.m < 0 || this.time.s < 0) {
                         this.finalResults = true
-                        this.status = 'ended'
+                        this.$emit('end')
                         clearInterval(this.interval)
                     }
                 } else if (this.status === 'not started') {
                     this.finalResults = true
                     let now = new Date(Date.now())
-                    now.setHours(now.getHours() + 3)
                     let delta = this.start_date - now
                     this.time.h = Math.floor((delta / 1000) / 3600)
                     this.time.m = Math.floor((delta / 1000) % 3600 / 60)
                     this.time.s = Math.floor((delta / 1000) % 60)
                     if (this.time.h < 0 || this.time.m < 0 || this.time.s < 0) {
                         this.finalResults = false
-                        this.status = 'active'
+                        if (this.end_date) {
+                            this.$emit('start', 'active')
+                        } else {
+                            this.$emit('start', 'infinite')
+                        }
                     }
                 } else if (this.status === 'ended'){
                     this.finalResults = true
+                    this.visibleResults = true
                     clearInterval(this.interval)
                 }
             },
@@ -276,7 +283,7 @@
                 this.visibleResults = true
             }
             this.getTime()
-            this.interval = setInterval(this.getTime, 1000)
+            this.interval = setInterval(this.getTime, 10)
         }
     }
 

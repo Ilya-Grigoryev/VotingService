@@ -178,7 +178,9 @@
     </v-btn>
     </div>
       <br>
-    <Poll v-if="voting" v-bind="voting" :user="user"/>
+    <Poll v-if="voting" v-bind="voting" :user="user"
+          @start="(new_status) => (voting.status = new_status)"
+          @end="voting.status = 'ended'"/>
     <br>
     <v-progress-linear
       color="cyan darken-2"
@@ -346,7 +348,7 @@
               'http://localhost:8000/api/voting/',
               formData,
               {
-                headers: {Authorization: `Token ${this.user.token}`}
+                headers: { Authorization: `Token ${this.user.token}`}
               }
           ).then(response => {
             if (response.data.status === 200) {
@@ -371,14 +373,16 @@
           })
         },
         end_vote(){
-            this.axios.post(`https://localhost:8000/api/end_vote/`,
+            this.axios.post(`http://localhost:8000/api/end_poll/`,
                 {
-                    poll_id: this.voting.poll_id,
+                    poll_id: this.voting.id,
                 },
                 { headers: { Authorization: `Token ${this.user.token}` } }
             ).then(response => {
-                if (response.data.status === 200)
-                    this.voting.status === 'ended'
+                if (response.data.status === 200) {
+                    this.voting.status = 'ended'
+                    this.get_poll()
+                }
                 else
                     window.alert(response.data.description)
 
@@ -388,17 +392,23 @@
           console.log('rewriting...')
         },
         start_vote(){
-          this.axios.post(`https://localhost:8000/api/end_vote/`,
+          console.log('start')
+          this.axios.post(`http://localhost:8000/api/start_poll/`,
                 {
-                    poll_id: this.voting.poll_id,
+                    poll_id: this.voting.id,
                 },
-                { headers: { Authorization: `Token ${this.user.token}` } }
+                {
+                    headers: { Authorization: `Token ${this.user.token}` }
+                }
           ).then(response => {
                 if (response.data.status === 200) {
-                    if (this.voting.end_date)
-                        this.voting.status === 'active'
+                    if (this.voting.end_date) {
+                        this.voting.status = 'active'
+                    }
                     else
-                        this.voting.status === 'infinite'
+                        this.voting.status = 'infinite'
+                    this.get_poll()
+                    this.voting.visibleResults = true
                 }
                 else
                     window.alert(response.data.description)
@@ -474,11 +484,13 @@
               })
             }
             let start = new Date(vote.start_date)
-            let end
-            if (vote.end_date)
-                end = new Date(vote.end_date)
-            else
-                end = null
+            start.setHours(start.getHours()-3)
+              let end
+              if (vote.end_date) {
+                  end = new Date(vote.end_date)
+                  end.setHours(end.getHours() - 3)
+              } else
+                  end = null
             this.voting = {
               id: vote.id,
               question: vote.title,
