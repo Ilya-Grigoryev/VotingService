@@ -20,8 +20,7 @@
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
       </v-btn>
 
-    <v-btn v-if="Number(this.voting.author.id) === user.id
-                && voting.status === 'not started'"
+    <v-btn
         @click="end_vote()"
         dark
         color="red darken-3"
@@ -30,8 +29,7 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-    <v-btn v-if="Number(this.voting.author.id) === user.id
-            && this.voting.status === 'not started'"
+    <v-btn
         @click="start_vote()"
         dark
         color="teal"
@@ -167,22 +165,22 @@
               </v-card>
             </v-dialog>
 
-    <v-btn v-if="Number(this.voting.author.id) === user.id"
+    <v-btn
         @click="delete_vote()"
         dark
         color="red darken-3" style="position: absolute; right: 10px;">
       <v-icon> mdi-delete</v-icon>
     </v-btn>
-        <v-btn v-if="image_url === 'null'"
-               @click="$router.go(-1);"
-               dark
-               color="teal"
-               depressed
-               style="position: absolute; left: 10px;">
+    <v-btn
+       @click="$router.go(-1);"
+       dark
+       color="teal"
+       depressed
+       style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
-      </v-btn>
-
-    <v-btn v-if="image_url === 'null' && Number(this.voting.author.id) === user.id"
+    </v-btn>
+    {{Number(voting.author.id)}} | {{user.id}}
+    <v-btn
         @click="end_vote()"
         dark
         color="red darken-3"
@@ -191,8 +189,7 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-    <v-btn v-if="image_url === 'null' && Number(this.voting.author.id) === user.id
-        && this.voting.status === 'not started'"
+    <v-btn
         @click="start_vote()"
         dark
         color="teal"
@@ -201,10 +198,7 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer</v-icon>
     </v-btn>
-    <v-dialog v-model="dialog" persistent max-width="800px"
-              v-if="Number(this.voting.author.id) === user.id
-              // && this.voting.status === 'not-started'
-              ">
+    <v-dialog v-model="dialog" persistent max-width="800px">
     <template v-slot:activator="{ on, attrs }">
     <v-btn
         @click="rewrite_vote()"
@@ -483,6 +477,8 @@
           }
         },
       data: () => ({
+        menu1: false,
+        menu2: false,
         changed_voting: null,
         dialog: false,
         voting: null,

@@ -52,6 +52,9 @@
                 <b>{{ time.m }} m.</b> <br>
                 <b>{{ time.s }} s.</b>
             </div>
+            <div v-else-if="status === 'infinite'">
+                Infinite
+            </div>
             <div v-else-if="status === 'ended'">
                 poll ended
             </div>
@@ -78,7 +81,6 @@
             },
             end_date: {
                 type: Date,
-                required: true
             },
             user: {
                 type: Object,
@@ -175,6 +177,11 @@
         methods: {
             getTime () {
                 if (this.status === 'active') {
+                    if (this.end_date === null) {
+                        this.status = 'infinite'
+                        clearInterval(this.interval)
+                        return
+                    }
                     let now = new Date(Date.now())
                     let delta = this.end_date - now
                     this.time.h = Math.floor((delta / 1000) / 3600)
