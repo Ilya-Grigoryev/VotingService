@@ -19,7 +19,9 @@
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
       </v-btn>
 
-    <v-btn v-if="Number(this.voting.author.id) === user.id"
+    <v-btn v-if="Number(this.voting.author.id) === user.id
+          && this.voting.status === 'active'
+              "
         @click="end_vote()"
         dark
         color="red darken-3"

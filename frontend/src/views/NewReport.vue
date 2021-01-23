@@ -25,7 +25,9 @@
               @blur="$v.description.$touch()"
             ></v-text-field>
             <br>
-            <v-btn @click="create_report()">
+            <v-btn color="purple"
+                   outlined
+                   @click="create_report()">
                 create new report
             </v-btn>
         </v-card>
