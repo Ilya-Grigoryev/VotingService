@@ -5,15 +5,6 @@
             elevation="4"
             outlined
             width="65%">
-            <v-btn
-                @click="$router.go(-1);"
-                icon
-                depressed
-                color="teal"
-                style="position: absolute; right: 20px;"
-                >
-              <v-icon>mdi-close-circle-outline</v-icon>
-            </v-btn>
           <v-dialog v-model="dialog" persistent max-width="700px">
               <template v-slot:activator="{ on, attrs }">
                   <v-btn
