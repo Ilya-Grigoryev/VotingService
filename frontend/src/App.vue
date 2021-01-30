@@ -15,7 +15,9 @@
           <v-list-item-avatar>
               <img v-if="user.avatar === 'null'"
                    src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
+
               <img v-else :src="`http://localhost:8000${user.avatar}/`">
+
           </v-list-item-avatar>
           <v-list-item-content class="text-left">
             <v-list-item-title class="font-weight-black">{{ user.first_name }} {{ user.last_name }}</v-list-item-title>
@@ -30,7 +32,7 @@
             <v-icon>mdi-home-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Главная</v-list-item-title>
+            <v-list-item-title class="text-left">Home</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -40,7 +42,7 @@
             <v-icon>mdi-account-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Мой профиль</v-list-item-title>
+            <v-list-item-title class="text-left">My profile</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -50,7 +52,7 @@
             <v-icon>mdi-checkbox-multiple-marked-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Все голосования</v-list-item-title>
+            <v-list-item-title class="text-left">All polls</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -60,7 +62,7 @@
             <v-icon>mdi-account-group-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Все пользователи</v-list-item-title>
+            <v-list-item-title class="text-left">All users</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -70,7 +72,7 @@
             <v-icon>mdi-alert-octagon</v-icon>
           </v-list-item-icon>
           <v-list-item-content class="text-left">
-            <v-list-item-title class="text-left">Мои жалобы</v-list-item-title>
+            <v-list-item-title class="text-left">My reports</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         </v-list>

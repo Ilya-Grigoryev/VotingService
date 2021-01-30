@@ -5,26 +5,299 @@
       outlined
       width="65%">
     <v-app-bar
-        v-if="image_url !== 'null' && image_url !== '/media/null'" :src="`http://localhost:8000${image_url}`"
+        v-if="image_url !== 'null' && image_url !== '/media/null'"
+        :src="`http://localhost:8000${image_url}`"
         absolute
         dark
         prominent
       >
-        <v-spacer></v-spacer>
-      <v-btn v-if="image_url !== 'null' && image_url !== '/media/null'" @click="$router.go(-1);"
-               icon
+          <v-btn @click="$router.go(-1);"
+               color="teal"
                depressed
                dark
                style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
-      </v-btn>
-      <v-btn v-if="image_url === 'null' && image_url === '/media/null'" @click="$router.go(-1);"
-               depressed
-                color="teal"
-               style="position: absolute; left: 10px;">
-      <v-icon>mdi-arrow-left-bold-outline</v-icon>
-      </v-btn>
+    </v-btn>
 
+    <v-spacer></v-spacer>
+    <v-dialog v-model="dialog" persistent max-width="800px">
+      <template v-slot:activator="{ on, attrs }">
+      <v-btn
+          v-if="voting.author.id === user.id &&
+              voting.status === 'not started'"
+          @click="rewrite_vote()"
+          dark
+          color="orange"
+          v-bind="attrs"
+          v-on="on"
+          style="position: absolute; right: 350px;">
+        <v-icon> mdi-pencil</v-icon>
+      </v-btn>
+          </template>
+                <v-card>
+                  <v-card-title>
+                      <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
+                          @click="dialog = false">
+                          <v-icon color="red">
+                              mdi-close
+                          </v-icon>
+                      </v-btn>
+                    <span class="headline">Edit vote</span>
+                  </v-card-title>
+                  <v-card-text>
+                      <v-text-field
+                      v-model="title"
+                      :error-messages="titleErrors"
+                      label="New title"
+                      required clearable
+                      :counter="50"
+                      @input="$v.title.$touch()"
+                      @blur="$v.title.$touch()"
+                    ></v-text-field>
+
+                    <v-text-field
+                      v-model="description"
+                      :error-messages="descriptionErrors"
+                      label="New description"
+                      required clearable
+                      @input="$v.description.$touch()"
+                      @blur="$v.description.$touch()"
+                    ></v-text-field>
+
+                    <v-radio-group
+                      v-model="hours"
+                      row>
+                        <h3 class="mr-12">Duration:</h3>
+                      <v-radio
+                        label="1 hour"
+                        :value="1"
+                        selected
+                      ></v-radio>
+                      <v-radio
+                        label="3 hours"
+                        :value="3"
+                      ></v-radio>
+                      <v-radio
+                        label="6 hours"
+                        :value="6"
+                      ></v-radio>
+                      <v-radio
+                        label="1 day"
+                        :value="24"
+                      ></v-radio>
+                      <v-radio
+                        label="1 week"
+                        :value="24*7"
+                      ></v-radio>
+                      <v-radio
+                        label="Infinite"
+                        :value="24*7*4*10000000"
+                      ></v-radio>
+                    </v-radio-group>
+
+                    <br>
+                    <v-radio-group row>
+                        <h3 class="mr-7">Options:   {{ options.length }}</h3>
+                        <v-btn x-small @click="addOption">add option</v-btn>
+                    </v-radio-group>
+                    <v-list>
+                        <v-list-item v-for="(option, ind) of options" :key="ind">
+                            <v-text-field
+                                v-model="options[ind]"
+                                :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
+                                @input="$v.options.$each[ind].$touch()"
+                                @blur="$v.options.$each[ind].$touch()"
+                                label="Option"
+                                required clearable
+                            ></v-text-field>
+                            <v-btn icon large @click="removeOption(ind)">
+                                <v-icon color="red">mdi-close-box</v-icon>
+                            </v-btn>
+                        </v-list-item>
+                    </v-list>
+
+                    <v-row justify="space-between">
+                        <v-col md="auto">
+                            <h3 class="mr-7">Image:</h3>
+                        </v-col>
+                        <v-col>
+                            <v-file-input accept="image/*"
+                                label="Select image"
+                                prepend-icon="mdi-camera"
+                                outlined
+                                dense
+                                v-model="file"
+                                @change="addFiles">
+                            </v-file-input>
+                        </v-col>
+                    </v-row>
+                    <v-img max-height="300"
+                           contain
+                           v-if="file"
+                           :ref="'file'"
+                           title="photo">
+                    </v-img>
+
+                    <v-btn
+                      color="purple"
+                      outlined
+                      @click="save_changes">
+                      Save
+                    </v-btn>
+                  </v-card-text>
+                </v-card>
+            </v-dialog>
+      <v-dialog v-model="dialog" persistent max-width="800px">
+      <template v-slot:activator="{ on, attrs }">
+      <v-btn
+          v-if="voting.author.id !== user.id &&
+              voting.status !== 'not started'"
+          @click="rewrite_vote()"
+          disabled
+          dark
+          color="orange"
+          v-bind="attrs"
+          v-on="on"
+          style="position: absolute; right: 350px;">
+        <v-icon> mdi-pencil</v-icon>
+      </v-btn>
+          </template>
+                <v-card>
+                  <v-card-title>
+                      <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
+                          @click="dialog = false">
+                          <v-icon color="red">
+                              mdi-close
+                          </v-icon>
+                      </v-btn>
+                    <span class="headline">Edit vote</span>
+                  </v-card-title>
+                  <v-card-text>
+                      <v-text-field
+                      v-model="title"
+                      :error-messages="titleErrors"
+                      label="New title"
+                      required clearable
+                      :counter="50"
+                      @input="$v.title.$touch()"
+                      @blur="$v.title.$touch()"
+                    ></v-text-field>
+
+                    <v-text-field
+                      v-model="description"
+                      :error-messages="descriptionErrors"
+                      label="New description"
+                      required clearable
+                      @input="$v.description.$touch()"
+                      @blur="$v.description.$touch()"
+                    ></v-text-field>
+
+                    <v-radio-group
+                      v-model="hours"
+                      row>
+                        <h3 class="mr-12">Duration:</h3>
+                      <v-radio
+                        label="1 hour"
+                        :value="1"
+                        selected
+                      ></v-radio>
+                      <v-radio
+                        label="3 hours"
+                        :value="3"
+                      ></v-radio>
+                      <v-radio
+                        label="6 hours"
+                        :value="6"
+                      ></v-radio>
+                      <v-radio
+                        label="1 day"
+                        :value="24"
+                      ></v-radio>
+                      <v-radio
+                        label="1 week"
+                        :value="24*7"
+                      ></v-radio>
+                      <v-radio
+                        label="Infinite"
+                        :value="24*7*4*10000000"
+                      ></v-radio>
+                    </v-radio-group>
+
+                    <br>
+                    <v-radio-group row>
+                        <h3 class="mr-7">Options:   {{ options.length }}</h3>
+                        <v-btn x-small @click="addOption">add option</v-btn>
+                    </v-radio-group>
+                    <v-list>
+                        <v-list-item v-for="(option, ind) of options" :key="ind">
+                            <v-text-field
+                                v-model="options[ind]"
+                                :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
+                                @input="$v.options.$each[ind].$touch()"
+                                @blur="$v.options.$each[ind].$touch()"
+                                label="Option"
+                                required clearable
+                            ></v-text-field>
+                            <v-btn icon large @click="removeOption(ind)">
+                                <v-icon color="red">mdi-close-box</v-icon>
+                            </v-btn>
+                        </v-list-item>
+                    </v-list>
+
+                    <v-row justify="space-between">
+                        <v-col md="auto">
+                            <h3 class="mr-7">Image:</h3>
+                        </v-col>
+                        <v-col>
+                            <v-file-input accept="image/*"
+                                label="Select image"
+                                prepend-icon="mdi-camera"
+                                outlined
+                                dense
+                                v-model="file"
+                                @change="addFiles">
+                            </v-file-input>
+                        </v-col>
+                    </v-row>
+                    <v-img max-height="300"
+                           contain
+                           v-if="file"
+                           :ref="'file'"
+                           title="photo">
+                    </v-img>
+
+                    <v-btn
+                      color="purple"
+                      outlined
+                      @click="save_changes">
+                      Save
+                    </v-btn>
+                  </v-card-text>
+                </v-card>
+            </v-dialog>
+    <v-btn
+        v-if="voting.author.id === user.id &&
+            voting.status === 'not started'"
+        @click="start_vote()"
+        dark
+        color="teal"
+        style="position: absolute; right: 220px;">
+      Start
+      <v-divider vertical></v-divider>
+      <v-icon> mdi-timer</v-icon>
+    </v-btn>
+    <v-btn
+        v-if="voting.author.id !== user.id ||
+            voting.status !== 'not started'"
+        @click="start_vote()"
+        dark
+        disabled
+        color="teal"
+        style="position: absolute; right: 220px;">
+      Start
+      <v-divider vertical></v-divider>
+      <v-icon> mdi-timer</v-icon>
+    </v-btn>
     <v-btn
         v-if="voting.author.id === user.id &&
             (voting.status === 'active' || voting.status === 'infinite')"
@@ -36,10 +309,9 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-      <v-btn
+    <v-btn
         v-if="voting.author.id !== user.id ||
-            (voting.status !== 'active' || voting.status !== 'infinite')"
-        @click="end_vote()"
+            !(voting.status === 'active' || voting.status === 'infinite')"
         dark
         disabled
         color="red darken-3"
@@ -48,170 +320,6 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-    <v-btn
-        v-if="voting.author.id === user.id &&
-            voting.status === 'not started'"
-        @click="start_vote()"
-        dark
-        color="teal"
-        style="position: absolute; right: 220px;">
-      Start
-      <v-divider vertical></v-divider>
-      <v-icon> mdi-timer</v-icon>
-    </v-btn>
-      <v-btn
-        v-if="voting.author.id !== user.id ||
-            voting.status !== 'not started'"
-        @click="start_vote()"
-        dark
-        disabled
-        color="teal"
-        style="position: absolute; right: 220px;">
-      Start
-      <v-divider vertical></v-divider>
-      <v-icon> mdi-timer</v-icon>
-    </v-btn>
-    <v-dialog v-model="dialog" persistent max-width="800px">
-    <template v-slot:activator="{ on, attrs }">
-    <v-btn
-        v-if="voting.author.id === user.id &&
-            voting.status === 'not started'"
-        @click="rewrite_vote()"
-        dark
-        color="orange"
-        style="position: absolute;
-        right: 350px;"
-        v-bind="attrs"
-        v-on="on">
-      <v-icon> mdi-pencil</v-icon>
-    </v-btn>
-      <v-btn
-        v-if="voting.author.id !== user.id ||
-            voting.status !== 'not started'"
-        @click="rewrite_vote()"
-        dark
-        disabled
-        color="orange"
-        style="position: absolute;
-        right: 350px;"
-        v-bind="attrs"
-        v-on="on">
-      <v-icon> mdi-pencil</v-icon>
-    </v-btn>
-        </template>
-              <v-card>
-                <v-card-title>
-                    <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
-                        @click="dialog = false">
-                        <v-icon color="red">
-                            mdi-close
-                        </v-icon>
-                    </v-btn>
-                  <span class="headline">Edit vote</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-text-field
-                    v-model="title"
-                    :error-messages="titleErrors"
-                    label="New title"
-                    required clearable
-                    :counter="50"
-                    @input="$v.title.$touch()"
-                    @blur="$v.title.$touch()"
-                  ></v-text-field>
-
-                  <v-text-field
-                    v-model="description"
-                    :error-messages="descriptionErrors"
-                    label="New description"
-                    required clearable
-                    @input="$v.description.$touch()"
-                    @blur="$v.description.$touch()"
-                  ></v-text-field>
-
-                  <v-radio-group
-                    v-model="hours"
-                    row>
-                      <h3 class="mr-12">Duration:</h3>
-                    <v-radio
-                      label="1 hour"
-                      :value="1"
-                      selected
-                    ></v-radio>
-                    <v-radio
-                      label="3 hours"
-                      :value="3"
-                    ></v-radio>
-                    <v-radio
-                      label="6 hours"
-                      :value="6"
-                    ></v-radio>
-                    <v-radio
-                      label="1 day"
-                      :value="24"
-                    ></v-radio>
-                    <v-radio
-                      label="1 week"
-                      :value="24*7"
-                    ></v-radio>
-                    <v-radio
-                      label="Infinite"
-                      :value="24*7*4*10000000"
-                    ></v-radio>
-                  </v-radio-group>
-
-                  <br>
-                  <v-radio-group row>
-                      <h3 class="mr-7">Options:   {{ options.length }}</h3>
-                      <v-btn x-small @click="addOption">add option</v-btn>
-                  </v-radio-group>
-                  <v-list>
-                      <v-list-item v-for="(option, ind) of options" :key="ind">
-                          <v-text-field
-                              v-model="options[ind]"
-                              :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
-                              @input="$v.options.$each[ind].$touch()"
-                              @blur="$v.options.$each[ind].$touch()"
-                              label="Option"
-                              required clearable
-                          ></v-text-field>
-                          <v-btn icon large @click="removeOption(ind)">
-                              <v-icon color="red">mdi-close-box</v-icon>
-                          </v-btn>
-                      </v-list-item>
-                  </v-list>
-
-                  <v-row justify="space-between">
-                      <v-col md="auto">
-                          <h3 class="mr-7">Image:</h3>
-                      </v-col>
-                      <v-col>
-                          <v-file-input accept="image/*"
-                              label="Select image"
-                              prepend-icon="mdi-camera"
-                              outlined
-                              dense
-                              v-model="file"
-                              @change="addFiles">
-                          </v-file-input>
-                      </v-col>
-                  </v-row>
-                  <v-img max-height="300"
-                         contain
-                         v-if="file"
-                         :ref="'file'"
-                         title="photo">
-                  </v-img>
-
-                  <v-btn
-                    color="purple"
-                    outlined
-                    @click="save_changes">
-                    Save
-                  </v-btn>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
 
     <v-btn
         v-if="voting.author.id === user.id"
@@ -220,9 +328,18 @@
         color="red darken-3" style="position: absolute; right: 10px;">
       <v-icon> mdi-delete</v-icon>
     </v-btn>
+    <v-btn
+        v-if="voting.author.id !== user.id"
+        disabled
+        dark
+        color="red darken-3" style="position: absolute; right: 10px;">
+      <v-icon> mdi-delete</v-icon>
+    </v-btn>
     </v-app-bar>
-        <v-app-bar
-        v-else :src="`https://sunnycrew.jp/wp-content/themes/dp-colors/img/post_thumbnail/noimage.png`"
+
+    <v-app-bar
+        v-else
+        :src="`https://sunnycrew.jp/wp-content/themes/dp-colors/img/post_thumbnail/noimage.png`"
         absolute
         white
         prominent
@@ -237,8 +354,7 @@
       </v-btn>
 
     <v-btn
-        v-if="voting.author.id === user.id &&
-            (voting.status === 'active' || voting.status === 'infinite')"
+        v-if="voting.author.id === user.id && (voting.status === 'active' || voting.status === 'infinite')"
         @click="end_vote()"
         dark
         color="red darken-3"
@@ -248,9 +364,7 @@
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
       <v-btn
-        v-if="voting.author.id !== user.id ||
-            (voting.status !== 'active' || voting.status !== 'infinite')"
-        @click="end_vote()"
+        v-else
         dark
         disabled
         color="red darken-3"
@@ -259,170 +373,164 @@
       <v-divider vertical></v-divider>
       <v-icon> mdi-timer-off</v-icon>
     </v-btn>
-    <v-btn
-        v-if="voting.author.id === user.id &&
-            voting.status === 'not started'"
-        @click="start_vote()"
-        dark
-        color="teal"
-        style="position: absolute; right: 220px;">
-      Start
-      <v-divider vertical></v-divider>
-      <v-icon> mdi-timer</v-icon>
-    </v-btn>
-      <v-btn
-        v-if="voting.author.id !== user.id ||
-            voting.status !== 'not started'"
-        @click="start_vote()"
-        dark
-        disabled
-        color="teal"
-        style="position: absolute; right: 220px;">
-      Start
-      <v-divider vertical></v-divider>
-      <v-icon> mdi-timer</v-icon>
-    </v-btn>
-    <v-dialog v-model="dialog" persistent max-width="800px">
-    <template v-slot:activator="{ on, attrs }">
-    <v-btn
-        v-if="voting.author.id === user.id &&
-            voting.status === 'not started'"
-        @click="rewrite_vote()"
-        dark
-        color="orange"
-        style="position: absolute;
-        right: 350px;"
-        v-bind="attrs"
-        v-on="on">
-      <v-icon> mdi-pencil</v-icon>
-    </v-btn>
-      <v-btn
-        v-if="voting.author.id !== user.id ||
-            voting.status !== 'not started'"
-        @click="rewrite_vote()"
-        dark
-        disabled
-        color="orange"
-        style="position: absolute;
-        right: 350px;"
-        v-bind="attrs"
-        v-on="on">
-      <v-icon> mdi-pencil</v-icon>
-    </v-btn>
-        </template>
-              <v-card>
-                <v-card-title>
-                    <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
-                        @click="dialog = false">
-                        <v-icon color="red">
-                            mdi-close
-                        </v-icon>
-                    </v-btn>
-                  <span class="headline">Edit vote</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-text-field
-                    v-model="title"
-                    :error-messages="titleErrors"
-                    label="New title"
-                    required clearable
-                    :counter="50"
-                    @input="$v.title.$touch()"
-                    @blur="$v.title.$touch()"
-                  ></v-text-field>
-
-                  <v-text-field
-                    v-model="description"
-                    :error-messages="descriptionErrors"
-                    label="New description"
-                    required clearable
-                    @input="$v.description.$touch()"
-                    @blur="$v.description.$touch()"
-                  ></v-text-field>
-
-                  <v-radio-group
-                    v-model="hours"
-                    row>
-                      <h3 class="mr-12">Duration:</h3>
-                    <v-radio
-                      label="1 hour"
-                      :value="1"
-                      selected
-                    ></v-radio>
-                    <v-radio
-                      label="3 hours"
-                      :value="3"
-                    ></v-radio>
-                    <v-radio
-                      label="6 hours"
-                      :value="6"
-                    ></v-radio>
-                    <v-radio
-                      label="1 day"
-                      :value="24"
-                    ></v-radio>
-                    <v-radio
-                      label="1 week"
-                      :value="24*7"
-                    ></v-radio>
-                    <v-radio
-                      label="Infinite"
-                      :value="24*7*4*10000000"
-                    ></v-radio>
-                  </v-radio-group>
-
-                  <br>
-                  <v-radio-group row>
-                      <h3 class="mr-7">Options:   {{ options.length }}</h3>
-                      <v-btn x-small @click="addOption">add option</v-btn>
-                  </v-radio-group>
-                  <v-list>
-                      <v-list-item v-for="(option, ind) of options" :key="ind">
-                          <v-text-field
-                              v-model="options[ind]"
-                              :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
-                              @input="$v.options.$each[ind].$touch()"
-                              @blur="$v.options.$each[ind].$touch()"
-                              label="Option"
-                              required clearable
-                          ></v-text-field>
-                          <v-btn icon large @click="removeOption(ind)">
-                              <v-icon color="red">mdi-close-box</v-icon>
+   <v-dialog v-model="dialog" persistent max-width="800px">
+          <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                  v-if="voting.author.id === user.id && voting.status === 'not started'"
+                  @click="rewrite_vote()"
+                  dark
+                  color="orange"
+                  style="position: absolute;
+                  right: 350px;"
+                  v-bind="attrs"
+                  v-on="on">
+                <v-icon> mdi-pencil</v-icon>
+              </v-btn>
+                <v-btn
+                  v-else
+                  dark
+                  disabled
+                  color="orange"
+                  style="position: absolute;
+                  right: 350px;"
+                  >
+                <v-icon> mdi-pencil</v-icon>
+              </v-btn>
+              </template>
+                    <v-card>
+                      <v-card-title>
+                          <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
+                              @click="dialog = false">
+                              <v-icon color="red">
+                                  mdi-close
+                              </v-icon>
                           </v-btn>
-                      </v-list-item>
-                  </v-list>
+                        <span class="headline">Edit vote</span>
+                      </v-card-title>
+                      <v-card-text>
+                          <v-text-field
+                          v-model="title"
+                          :error-messages="titleErrors"
+                          label="New title"
+                          required clearable
+                          :counter="50"
+                          @input="$v.title.$touch()"
+                          @blur="$v.title.$touch()"
+                        ></v-text-field>
 
-                  <v-row justify="space-between">
-                      <v-col md="auto">
-                          <h3 class="mr-7">Image:</h3>
-                      </v-col>
-                      <v-col>
-                          <v-file-input accept="image/*"
-                              label="Select image"
-                              prepend-icon="mdi-camera"
-                              outlined
-                              dense
-                              v-model="file"
-                              @change="addFiles">
-                          </v-file-input>
-                      </v-col>
-                  </v-row>
-                  <v-img max-height="300"
-                         contain
-                         v-if="file"
-                         :ref="'file'"
-                         title="photo">
-                  </v-img>
+                        <v-text-field
+                          v-model="description"
+                          :error-messages="descriptionErrors"
+                          label="New description"
+                          required clearable
+                          @input="$v.description.$touch()"
+                          @blur="$v.description.$touch()"
+                        ></v-text-field>
 
-                  <v-btn
-                    color="purple"
-                    outlined
-                    @click="save_changes">
-                    Save
-                  </v-btn>
-                </v-card-text>
-              </v-card>
+                        <v-radio-group
+                          v-model="hours"
+                          row>
+                            <h3 class="mr-12">Duration:</h3>
+                          <v-radio
+                            label="1 hour"
+                            :value="1"
+                            selected
+                          ></v-radio>
+                          <v-radio
+                            label="3 hours"
+                            :value="3"
+                          ></v-radio>
+                          <v-radio
+                            label="6 hours"
+                            :value="6"
+                          ></v-radio>
+                          <v-radio
+                            label="1 day"
+                            :value="24"
+                          ></v-radio>
+                          <v-radio
+                            label="1 week"
+                            :value="24*7"
+                          ></v-radio>
+                          <v-radio
+                            label="Infinite"
+                            :value="24*7*4*10000000"
+                          ></v-radio>
+                        </v-radio-group>
+
+                        <br>
+                        <v-radio-group row>
+                            <h3 class="mr-7">Options:   {{ options.length }}</h3>
+                            <v-btn x-small @click="addOption">add option</v-btn>
+                        </v-radio-group>
+                        <v-list>
+                            <v-list-item v-for="(option, ind) of options" :key="ind">
+                                <v-text-field
+                                    v-model="options[ind]"
+                                    :error-messages="option.replace(/^\s+|\s+$/g, '') === '' ? ['Option is required.'] : []"
+                                    @input="$v.options.$each[ind].$touch()"
+                                    @blur="$v.options.$each[ind].$touch()"
+                                    label="Option"
+                                    required clearable
+                                ></v-text-field>
+                                <v-btn icon large @click="removeOption(ind)">
+                                    <v-icon color="red">mdi-close-box</v-icon>
+                                </v-btn>
+                            </v-list-item>
+                        </v-list>
+
+                        <v-row justify="space-between">
+                            <v-col md="auto">
+                                <h3 class="mr-7">Image:</h3>
+                            </v-col>
+                            <v-col>
+                                <v-file-input accept="image/*"
+                                    label="Select image"
+                                    prepend-icon="mdi-camera"
+                                    outlined
+                                    dense
+                                    v-model="file"
+                                    @change="addFiles">
+                                </v-file-input>
+                            </v-col>
+                        </v-row>
+                        <v-img max-height="300"
+                               contain
+                               v-if="file"
+                               :ref="'file'"
+                               title="photo">
+                        </v-img>
+
+                        <v-btn
+                          color="purple"
+                          outlined
+                          @click="save_changes">
+                          Save
+                        </v-btn>
+                      </v-card-text>
+                    </v-card>
             </v-dialog>
+    <v-btn
+        v-if="voting.author.id === user.id && voting.status === 'not started'"
+        @click="start_vote()"
+        dark
+        color="teal"
+        style="position: absolute; right: 220px;">
+      Start
+      <v-divider vertical></v-divider>
+      <v-icon> mdi-timer</v-icon>
+    </v-btn>
+      <v-btn
+        v-else
+        dark
+        disabled
+        color="teal"
+        style="position: absolute; right: 220px;">
+      Start
+      <v-divider vertical></v-divider>
+      <v-icon> mdi-timer</v-icon>
+    </v-btn>
+
 
     <v-btn
         v-if="voting.author.id === user.id"
@@ -437,15 +545,7 @@
     <br>
     <br>
     <br>
-<!--    <v-btn-->
-<!--       @click="$router.go(-1);"-->
-<!--       dark-->
-<!--       color="teal"-->
-<!--       depressed-->
-<!--       style="position: absolute; left: 10px;">-->
-<!--      <v-icon>mdi-arrow-left-bold-outline</v-icon>-->
-<!--    </v-btn>-->
-      <br>
+    <br>
     <Poll v-if="voting" v-bind="voting" :user="user"
           @start="(new_status) => (voting.status = new_status)"
           @end="voting.status = 'ended'"/>
