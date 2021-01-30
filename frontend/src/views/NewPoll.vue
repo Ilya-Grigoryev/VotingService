@@ -254,7 +254,7 @@
                    title="photo">
             </v-img>
             <br>
-            <v-btn @click="create_poll()">
+            <v-btn @click="create_poll()" outlined color="purple">
                 create new poll
             </v-btn>
         </v-card>

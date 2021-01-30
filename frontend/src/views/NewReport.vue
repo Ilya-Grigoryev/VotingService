@@ -46,7 +46,7 @@
 
         validations: {
             title: { required, maxLength: maxLength(50) },
-            description: { required },
+            description: { required, maxLength: maxLength(500) },
             $each: {
                 option: { required, maxLength: maxLength(50) }
             },
@@ -69,7 +69,7 @@
                         break
                     }
                 }
-                if (this.title.length > 50 || this.title.replace(/^\s+|\s+$/g, '') === ''
+                if (this.title.length > 50 || this.description.length > 500|| this.title.replace(/^\s+|\s+$/g, '') === ''
                     || this.description.replace(/^\s+|\s+$/g, '') === ''
                     || option_error)
                 {

@@ -14,54 +14,30 @@
                 >
               <v-icon>mdi-close-circle-outline</v-icon>
             </v-btn>
-          <v-dialog v-model="dialog" persistent max-width="700px">
-              <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                      color="teal"
-                      class="white--text"
-                      style="position: absolute; right: 80px;"
-                      v-bind="attrs"
-                      v-on="on">
-                        Admin
-                    <v-divider vertical></v-divider>
-                      <v-icon>mdi-account-key</v-icon>
-                    </v-btn>
-              </template>
-            <v-card class="mx-auto pa-3"
-            elevation="4"
-            outlined
-            width="100%">
-            <v-btn
-                @click="$router.go(-1);"
-                icon
-                large
-                depressed
-                color="red"
-                style="position: absolute; right: 20px;"
-            >
-              <v-icon>mdi-close-circle-outline</v-icon>
-            </v-btn>
-              <form class="mx-auto pa-3 ma-3">
-                    <v-text-field
-                      type="password"
-                      v-model="admin_password"
-                      :error-messages="admin_passwordErrors"
-                      :counter="10"
-                      label="Admin password"
-                      required
-                      @input="$v.admin_password.$touch()"
-                      @blur="$v.admin_password.$touch()"
-                    ></v-text-field>
-                      <v-btn
-                          color="purple"
-                          outlined
-                          @click="$router.push(`/admin`);"
-                    >
-                      Enter
-                    </v-btn>
-              </form>
-      </v-card>
-          </v-dialog>
+             <v-btn
+                 v-if="admin"
+                 color="teal"
+                 class="white--text"
+                 style="position: absolute; right: 80px;"
+                 @click="$router.push('/admin')"
+             >
+               Admin
+               <v-divider vertical></v-divider>
+               <v-icon>mdi-account-key</v-icon>
+             </v-btn>
+
+             <v-btn
+                 v-else
+                 color="teal"
+                 class="white--text"
+                 disabled
+                 style="position: absolute; right: 80px;"
+                 @click="$router.push('/admin')"
+             >
+               Admin
+               <v-divider vertical></v-divider>
+               <v-icon>mdi-account-key</v-icon>
+             </v-btn>
        <span class="headline">Password change</span>
             <form class="mx-auto pa-3 ma-3">
       <v-text-field

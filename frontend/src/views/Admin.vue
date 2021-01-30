@@ -154,7 +154,7 @@
         </v-tab-item>
       </v-tabs-items>
          <v-btn
-                @click="$router.push(`/login`);"
+                @click="$router.go(-1);"
                 dark
                 class="mx-auto ma-3"
                 depressed

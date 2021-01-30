@@ -12,7 +12,7 @@
       >
         <v-spacer></v-spacer>
       <v-btn v-if="image_url !== 'null' && image_url !== '/media/null'" @click="$router.go(-1);"
-               icon
+               color="teal"
                depressed
                dark
                style="position: absolute; left: 10px;">
@@ -20,7 +20,7 @@
       </v-btn>
       <v-btn v-if="image_url === 'null' && image_url === '/media/null'" @click="$router.go(-1);"
                depressed
-                color="teal"
+               color="teal"
                style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
       </v-btn>
