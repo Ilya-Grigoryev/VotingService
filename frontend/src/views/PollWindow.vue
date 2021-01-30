@@ -5,22 +5,17 @@
       outlined
       width="65%">
     <v-app-bar
-        v-if="image_url !== 'null' && image_url !== '/media/null'" :src="`http://localhost:8000${image_url}`"
+        v-if="image_url !== 'null' && image_url !== '/media/null'"
+        :src="`http://localhost:8000${image_url}`"
         absolute
         dark
         prominent
       >
         <v-spacer></v-spacer>
-      <v-btn v-if="image_url !== 'null' && image_url !== '/media/null'" @click="$router.go(-1);"
+      <v-btn   @click="$router.go(-1);"
                color="teal"
                depressed
                dark
-               style="position: absolute; left: 10px;">
-      <v-icon>mdi-arrow-left-bold-outline</v-icon>
-      </v-btn>
-      <v-btn v-if="image_url === 'null' && image_url === '/media/null'" @click="$router.go(-1);"
-               depressed
-               color="teal"
                style="position: absolute; left: 10px;">
       <v-icon>mdi-arrow-left-bold-outline</v-icon>
       </v-btn>
@@ -39,7 +34,6 @@
       <v-btn
         v-if="voting.author.id !== user.id ||
             (voting.status !== 'active' || voting.status !== 'infinite')"
-        @click="end_vote()"
         dark
         disabled
         color="red darken-3"
@@ -62,7 +56,6 @@
       <v-btn
         v-if="voting.author.id !== user.id ||
             voting.status !== 'not started'"
-        @click="start_vote()"
         dark
         disabled
         color="teal"
@@ -88,14 +81,12 @@
       <v-btn
         v-if="voting.author.id !== user.id ||
             voting.status !== 'not started'"
-        @click="rewrite_vote()"
         dark
         disabled
         color="orange"
         style="position: absolute;
         right: 350px;"
-        v-bind="attrs"
-        v-on="on">
+        >
       <v-icon> mdi-pencil</v-icon>
     </v-btn>
         </template>
@@ -250,7 +241,6 @@
       <v-btn
         v-if="voting.author.id !== user.id ||
             (voting.status !== 'active' || voting.status !== 'infinite')"
-        @click="end_vote()"
         dark
         disabled
         color="red darken-3"
@@ -273,7 +263,6 @@
       <v-btn
         v-if="voting.author.id !== user.id ||
             voting.status !== 'not started'"
-        @click="start_vote()"
         dark
         disabled
         color="teal"
@@ -299,14 +288,12 @@
       <v-btn
         v-if="voting.author.id !== user.id ||
             voting.status !== 'not started'"
-        @click="rewrite_vote()"
         dark
         disabled
         color="orange"
         style="position: absolute;
         right: 350px;"
-        v-bind="attrs"
-        v-on="on">
+        >
       <v-icon> mdi-pencil</v-icon>
     </v-btn>
         </template>
@@ -437,15 +424,7 @@
     <br>
     <br>
     <br>
-<!--    <v-btn-->
-<!--       @click="$router.go(-1);"-->
-<!--       dark-->
-<!--       color="teal"-->
-<!--       depressed-->
-<!--       style="position: absolute; left: 10px;">-->
-<!--      <v-icon>mdi-arrow-left-bold-outline</v-icon>-->
-<!--    </v-btn>-->
-      <br>
+    <br>
     <Poll v-if="voting" v-bind="voting" :user="user"
           @start="(new_status) => (voting.status = new_status)"
           @end="voting.status = 'ended'"/>
