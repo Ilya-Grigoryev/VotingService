@@ -59,7 +59,7 @@ def voting_req(request):
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
-            """
+        """
             Request body format:
             {
                 "title": "Котики или собачки?",
@@ -71,61 +71,61 @@ def voting_req(request):
             }
             """
         # try:
-            body = dict(request.data)
-            body['title'] = body['title'][0]
-            body['description'] = body['description'][0]
-            body['hours'] = body['hours'][0]
-            if body['hours'] == 'infinite':
-                body['hours'] = None
-            else:
-                body['hours'] = int(body['hours'])
-            body['options'] = body['options'][0].split(',')
-            body['file'] = body['file'][0]
-            body['start'] = body['start'][0]
-            if body['start'] == 'now':
-                body['start'] = timezone.now() + timezone.timedelta(hours=3)
-            else:
-                body['start'] = datetime.datetime.strptime(body['start'], "%Y-%m-%d %H:%M")
-            status = 'not started'
-            if not request.user.is_authenticated:
-                token = request.headers['Authorization'].replace('Token ', '')
-                user = Token.objects.get(key=token).user
-            else:
-                user = request.user
+        body = dict(request.data)
+        body['title'] = body['title'][0]
+        body['description'] = body['description'][0]
+        body['hours'] = body['hours'][0]
+        if body['hours'] == 'infinite':
+            body['hours'] = None
+        else:
+            body['hours'] = int(body['hours'])
+        body['options'] = body['options'][0].split(',')
+        body['file'] = body['file'][0]
+        body['start'] = body['start'][0]
+        if body['start'] == 'now':
+            body['start'] = timezone.now() + timezone.timedelta(hours=3)
+        else:
+            body['start'] = datetime.datetime.strptime(body['start'], "%Y-%m-%d %H:%M")
+        status = 'not started'
+        if not request.user.is_authenticated:
+            token = request.headers['Authorization'].replace('Token ', '')
+            user = Token.objects.get(key=token).user
+        else:
+            user = request.user
 
-            end_date = None
-            if body['file'] == 'undefined':
-                body['file'] = None
-            if body['start'] == 'now':
-                body['start'] = timezone.now() + timezone.timedelta(hours=3)
+        end_date = None
+        if body['file'] == 'undefined':
+            body['file'] = None
+        if body['start'] == 'now':
+            body['start'] = timezone.now() + timezone.timedelta(hours=3)
 
-            if body['hours']:
-                end_date = body['start'] + timezone.timedelta(hours=int(body['hours']))
-            if end_date:
-                vote = Voting(title=body['title'],
-                              description=body['description'],
-                              user=user,
-                              image=body['file'],
-                              start_date=body['start'],
-                              end_date=end_date,
-                              status=status,
-                              type=0)
-            else:
-                vote = Voting(title=body['title'],
-                              description=body['description'],
-                              user=user,
-                              image=body['file'],
-                              start_date=body['start'],
-                              status=status,
-                              type=0)
-            vote.save()
-            for option in body['options']:
-                Options(text=option, voting=vote).save()
+        if body['hours']:
+            end_date = body['start'] + timezone.timedelta(hours=int(body['hours']))
+        if end_date:
+            vote = Voting(title=body['title'],
+                          description=body['description'],
+                          user=user,
+                          image=body['file'],
+                          start_date=body['start'],
+                          end_date=end_date,
+                          status=status,
+                          type=0)
+        else:
+            vote = Voting(title=body['title'],
+                          description=body['description'],
+                          user=user,
+                          image=body['file'],
+                          start_date=body['start'],
+                          status=status,
+                          type=0)
+        vote.save()
+        for option in body['options']:
+            Options(text=option, voting=vote).save()
 
-            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        # except:
-        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+    # except:
+    #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])
@@ -527,11 +527,14 @@ def start_poll_req(request):
                 user = request.user
             voting = Voting.objects.get(id=body['poll_id'])
             if voting.status == "not started":
-                voting.start_date = timezone.now()
                 if voting.end_date:
                     voting.status = "active"
+                    voting.end_date = timezone.now() + \
+                                      (voting.end_date - voting.start_date) + \
+                                      timezone.timedelta(hours=3)
                 else:
                     voting.status = "infinite"
+                voting.start_date = timezone.now() + timezone.timedelta(hours=3)
                 voting.save()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
