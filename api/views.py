@@ -1,12 +1,16 @@
 import datetime
+import time
+from hashlib import md5
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.utils import timezone
 
-from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile, AbuseReports, Messages
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile, AbuseReports, Messages, \
+    BackupCode
 from api.serializers import *
 
 from rest_framework.authtoken.models import Token
@@ -460,7 +464,7 @@ def logout_req(request):
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
-@api_view(['POST', 'DELETE'])
+@api_view(['POST'])
 def change_password_req(request):
     if request.method == 'POST':
         try:
@@ -470,10 +474,13 @@ def change_password_req(request):
                 user = Token.objects.get(key=token).user
             else:
                 user = request.user
-            if user.check_password(body['old_password']):
-                return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
+            code_snippet, created = BackupCode.objects.get_or_create(user=user, code=body['backup_code'])
+            if created:
+                code_snippet.delete()
+                return JsonResponse({"status": 400, "description": "Invalid backup code."}, safe=False)
             user.password = make_password(body['new_password'])
             user.save()
+            code_snippet.delete()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
@@ -648,6 +655,41 @@ def abuse_reports_req(request, id=None):
             if report.status == "open":
                 report.status = "closed"
                 report.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def generate_code_req(request):
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            code = md5(str(time.time()).encode()).hexdigest()
+            try:
+                BackupCode.objects.get(user=user).delete()
+            except BackupCode.DoesNotExist:
+                pass
+            code_snippet = BackupCode(user=user, code=code, creation_time=datetime.datetime.now())
+            code_snippet.creation_time += datetime.timedelta(hours=3)
+            code_snippet.save()
+            send_mail('Смена пароля на VotingService',
+                      f'''
+Здравствуйте, {user.first_name}!
+
+Вы только что отправили запрос на получение одноразового резервонго кода.
+Если это были не вы, то советуем обратиться в тех. поддержку.
+
+Ваш код: {code}
+
+Код активен только ближайший час. Никому не сообщайте его до использования!
+''',
+                      'votingservice@mail.ru',
+                      [user.email])
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

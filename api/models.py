@@ -61,6 +61,12 @@ class Profile(models.Model):
     status = models.TextField(default='')
 
 
+class BackupCode(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    code = models.TextField()
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

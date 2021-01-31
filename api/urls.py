@@ -28,4 +28,5 @@ urlpatterns = [
     path('report/', abuse_report_req),
     path('reports/<int:id>/', abuse_reports_req),
     path('reports/', abuse_reports_req),
+    path('generate_code/', generate_code_req),
 ]

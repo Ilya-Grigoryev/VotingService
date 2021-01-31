@@ -20,13 +20,19 @@
             <form class="mx-auto pa-3 ma-3">
       <v-text-field
         type="password"
-        v-model="old_password"
-        :error-messages="old_passwordErrors"
-        label="Old password"
+        v-model="backupCode"
+        :error-messages="backupCodeErrors"
+        label="Backup code"
         required
-        @input="$v.old_password.$touch()"
-        @blur="$v.old_password.$touch()"
+        @input="$v.backupCode.$touch()"
+        @blur="$v.backupCode.$touch()"
       ></v-text-field>
+                <v-btn x-small
+                       @click="send_code"
+                       :loading="loading"
+                       :disabled="loading">
+                    No code? Send by mail!
+                </v-btn>
       <v-text-field
          type="password"
          v-model="new_password"
@@ -40,11 +46,12 @@
           color="purple"
           outlined
           class="mr-4"
-          @click="submit()"
+          @click="change_password()"
       >
-        Save
+        change password
       </v-btn>
     </form>
+        {{ message }}
     </v-card>
 </div>
 </template>
@@ -56,36 +63,21 @@ export default {
   name: "Settings",
   props: ['user'],
   validations: {
-    old_password: {required},
-    new_password: {required},
-    admin_password: {required},
-    checkbox: {
-      checked (val) {
-        return val
-      }
-      },
+    backupCode: { required },
+    new_password: { required },
   },
   data: () => ({
-    old_password: '',
+    backupCode: '',
     new_password: '',
-    admin_password: '',
     dialog: false,
-    checkbox: false,
+    loading: false,
+    message: '',
   }),
   computed: {
-    checkboxErrors() {
+    backupCodeErrors() {
       const errors = []
-      if (!this.$v.checkbox.$dirty) return errors
-      !this.$v.checkbox.checked && errors.push('You must agree to continue!')
-      this.old_password === this.new_password && errors.push('Passwords match')
-      //this.old_password !== this.user.password && errors.push('Old passwords don\'t match')
-      !this.$v.old_password.required && !this.$v.new_password.required && errors.push('Passwords aren\'t entered')
-      return errors
-    },
-    old_passwordErrors() {
-      const errors = []
-      if (!this.$v.old_password.$dirty) return errors
-      !this.$v.old_password.required && errors.push('Password is required')
+      if (!this.$v.backupCode.$dirty) return errors
+      !this.$v.backupCode.required && errors.push('Backup code is required')
       return errors
     },
     new_passwordErrors() {
@@ -94,36 +86,45 @@ export default {
       !this.$v.new_password.required && errors.push('Password is required')
       return errors
     },
-    admin_passwordErrors() {
-      const errors = []
-      if (!this.$v.admin_password.$dirty) return errors
-      !this.$v.admin_password.required && errors.push('Password is required')
-      //this.$v.admin_password !== this.admin.password && errors.push('You are not admin!')
-      return errors
-        },
   },
   methods: {
-    submit() {
-        this.$v.$touch()
-                if (!this.$v.$invalid) {
-                    this.axios.post(`http://localhost:8000/api/change_password/`,
-                        {
-                           old_password: this.old_password,
-                           new_password: this.new_password
-                        },
-                        {
-                        headers: { Authorization: `Token ${this.user.token}` }
-                        }
-                    ).then(response => {
-                        if (response.data.status === 200) {
-                            this.new_password = response.data.new_password,
-                            this.user.password = response.data.new_password
-
-                        }
-                        else window.alert(response.data.description)
-                    })
+      send_code() {
+          this.loading = true
+          this.axios.post(`http://localhost:8000/api/generate_code/`,
+              {},{
+              headers: { Authorization: `Token ${this.user.token}` }
+              }
+          ).then(response => {
+              this.loading = false
+              if (response.data.status !== 200)
+                  window.alert(response.data.description)
+          })
+      },
+      change_password() {
+          if (!this.$v.$invalid) {
+                this.axios.post(`http://localhost:8000/api/change_password/`,
+                    {
+                       backup_code: this.backupCode,
+                       new_password: this.new_password
+                    },
+                    {
+                    headers: { Authorization: `Token ${this.user.token}` }
+                    }
+                ).then(response => {
+                if (response.data.status === 200) {
+                    this.new_password = ''
+                    this.backupCode = ''
+                    this.user.password = response.data.new_password
+                    this.message = 'Password changed successfully!'
                 }
-    },
+                else {
+                    this.backupCode = ''
+                    this.$v.$touch()
+                    this.message = response.data.description
+                }
+                })
+          }
+      }
   },
 }
 
