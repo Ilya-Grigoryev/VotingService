@@ -536,3 +536,36 @@ def start_poll_req(request):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET'])
+def get_db_req(request, vote_id):
+    if request.method == 'GET':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            snippets = AbuseReports.objects.all()
+            reports = [serialize_report(snippet) for snippet in snippets]
+
+            snippets_message = Messages.objects.all()
+            messages = [serialize_message(snippet_message) for snippet_message in snippets_message]
+
+            snippets_user = Profile.objects.all()
+            profile = [serialize_user(snippet_user) for snippet_user in snippets_user]
+
+            vote_snippet = Voting.objects.get(id=vote_id)
+            serializer = serialize_vote(vote_snippet)
+            vote_options = Options.objects.filter(voting_id=vote_id)
+            serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
+            for option in serializer['options']:
+                option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
+                option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
+            serializer['reports'] = [serialize_report(snippet) for snippet in snippets]
+            serializer['messages'] = [serialize_message(snippet_message) for snippet_message in snippets_message]
+            serializer['profile'] = [serialize_user(snippet_user) for snippet_user in snippets_user]
+            return JsonResponse(serializer, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

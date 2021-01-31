@@ -15,7 +15,7 @@
               <v-icon>mdi-close-circle-outline</v-icon>
             </v-btn>
              <v-btn
-                 v-if="admin"
+
                  color="teal"
                  class="white--text"
                  style="position: absolute; right: 80px;"
@@ -26,18 +26,18 @@
                <v-icon>mdi-account-key</v-icon>
              </v-btn>
 
-             <v-btn
-                 v-else
-                 color="teal"
-                 class="white--text"
-                 disabled
-                 style="position: absolute; right: 80px;"
-                 @click="$router.push('/admin')"
-             >
-               Admin
-               <v-divider vertical></v-divider>
-               <v-icon>mdi-account-key</v-icon>
-             </v-btn>
+<!--             <v-btn-->
+<!--                 v-else-->
+<!--                 color="teal"-->
+<!--                 class="white&#45;&#45;text"-->
+<!--                 disabled-->
+<!--                 style="position: absolute; right: 80px;"-->
+<!--                 @click="$router.push('/admin')"-->
+<!--             >-->
+<!--               Admin-->
+<!--               <v-divider vertical></v-divider>-->
+<!--               <v-icon>mdi-account-key</v-icon>-->
+<!--             </v-btn>-->
        <span class="headline">Password change</span>
             <form class="mx-auto pa-3 ma-3">
       <v-text-field
