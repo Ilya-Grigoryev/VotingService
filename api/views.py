@@ -58,7 +58,7 @@ def voting_req(request):
         return JsonResponse(serializers, safe=False)
 
     elif request.method == 'POST':
-            """
+        """
             Request body format:
             {
                 "title": "Котики или собачки?",
@@ -68,7 +68,7 @@ def voting_req(request):
                 "image": file (or null),
                 "start": "now" or "<datetime>"
             }
-            """
+        """
         # try:
         body = dict(request.data)
         body['title'] = body['title'][0]
