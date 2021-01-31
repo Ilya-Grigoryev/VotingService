@@ -1,8 +1,6 @@
 from django.urls import path
 
-from api.views import voting_req, options_req, votedusers_req, vote_req, option_req, register_req, user_req, \
-    likes_req, dislikes_req, comments_req, logout_req, change_password_req, user_by_token_req, change_avatar_req, \
-    delete_poll_req, end_poll_req, start_poll_req
+from api.views import *
 from api.authentication import CustomAuthToken
 
 urlpatterns = [
@@ -26,4 +24,8 @@ urlpatterns = [
     path('delete_poll/', delete_poll_req),
     path('end_poll/', end_poll_req),
     path('start_poll/', start_poll_req),
+    path('report/<int:id>/', abuse_report_req),
+    path('report/', abuse_report_req),
+    path('reports/<int:id>/', abuse_reports_req),
+    path('reports/', abuse_reports_req),
 ]

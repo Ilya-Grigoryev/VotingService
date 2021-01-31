@@ -85,6 +85,7 @@
                         avatar: response.data.avatar,
                         token: response.data.token,
                         id: response.data.id,
+                        is_admin: response.data.is_admin,
                         email: response.data.email,
                         username: response.data.username,
                         first_name: response.data.first_name,

@@ -383,7 +383,13 @@
                         user_voted_answer = i
 
                   let start = new Date(vote.start_date)
-                  let end = new Date(vote.end_date)
+                  start.setHours(start.getHours()-3)
+                  let end
+                  if (vote.end_date) {
+                      end = new Date(vote.end_date)
+                      end.setHours(end.getHours() - 3)
+                  } else
+                      end = null
                   if (user_voted_answer !== -1) {
                     this.voting_list_votes.unshift({
                       id: vote.id,
@@ -424,7 +430,7 @@
                         answers: answers,
                         multiple: false,
                         voted_answer: voted_answer,
-                        status: 'active'
+                        status: 'not started'
                       })
                     }
                     if (vote.status === 'ended') {

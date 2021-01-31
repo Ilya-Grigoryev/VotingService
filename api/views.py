@@ -6,9 +6,8 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.utils import timezone
 
-from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile
-from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user, serialize_like, \
-    serialize_dislike, serialize_comment
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile, AbuseReports, Messages
+from api.serializers import *
 
 from rest_framework.authtoken.models import Token
 
@@ -71,61 +70,61 @@ def voting_req(request):
             }
             """
         # try:
-            body = dict(request.data)
-            body['title'] = body['title'][0]
-            body['description'] = body['description'][0]
-            body['hours'] = body['hours'][0]
-            if body['hours'] == 'infinite':
-                body['hours'] = None
-            else:
-                body['hours'] = int(body['hours'])
-            body['options'] = body['options'][0].split(',')
-            body['file'] = body['file'][0]
-            body['start'] = body['start'][0]
-            if body['start'] == 'now':
-                body['start'] = timezone.now() + timezone.timedelta(hours=3)
-            else:
-                body['start'] = datetime.datetime.strptime(body['start'], "%Y-%m-%d %H:%M")
-            status = 'not started'
-            if not request.user.is_authenticated:
-                token = request.headers['Authorization'].replace('Token ', '')
-                user = Token.objects.get(key=token).user
-            else:
-                user = request.user
+        body = dict(request.data)
+        body['title'] = body['title'][0]
+        body['description'] = body['description'][0]
+        body['hours'] = body['hours'][0]
+        if body['hours'] == 'infinite':
+            body['hours'] = None
+        else:
+            body['hours'] = int(body['hours'])
+        body['options'] = body['options'][0].split(',')
+        body['file'] = body['file'][0]
+        body['start'] = body['start'][0]
+        if body['start'] == 'now':
+            body['start'] = timezone.now() + timezone.timedelta(hours=3)
+        else:
+            body['start'] = datetime.datetime.strptime(body['start'], "%Y-%m-%d %H:%M")
+        status = 'not started'
+        if not request.user.is_authenticated:
+            token = request.headers['Authorization'].replace('Token ', '')
+            user = Token.objects.get(key=token).user
+        else:
+            user = request.user
 
-            end_date = None
-            if body['file'] == 'undefined':
-                body['file'] = None
-            if body['start'] == 'now':
-                body['start'] = timezone.now() + timezone.timedelta(hours=3)
+        end_date = None
+        if body['file'] == 'undefined':
+            body['file'] = None
+        if body['start'] == 'now':
+            body['start'] = timezone.now() + timezone.timedelta(hours=3)
 
-            if body['hours']:
-                end_date = body['start'] + timezone.timedelta(hours=int(body['hours']))
-            if end_date:
-                vote = Voting(title=body['title'],
-                              description=body['description'],
-                              user=user,
-                              image=body['file'],
-                              start_date=body['start'],
-                              end_date=end_date,
-                              status=status,
-                              type=0)
-            else:
-                vote = Voting(title=body['title'],
-                              description=body['description'],
-                              user=user,
-                              image=body['file'],
-                              start_date=body['start'],
-                              status=status,
-                              type=0)
-            vote.save()
-            for option in body['options']:
-                Options(text=option, voting=vote).save()
+        if body['hours']:
+            end_date = body['start'] + timezone.timedelta(hours=int(body['hours']))
+        if end_date:
+            vote = Voting(title=body['title'],
+                          description=body['description'],
+                          user=user,
+                          image=body['file'],
+                          start_date=body['start'],
+                          end_date=end_date,
+                          status=status,
+                          type=0)
+        else:
+            vote = Voting(title=body['title'],
+                          description=body['description'],
+                          user=user,
+                          image=body['file'],
+                          start_date=body['start'],
+                          status=status,
+                          type=0)
+        vote.save()
+        for option in body['options']:
+            Options(text=option, voting=vote).save()
 
-            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-        # except:
-        #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+    # except:
+    #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])
@@ -256,6 +255,7 @@ def user_by_token_req(request):
                              'avatar': profile.avatar.url if profile.avatar else 'null',
                              'token': token,
                              'id': user.id,
+                             'is_admin': user.is_superuser,
                              'email': user.email,
                              'username': user.username,
                              'first_name': user.first_name,
@@ -530,16 +530,20 @@ def start_poll_req(request):
                 voting.start_date = timezone.now()
                 if voting.end_date:
                     voting.status = "active"
+                    voting.end_date = timezone.now() + \
+                                      (voting.end_date - voting.start_date) + \
+                                      timezone.timedelta(hours=3)
                 else:
                     voting.status = "infinite"
+                voting.start_date = timezone.now() + timezone.timedelta(hours=3)
                 voting.save()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
-@api_view(['GET'])
-def get_db_req(request, vote_id):
+@api_view(['GET', 'POST', 'DELETE'])
+def abuse_report_req(request, id=None):
     if request.method == 'GET':
         try:
             if not request.user.is_authenticated:
@@ -547,25 +551,104 @@ def get_db_req(request, vote_id):
                 user = Token.objects.get(key=token).user
             else:
                 user = request.user
-            snippets = AbuseReports.objects.all()
-            reports = [serialize_report(snippet) for snippet in snippets]
+            dialog = AbuseReports.objects.get(id=id, user=user)
+            if not dialog:
+                return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
+            snippets = Messages.objects.filter(dialog=dialog)
+            messages = [serialize_message(snippet) for snippet in snippets]
+            return JsonResponse(messages, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-            snippets_message = Messages.objects.all()
-            messages = [serialize_message(snippet_message) for snippet_message in snippets_message]
+    elif request.method == 'POST':
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            message = Messages(dialog_id=body['report_id'], user=user, text=body['text'])
+            message.save()
+            return JsonResponse(serialize_message(message), safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-            snippets_user = Profile.objects.all()
-            profile = [serialize_user(snippet_user) for snippet_user in snippets_user]
+    elif request.method == 'DELETE':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+                message = Messages.objects.get(id=id)
+                message.delete()
+                return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-            vote_snippet = Voting.objects.get(id=vote_id)
-            serializer = serialize_vote(vote_snippet)
-            vote_options = Options.objects.filter(voting_id=vote_id)
-            serializer['options'] = [serialize_option(vote_option) for vote_option in vote_options]
-            for option in serializer['options']:
-                option_votedusers = VotedUsers.objects.filter(option_id=option['id'])
-                option['users'] = [serialize_voteduser(voteduser) for voteduser in option_votedusers]
-            serializer['reports'] = [serialize_report(snippet) for snippet in snippets]
-            serializer['messages'] = [serialize_message(snippet_message) for snippet_message in snippets_message]
-            serializer['profile'] = [serialize_user(snippet_user) for snippet_user in snippets_user]
-            return JsonResponse(serializer, safe=False)
+
+@api_view(['GET', 'POST', 'DELETE'])
+def abuse_reports_req(request, id=None):
+    if request.method == 'GET':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            if id:
+                snippet = AbuseReports.objects.get(id=id)
+                report = serialize_report(snippet)
+                return JsonResponse(report, safe=False)
+            else:
+                snippets = AbuseReports.objects.filter(user=user)
+                reports = [serialize_report(snippet) for snippet in snippets]
+                return JsonResponse(reports, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    elif request.method == 'POST':
+        try:
+            body = dict(request.data)
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            body['title'] = body['title'][0]
+            body['description'] = body['description'][0]
+            body['file'] = body['file'][0]
+            if body['file'] == 'null':
+                report = AbuseReports(title=body['title'],
+                                      description=body['description'],
+                                      user=user,
+                                      status='open')
+            else:
+                report = AbuseReports(title=body['title'],
+                                      description=body['description'],
+                                      user=user,
+                                      status='open',
+                                      image=body['file'])
+            report.save()
+            return JsonResponse(serialize_report(report), safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    elif request.method == 'DELETE':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            report = AbuseReports.objects.get(id=id, user=user)
+            if not user:
+                return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
+            print(report.status)
+            if report.status == "open":
+                report.status = "closed"
+                report.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

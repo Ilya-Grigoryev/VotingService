@@ -9,6 +9,7 @@ import NewPoll from "../views/NewPoll";
 import NewReport from "../views/NewReport";
 import PollWindow from "../views/PollWindow";
 import Reports from "../views/MyReports";
+import ReportWindow from "../views/ReportWindow";
 import AllPolls from "../views/Allpolls";
 import Users from "../views/Users";
 import Settings from "../views/Settings";
@@ -74,6 +75,11 @@ const routes = [
     path: '/reports',
     name: 'Reports',
     component: Reports
+  },
+  {
+    path: '/report/:id',
+    name: 'ReportWindow',
+    component: ReportWindow
   },
   {
     path: '/users',

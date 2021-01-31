@@ -24,6 +24,7 @@ class CustomAuthToken(ObtainAuthToken):
             'avatar': profile.avatar.url if profile.avatar else 'null',
             'token': token.key,
             'id': user.pk,
+            'is_admin': user.is_superuser,
             'email': user.email,
             'username': user.username,
             'first_name': user.first_name,

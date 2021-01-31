@@ -770,7 +770,6 @@
                     else
                         this.voting.status = 'infinite'
                     this.get_poll()
-                    this.voting.visibleResults = true
                 }
                 else
                     window.alert(response.data.description)

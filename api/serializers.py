@@ -89,3 +89,31 @@ def serialize_comment(comment) -> Dict[str, Any]:
         'text': comment.text
     }
 
+
+def serialize_message(message) -> Dict[str, Any]:
+    profile = Profile.objects.get(user_id=message.user_id)
+    return {
+        'id': message.id,
+        'user': {
+            'name': message.user.username,
+            'id': message.user_id,
+            'avatar': profile.avatar.url if profile.avatar else 'null'
+        },
+        'text': message.text
+    }
+
+
+def serialize_report(report) -> Dict[str, Any]:
+    profile = Profile.objects.get(user_id=report.user_id)
+    return {
+        'id': report.id,
+        'user': {
+            'name': report.user.username,
+            'id': report.user_id,
+            'avatar': profile.avatar.url if profile.avatar else 'null'
+        },
+        'title': report.title,
+        'description': report.description,
+        'status': report.status,
+        'image': report.image.url if report.image else 'null'
+    }
