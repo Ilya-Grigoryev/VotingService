@@ -6,9 +6,8 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.utils import timezone
 
-from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile
-from api.serializers import serialize_vote, serialize_option, serialize_voteduser, serialize_user, serialize_like, \
-    serialize_dislike, serialize_comment
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile, AbuseReports, Messages
+from api.serializers import *
 
 from rest_framework.authtoken.models import Token
 
@@ -537,5 +536,114 @@ def start_poll_req(request):
                 voting.start_date = timezone.now() + timezone.timedelta(hours=3)
                 voting.save()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def abuse_report_req(request, id=None):
+    if request.method == 'GET':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            dialog = AbuseReports.objects.get(id=id, user=user)
+            if not dialog:
+                return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
+            snippets = Messages.objects.filter(dialog=dialog)
+            messages = [serialize_message(snippet) for snippet in snippets]
+            return JsonResponse(messages, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    if request.method == 'POST':
+        try:
+            body = request.data
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            message = Messages(dialog_id=body['report_id'], user=user, text=body['text'])
+            message.save()
+            return JsonResponse(serialize_message(message), safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    if request.method == 'DELETE':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+                message = Messages.objects.get(id=id)
+                message.delete()
+                return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def abuse_reports_req(request, id=None):
+    if request.method == 'GET':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            if id:
+                snippet = AbuseReports.objects.get(id=id)
+                report = serialize_report(snippet)
+                return JsonResponse(report, safe=False)
+            else:
+                snippets = AbuseReports.objects.filter(user=user)
+                reports = [serialize_report(snippet) for snippet in snippets]
+                return JsonResponse(reports, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    if request.method == 'POST':
+        try:
+            body = dict(request.data)
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+            body['title'] = body['title'][0]
+            body['description'] = body['description'][0]
+            body['file'] = body['file'][0]
+            if body['file'] == 'null':
+                report = AbuseReports(title=body['title'],
+                                      description=body['description'],
+                                      user=user,
+                                      status='open')
+            else:
+                report = AbuseReports(title=body['title'],
+                                      description=body['description'],
+                                      user=user,
+                                      status='open',
+                                      image=body['file'])
+            report.save()
+            return JsonResponse(serialize_report(report), safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+    if request.method == 'DELETE':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+                report = AbuseReports.objects.get(id=id)
+                if report.status == "active":
+                    report.status = "ended"
+                    report.save()
+                return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

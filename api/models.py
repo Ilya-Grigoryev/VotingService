@@ -28,6 +28,7 @@ class VotedUsers(models.Model):
 class AbuseReports(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     title = models.TextField()
+    description = models.TextField(default='')
     status = models.TextField(default='open')
     image = models.ImageField(null=True, blank=True, upload_to='images/')
 
