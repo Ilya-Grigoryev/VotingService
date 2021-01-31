@@ -255,6 +255,7 @@ def user_by_token_req(request):
                              'avatar': profile.avatar.url if profile.avatar else 'null',
                              'token': token,
                              'id': user.id,
+                             'is_admin': user.is_superuser,
                              'email': user.email,
                              'username': user.username,
                              'first_name': user.first_name,
@@ -558,7 +559,7 @@ def abuse_report_req(request, id=None):
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-    if request.method == 'POST':
+    elif request.method == 'POST':
         try:
             body = request.data
             if not request.user.is_authenticated:
@@ -572,7 +573,7 @@ def abuse_report_req(request, id=None):
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         try:
             if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
@@ -606,7 +607,7 @@ def abuse_reports_req(request, id=None):
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-    if request.method == 'POST':
+    elif request.method == 'POST':
         try:
             body = dict(request.data)
             if not request.user.is_authenticated:
@@ -633,17 +634,20 @@ def abuse_reports_req(request, id=None):
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         try:
             if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
                 user = Token.objects.get(key=token).user
             else:
                 user = request.user
-                report = AbuseReports.objects.get(id=id)
-                if report.status == "active":
-                    report.status = "ended"
-                    report.save()
-                return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+            report = AbuseReports.objects.get(id=id, user=user)
+            if not user:
+                return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
+            print(report.status)
+            if report.status == "open":
+                report.status = "closed"
+                report.save()
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)

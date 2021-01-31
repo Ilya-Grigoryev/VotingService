@@ -5,33 +5,11 @@
             elevation="4"
             outlined
             width="65%">
-            <v-btn
-                @click="$router.go(-1);"
-                icon
-                depressed
-                color="teal"
-                style="position: absolute; right: 20px;"
-                >
-              <v-icon>mdi-close-circle-outline</v-icon>
-            </v-btn>
              <v-btn
-                 v-if="admin"
                  color="teal"
                  class="white--text"
-                 style="position: absolute; right: 80px;"
-                 @click="$router.push('/admin')"
-             >
-               Admin
-               <v-divider vertical></v-divider>
-               <v-icon>mdi-account-key</v-icon>
-             </v-btn>
-
-             <v-btn
-                 v-else
-                 color="teal"
-                 class="white--text"
-                 disabled
-                 style="position: absolute; right: 80px;"
+                 :disabled="!user.is_admin"
+                 style="position: absolute; right: 10px;"
                  @click="$router.push('/admin')"
              >
                Admin
@@ -44,7 +22,6 @@
         type="password"
         v-model="old_password"
         :error-messages="old_passwordErrors"
-        :counter="10"
         label="Old password"
         required
         @input="$v.old_password.$touch()"
@@ -54,20 +31,11 @@
          type="password"
          v-model="new_password"
          :error-messages="new_passwordErrors"
-         :counter="10"
          label="New password"
          required
          @input="$v.new_password.$touch()"
          @blur="$v.new_password.$touch()"
       ></v-text-field>
-      <v-checkbox
-        v-model="checkbox"
-        :error-messages="checkboxErrors"
-        label="Do you agree?"
-        required
-        @change="$v.checkbox.$touch()"
-        @blur="$v.checkbox.$touch()"
-      ></v-checkbox>
       <v-btn
           color="purple"
           outlined
@@ -86,7 +54,7 @@ import {required} from "vuelidate/lib/validators";
 
 export default {
   name: "Settings",
-  props: ['user', 'id', 'admin'],
+  props: ['user'],
   validations: {
     old_password: {required},
     new_password: {required},

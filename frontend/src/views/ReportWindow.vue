@@ -1,23 +1,40 @@
 <template>
     <div>
         <v-card width="65%"
+                v-if="report"
         class="mx-auto ma-3 pa-3">
+            <v-app-bar outlined elevation="0">
+                <v-btn @click="$router.go(-1);"
+                       color="teal"
+                       depressed
+                       dark
+                       style="position: absolute; left: 10px;">
+                  <v-icon>mdi-arrow-left-bold-outline</v-icon>
+                </v-btn>
+                <h2 style="margin: auto"> {{ report.title }} </h2>
+            </v-app-bar>
+            <br>
         <v-list-item three-line>
           <v-list-item-content>
             <v-list-item-title class="headline mb-1" left>
-                <h2> {{ report.title }} </h2>
+                <p> {{ report.description }} </p>
             </v-list-item-title>
-            <v-list-item-subtitle>
-                <h3> {{ report.description }} </h3>
-            </v-list-item-subtitle>
           </v-list-item-content>
             <v-img max-width="300px"
                    v-if="report.image !== 'null' && report.image !== '/media/null'"
                    :src="`http://localhost:8000${report.image}`"></v-img>
         </v-list-item>
         </v-card>
-        {{ messages }}
+        <v-btn width="65%"
+               class="mx-auto ma-3 pa-1"
+               color="teal"
+               elevation="10"
+               @click="close_report"
+               v-if="report.status === 'open'">
+            problem solved!
+        </v-btn>
         <v-card width="65%"
+                v-if="messages"
                 class="mx-auto ma-3 pa-1">
             <div v-for="(message, index) in messages" :key="index">
                 <div class="container" v-if="message.user.id === user.id">
@@ -64,7 +81,8 @@
             </div>
         </v-card>
         <v-card width="65%"
-                class="mx-auto">
+                class="mx-auto"
+                v-if="report.status === 'open'">
             <br>
             <v-row justify="space-between" no-gutters class="px-6">
                 <v-col md="10">
@@ -91,8 +109,12 @@
         name: 'Report',
         props: ['user', 'id'],
         data: () => ({
-            report: null,
-            messages: null,
+            report: {
+                title: '',
+                description: '',
+                image: 'null',
+            },
+            messages: [],
             new_message: '',
         }),
         methods: {
@@ -126,6 +148,17 @@
                 ).then(response => {
                     this.messages.push(response.data)
                     this.new_message = ''
+                })
+            },
+            close_report() {
+                this.axios.delete(`http://localhost:8000/api/reports/${this.$route.params.id}/`,
+                    {
+                        headers: { Authorization: `Token ${this.user.token}` }
+                    }
+                ).then(response => {
+                    if (response.data.status === 200) {
+                        this.report.status = 'closed'
+                    }
                 })
             },
         },
