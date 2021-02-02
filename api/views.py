@@ -693,3 +693,53 @@ def generate_code_req(request):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def change_poll(request, poll_id):
+    body = dict(request.data)
+    print(body)
+    if request.method == 'POST':
+        # try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+
+            voting_snippet = Voting.objects.get(user=user, id=poll_id)
+
+            body['title'] = body['title'][0]
+            body['description'] = body['description'][0]
+            if body['hours'][0] == 'infinite':
+                body['hours'] = None
+            else:
+                body['hours'] = int(body['hours'][0])
+            body['options'] = body['options'][0].split(',')
+            if body['file'][0] == 'undefined':
+                body['file'] = None
+            else:
+                body['file'] = body['file'][0]
+
+            voting_snippet.title = body['title']
+            voting_snippet.description = body['description']
+            if body['hours']:
+                voting_snippet.end_date = voting_snippet.start_date + \
+                                          datetime.timedelta(hours=body['hours'])
+            else:
+                voting_snippet.end_date = None
+            if body['file']:
+                voting_snippet.image = body['file']
+
+            voting_snippet.save()
+
+            option_snippets = Options.objects.filter(voting_id=poll_id)
+            for option_snippet in option_snippets:
+                option_snippet.delete()
+
+            for new_option in body['options']:
+                Options(voting_id=poll_id, text=new_option).save()
+
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        # except:
+        #     return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
