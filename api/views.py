@@ -469,11 +469,7 @@ def change_password_req(request):
     if request.method == 'POST':
         try:
             body = request.data
-            if not request.user.is_authenticated:
-                token = request.headers['Authorization'].replace('Token ', '')
-                user = Token.objects.get(key=token).user
-            else:
-                user = request.user
+            user = BackupCode.objects.get(code=body['backup_code']).user
             code_snippet, created = BackupCode.objects.get_or_create(user=user, code=body['backup_code'])
             if created:
                 code_snippet.delete()
@@ -482,6 +478,8 @@ def change_password_req(request):
             user.save()
             code_snippet.delete()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except BackupCode.DoesNotExist:
+            return JsonResponse({"status": 400, "description": "Invalid backup code."}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
@@ -661,14 +659,10 @@ def abuse_reports_req(request, id=None):
 
 
 @api_view(['POST'])
-def generate_code_req(request):
+def generate_code_req(request, user_id):
     if request.method == 'POST':
         try:
-            if not request.user.is_authenticated:
-                token = request.headers['Authorization'].replace('Token ', '')
-                user = Token.objects.get(key=token).user
-            else:
-                user = request.user
+            user = User.objects.get(id=user_id)
             code = md5(str(time.time()).encode()).hexdigest()
             try:
                 BackupCode.objects.get(user=user).delete()
@@ -700,7 +694,7 @@ def change_poll(request, poll_id):
     body = dict(request.data)
     print(body)
     if request.method == 'POST':
-        # try:
+        try:
             if not request.user.is_authenticated:
                 token = request.headers['Authorization'].replace('Token ', '')
                 user = Token.objects.get(key=token).user
@@ -741,5 +735,19 @@ def change_poll(request, poll_id):
                 Options(voting_id=poll_id, text=new_option).save()
 
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
-        # except:
-        #     return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET'])
+def check_username(request, username):
+    if request.method == 'GET':
+        try:
+            user = User.objects.get(username=username)
+            user_obj = {
+                'user_id': user.id,
+                'username_status': 'free'
+            }
+            return JsonResponse(user_obj, safe=False)
+        except User.DoesNotExist:
+            return JsonResponse({'username_status': 'engaged'}, safe=False)

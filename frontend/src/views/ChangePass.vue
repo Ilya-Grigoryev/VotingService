@@ -5,19 +5,17 @@
             elevation="4"
             outlined
             width="65%">
-             <v-btn
-                 color="teal"
-                 class="white--text"
-                 :disabled="!user.is_admin"
-                 style="position: absolute; right: 10px;"
-                 @click="$router.push('/admin')"
-             >
-               Admin
-               <v-divider vertical></v-divider>
-               <v-icon>mdi-account-key</v-icon>
-             </v-btn>
        <span class="headline">Password change</span>
             <form class="mx-auto pa-3 ma-3">
+      <v-text-field
+        type="text"
+        v-model="username"
+        :error-messages="usernameErrors"
+        label="Username"
+        required
+        @input="check_username()"
+        @blur="check_username()"
+      ></v-text-field>
       <v-text-field
         type="password"
         v-model="backupCode"
@@ -65,11 +63,14 @@ export default {
   validations: {
     backupCode: { required },
     new_password: { required },
+    username: { required },
   },
   data: () => ({
+    is_valid_username: false,
+    user_id: null,
+    username: '',
     backupCode: '',
     new_password: '',
-    dialog: false,
     loading: false,
     message: '',
   }),
@@ -86,12 +87,33 @@ export default {
       !this.$v.new_password.required && errors.push('Password is required')
       return errors
     },
+    usernameErrors() {
+      const errors = []
+      if (!this.$v.username.$dirty) return errors
+      !this.$v.username.required && errors.push('Username is required')
+      !this.is_valid_username && errors.push('Username engaged')
+      return errors
+    },
   },
   methods: {
+      check_username() {
+          this.$v.username.$touch()
+          if (this.username === '') return
+          this.axios.get(`http://localhost:8000/api/check_username/${this.username}/`)
+          .then(response => {
+              this.is_valid_username = response.data.username_status === 'free'
+              this.user_id = this.is_valid_username ? response.data.user_id : ''
+          })
+      },
       send_code() {
+          if (!this.is_valid_username) {
+              this.$v.username.$touch()
+              this.message = "Enter your username."
+              return
+          }
           this.loading = true
           this.axios.post(
-              `http://localhost:8000/api/generate_code/${this.user.id}/`
+              `http://localhost:8000/api/generate_code/${this.user_id}/`,
           ).then(response => {
               this.loading = false
               if (response.data.status !== 200)
