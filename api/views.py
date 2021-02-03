@@ -555,7 +555,7 @@ def abuse_report_req(request, id=None):
                 user = Token.objects.get(key=token).user
             else:
                 user = request.user
-            dialog = AbuseReports.objects.get(id=id, user=user)
+            dialog = AbuseReports.objects.get(id=id)
             if not dialog:
                 return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
             snippets = Messages.objects.filter(dialog=dialog)
@@ -603,10 +603,15 @@ def abuse_reports_req(request, id=None):
                 user = request.user
             if id:
                 snippet = AbuseReports.objects.get(id=id)
-                report = serialize_report(snippet)
-                return JsonResponse(report, safe=False)
+                if user.is_superuser or user == snippet.user:
+                    return JsonResponse(serialize_report(snippet), safe=False)
+                else:
+                    return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
             else:
-                snippets = AbuseReports.objects.filter(user=user)
+                if user.is_superuser:
+                    snippets = AbuseReports.objects.all()
+                else:
+                    snippets = AbuseReports.objects.filter(user=user)
                 reports = [serialize_report(snippet) for snippet in snippets]
                 return JsonResponse(reports, safe=False)
         except:
