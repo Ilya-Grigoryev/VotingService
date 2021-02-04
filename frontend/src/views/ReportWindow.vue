@@ -14,23 +14,24 @@
                 <h2 style="margin: auto"> {{ report.title }} </h2>
             </v-app-bar>
             <br>
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="headline mb-1" left>
-                <p> {{ report.description }} </p>
-            </v-list-item-title>
-          </v-list-item-content>
-            <v-img max-width="300px"
+        <v-row justify="space-between">
+            <v-col md="7">
+                <h3> {{ report.description }} </h3>
+            </v-col>
+            <v-col md="auto">
+                <v-img max-width="300px"
                    v-if="report.image !== 'null' && report.image !== '/media/null'"
-                   :src="`http://localhost:8000${report.image}`"></v-img>
-        </v-list-item>
+                   :src="`http://localhost:8000${report.image}`">
+                </v-img>
+            </v-col>
+        </v-row>
         </v-card>
         <v-btn width="65%"
                class="mx-auto ma-3 pa-1"
                color="teal"
                elevation="10"
                @click="close_report"
-               v-if="report.status === 'open'">
+               v-if="report.status === 'open' && !user.is_admin">
             problem solved!
         </v-btn>
         <v-card width="65%"
@@ -45,7 +46,9 @@
                                 {{ message.user.name }}
                             </b>
                             <br>
-                            <img :src="`http://localhost:8000${message.user.avatar}`">
+                            <img v-if="message.user.avatar === 'null' || message.user.avatar === '/media/null'"
+                                 src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
+                            <img v-else :src="`http://localhost:8000${message.user.avatar}`">
                         </v-col>
                         <v-col md="auto">
                             <v-divider
@@ -74,7 +77,9 @@
                                 {{ message.user.name }}
                             </b>
                             <br>
-                            <img :src="`http://localhost:8000${message.user.avatar}`">
+                            <img v-if="message.user.avatar === 'null' || message.user.avatar === '/media/null'"
+                                 src="https://ishwortimilsina.com/images/icon_no_avatar.svg">
+                            <img v-else :src="`http://localhost:8000${message.user.avatar}`">
                         </v-col>
                     </v-row>
                 </div>
@@ -124,6 +129,8 @@
                       headers: { Authorization: `Token ${this.user.token}` }
                   })
                 .then(response => {
+                    if (response.data.status === 403)
+                        this.$router.push('/reports')
                   this.report = response.data
                 })
             },
@@ -163,8 +170,13 @@
             },
         },
         mounted() {
-            this.getReport()
-            this.getMessages()
+            function sleep(ms) {
+              return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            sleep(50).then(() => {
+                this.getReport()
+                this.getMessages()
+            })
         }
     }
 </script>

@@ -34,6 +34,11 @@
                  @click="$router.push('/register')">
                 No account? Register now!
             </ins>
+            <br>
+            <ins style="color: gray; cursor: pointer;"
+                 @click="$router.push('/change_pass')">
+                Forgot password? Change it!
+            </ins>
         </v-card>
   </div>
 </template>

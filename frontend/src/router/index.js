@@ -14,6 +14,7 @@ import AllPolls from "../views/Allpolls";
 import Users from "../views/Users";
 import Settings from "../views/Settings";
 import Admin from "../views/Admin";
+import ChangePass from "../views/ChangePass";
 
 Vue.use(VueRouter)
 
@@ -85,6 +86,11 @@ const routes = [
     path: '/users',
     name: 'Users',
     component: Users
+  },
+  {
+    path: '/change_pass',
+    name: 'ChangePass',
+    component: ChangePass
   },
 ]
 

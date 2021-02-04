@@ -130,3 +130,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 2525
+EMAIL_HOST_USER = 'votingservice@mail.ru'
+EMAIL_HOST_PASSWORD = 'dhsd4H2gvJRc^Lr'
+EMAIL_USE_TLS = True

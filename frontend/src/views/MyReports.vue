@@ -1,6 +1,7 @@
 <template>
   <div class="reports">
-      <v-btn width="65%"
+      <v-btn v-if="!user.is_admin"
+             width="65%"
              color="teal"
              elevation="10"
              @click="dialog=true">
@@ -148,7 +149,12 @@ export default {
       },
   },
   mounted() {
-      this.getReportsList()
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+      sleep(50).then(() => {
+        this.getReportsList()
+      })
   }
 }
 </script>

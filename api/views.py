@@ -1,12 +1,16 @@
 import datetime
+import time
+from hashlib import md5
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.utils import timezone
 
-from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile, AbuseReports, Messages
+from api.models import Voting, Options, VotedUsers, Likes, Dislikes, Comments, Profile, AbuseReports, Messages, \
+    BackupCode
 from api.serializers import *
 
 from rest_framework.authtoken.models import Token
@@ -460,21 +464,22 @@ def logout_req(request):
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
 
-@api_view(['POST', 'DELETE'])
+@api_view(['POST'])
 def change_password_req(request):
     if request.method == 'POST':
         try:
             body = request.data
-            if not request.user.is_authenticated:
-                token = request.headers['Authorization'].replace('Token ', '')
-                user = Token.objects.get(key=token).user
-            else:
-                user = request.user
-            if user.check_password(body['old_password']):
-                return JsonResponse({"status": 401, "description": "Invalid password."}, safe=False)
+            user = BackupCode.objects.get(code=body['backup_code']).user
+            code_snippet, created = BackupCode.objects.get_or_create(user=user, code=body['backup_code'])
+            if created:
+                code_snippet.delete()
+                return JsonResponse({"status": 400, "description": "Invalid backup code."}, safe=False)
             user.password = make_password(body['new_password'])
             user.save()
+            code_snippet.delete()
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except BackupCode.DoesNotExist:
+            return JsonResponse({"status": 400, "description": "Invalid backup code."}, safe=False)
         except Token.DoesNotExist:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
 
@@ -551,7 +556,7 @@ def abuse_report_req(request, id=None):
                 user = Token.objects.get(key=token).user
             else:
                 user = request.user
-            dialog = AbuseReports.objects.get(id=id, user=user)
+            dialog = AbuseReports.objects.get(id=id)
             if not dialog:
                 return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
             snippets = Messages.objects.filter(dialog=dialog)
@@ -599,10 +604,15 @@ def abuse_reports_req(request, id=None):
                 user = request.user
             if id:
                 snippet = AbuseReports.objects.get(id=id)
-                report = serialize_report(snippet)
-                return JsonResponse(report, safe=False)
+                if user.is_superuser or user == snippet.user:
+                    return JsonResponse(serialize_report(snippet), safe=False)
+                else:
+                    return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
             else:
-                snippets = AbuseReports.objects.filter(user=user)
+                if user.is_superuser:
+                    snippets = AbuseReports.objects.all()
+                else:
+                    snippets = AbuseReports.objects.filter(user=user)
                 reports = [serialize_report(snippet) for snippet in snippets]
                 return JsonResponse(reports, safe=False)
         except:
@@ -652,3 +662,98 @@ def abuse_reports_req(request, id=None):
             return JsonResponse({"status": 200, "description": "OK"}, safe=False)
         except:
             return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def generate_code_req(request, user_id):
+    if request.method == 'POST':
+        try:
+            user = User.objects.get(id=user_id)
+            code = md5(str(time.time()).encode()).hexdigest()
+            try:
+                BackupCode.objects.get(user=user).delete()
+            except BackupCode.DoesNotExist:
+                pass
+            code_snippet = BackupCode(user=user, code=code, creation_time=datetime.datetime.now())
+            code_snippet.creation_time += datetime.timedelta(hours=3)
+            code_snippet.save()
+            send_mail('Смена пароля на VotingService',
+                      f'''
+Здравствуйте, {user.first_name}!
+
+Вы только что отправили запрос на получение одноразового резервонго кода.
+Если это были не вы, то советуем обратиться в тех. поддержку.
+
+Ваш код: {code}
+
+Код активен только ближайший час. Никому не сообщайте его до использования!
+''',
+                      'votingservice@mail.ru',
+                      [user.email])
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['POST'])
+def change_poll(request, poll_id):
+    body = dict(request.data)
+    print(body)
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                token = request.headers['Authorization'].replace('Token ', '')
+                user = Token.objects.get(key=token).user
+            else:
+                user = request.user
+
+            voting_snippet = Voting.objects.get(user=user, id=poll_id)
+
+            body['title'] = body['title'][0]
+            body['description'] = body['description'][0]
+            if body['hours'][0] == 'infinite':
+                body['hours'] = None
+            else:
+                body['hours'] = int(body['hours'][0])
+            body['options'] = body['options'][0].split(',')
+            if body['file'][0] == 'undefined':
+                body['file'] = None
+            else:
+                body['file'] = body['file'][0]
+
+            voting_snippet.title = body['title']
+            voting_snippet.description = body['description']
+            if body['hours']:
+                voting_snippet.end_date = voting_snippet.start_date + \
+                                          datetime.timedelta(hours=body['hours'])
+            else:
+                voting_snippet.end_date = None
+            if body['file']:
+                voting_snippet.image = body['file']
+
+            voting_snippet.save()
+
+            option_snippets = Options.objects.filter(voting_id=poll_id)
+            for option_snippet in option_snippets:
+                option_snippet.delete()
+
+            for new_option in body['options']:
+                Options(voting_id=poll_id, text=new_option).save()
+
+            return JsonResponse({"status": 200, "description": "OK"}, safe=False)
+        except:
+            return JsonResponse({"status": 401, "description": "Invalid token."}, safe=False)
+
+
+@api_view(['GET'])
+def check_username(request, username):
+    if request.method == 'GET':
+        try:
+            user = User.objects.get(username=username)
+            user_obj = {
+                'user_id': user.id,
+                'username_status': 'free'
+            }
+            return JsonResponse(user_obj, safe=False)
+        except User.DoesNotExist:
+            return JsonResponse({'username_status': 'engaged'}, safe=False)
