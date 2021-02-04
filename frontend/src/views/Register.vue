@@ -27,8 +27,8 @@
               label="Username"
               :counter="20"
               required clearable
-              @input="$v.username.$touch()"
-              @blur="$v.username.$touch()"
+              @input="check_username()"
+              @blur="check_username()"
             ></v-text-field>
             <v-text-field
               v-model="email"
@@ -95,6 +95,7 @@
         email: '',
         password: '',
         repeatPassword: '',
+        is_valid_username: true,
     }),
 
     computed: {
@@ -115,6 +116,7 @@
             if (!this.$v.username.$dirty) return errors
             !this.$v.username.maxLength && errors.push('Username must be at most 20 characters long.')
             !this.$v.username.required && errors.push('Username is required.')
+            this.is_valid_username && errors.push('Username engaged')
             return errors
         },
         emailErrors() {
@@ -138,9 +140,17 @@
         },
     },
     methods: {
+        check_username() {
+          this.$v.username.$touch()
+          if (this.username === '') return
+          this.axios.get(`http://localhost:8000/api/check_username/${this.username}/`)
+          .then(response => {
+              this.is_valid_username = response.data.username_status === 'free'
+          })
+        },
         register() {
           this.$v.$touch()
-          if (!this.$v.$invalid && this.password === this.repeatPassword) {
+          if (!this.$v.$invalid && this.password === this.repeatPassword && !this.is_valid_username) {
               this.axios.post('http://localhost:8000/api/register/', {
                   first_name: this.first_name,
                   last_name: this.last_name,

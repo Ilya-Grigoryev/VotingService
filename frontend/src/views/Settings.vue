@@ -111,6 +111,7 @@ export default {
                     this.backupCode = ''
                     this.user.password = response.data.new_password
                     this.message = 'Password changed successfully!'
+                    this.$v.$reset()
                 }
                 else {
                     this.backupCode = ''

@@ -5,6 +5,13 @@
             elevation="4"
             outlined
             width="65%">
+        <v-btn @click="$router.go(-1);"
+               color="teal"
+               depressed
+               dark
+               style="position: absolute; left: 10px;">
+          <v-icon>mdi-arrow-left-bold-outline</v-icon>
+        </v-btn>
        <span class="headline">Password change</span>
             <form class="mx-auto pa-3 ma-3">
       <v-text-field
@@ -91,7 +98,7 @@ export default {
       const errors = []
       if (!this.$v.username.$dirty) return errors
       !this.$v.username.required && errors.push('Username is required')
-      !this.is_valid_username && errors.push('Username engaged')
+      !this.is_valid_username && errors.push('Invalid username')
       return errors
     },
   },
@@ -133,6 +140,7 @@ export default {
                     this.backupCode = ''
                     this.user.password = response.data.new_password
                     this.message = 'Password changed successfully!'
+                    this.$v.$reset()
                 }
                 else {
                     this.backupCode = ''
