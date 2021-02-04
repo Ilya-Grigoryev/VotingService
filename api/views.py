@@ -72,7 +72,7 @@ def voting_req(request):
                 "image": file (or null),
                 "start": "now" or "<datetime>"
             }
-            """
+        """
         # try:
         body = dict(request.data)
         body['title'] = body['title'][0]
@@ -532,6 +532,7 @@ def start_poll_req(request):
                 user = request.user
             voting = Voting.objects.get(id=body['poll_id'])
             if voting.status == "not started":
+                voting.start_date = timezone.now()
                 if voting.end_date:
                     voting.status = "active"
                     voting.end_date = timezone.now() + \

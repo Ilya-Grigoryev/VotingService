@@ -1,30 +1,33 @@
 <template>
   <div class="AllPolls">
     <v-card
-    class="mx-auto pa-3 ma-3"
+    class="mx-auto ma-3"
             elevation="4"
             outlined
             width="65%">
-        <v-row>
-          <v-col cols="11">
+         <v-toolbar
+      dark
+      color="teal"
+    >
               <v-text-field
                         ref="search"
                         v-model="request"
                         hide-details
                         label="Search"
                         required clearable
-                        single-line
+                        hide-no-data
+                        flat
+                        solo-inverted
               ></v-text-field>
-          </v-col>
-          <v-col cols="1">
-              <v-btn
-                    icon
-                    @click="filter_polls"
-                  >
-                <v-icon>mdi-magnify</v-icon>
-              </v-btn>
-          </v-col>
-        </v-row>
+           <v-btn icon
+                  @click="filter_polls">
+              <v-icon>mdi-magnify</v-icon>
+           </v-btn>
+           <v-btn icon
+             @click="refresh_polls">
+        <v-icon>mdi-refresh</v-icon>
+      </v-btn>
+    </v-toolbar>
     </v-card>
       <v-card
             v-for="(voting, index) in search" :key="index"
@@ -48,21 +51,12 @@
       </v-btn>
       <Poll v-bind="voting" :user="user"/>
     </v-card>
-    <v-card
-            v-for="(voting, index) in search_3" :key="index"
-            class="mx-auto pa-3 ma-3"
-            elevation="4"
-            outlined
-            width="65%">
-      <v-btn @click="$router.push(`/poll/${voting.id}/`)" icon depressed color="teal" style="position: absolute; right: 10px;">
-        <v-icon>mdi-arrow-expand-all</v-icon>
-      </v-btn>
-      <Poll v-bind="voting" :user="user"/>
-    </v-card>
         <div class="text-center">
           <v-pagination
-              v-model="pagination.page"
+              v-model="page"
               :length="pages"
+               prev-icon="mdi-menu-left"
+               next-icon="mdi-menu-right"
           >
           </v-pagination>
         </div>
@@ -82,12 +76,11 @@ import Poll from '../components/Poll.vue'
       voting_list: [],
       search: [],
       search_2: [],
-      search_3: [],
       request: '',
       pagination: {
         rowsPerPage: false
       },
-      page: ''
+      page: 1
     }),
     methods: {
 
@@ -137,7 +130,9 @@ import Poll from '../components/Poll.vue'
       filter_polls() {
         this.search = this.voting_list.filter(poll => poll.description.includes(this.request))
         this.search_2 = this.voting_list.filter(poll => poll.question.includes(this.request))
-        this.search_3 = this.voting_list.filter(poll => poll.options.text.includes(this.request))
+      },
+      refresh_polls(){
+         this.search = this.voting_list
       },
     },
     mounted() {
@@ -145,7 +140,7 @@ import Poll from '../components/Poll.vue'
     },
     computed: {
       pages () {
-      return this.pagination.rowsPerPage ? Math.ceil(this.items.length / this.pagination.rowsPerPage) : 0
+      return this.pagination.rowsPerPage ? Math.ceil(this.voting_list.length / this.pagination.rowsPerPage) : 1
     }
     },
   }

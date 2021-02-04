@@ -6,6 +6,19 @@
             outlined
             width="65%">
              <v-btn
+                 v-if="admin"
+                 color="teal"
+                 class="white--text"
+                 style="position: absolute; right: 80px;"
+                 @click="$router.push('/admin')"
+             >
+               Admin
+               <v-divider vertical></v-divider>
+               <v-icon>mdi-account-key</v-icon>
+             </v-btn>
+
+             <v-btn
+                 v-else
                  color="teal"
                  class="white--text"
                  :disabled="!user.is_admin"
