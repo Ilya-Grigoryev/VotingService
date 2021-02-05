@@ -14,8 +14,8 @@
                 <h2 style="margin: auto"> {{ report.title }} </h2>
             </v-app-bar>
             <br>
-        <v-row justify="space-between">
-            <v-col md="7">
+        <v-row justify="space-around">
+            <v-col md="max">
                 <h3> {{ report.description }} </h3>
             </v-col>
             <v-col md="auto">
@@ -35,7 +35,7 @@
             problem solved!
         </v-btn>
         <v-card width="65%"
-                v-if="messages"
+                v-if="messages[0] != null"
                 class="mx-auto ma-3 pa-1">
             <div v-for="(message, index) in messages" :key="index">
                 <div class="container" v-if="message.user.id === user.id">
@@ -144,6 +144,7 @@
                 })
             },
             send_message() {
+                if (!this.new_message) return
                 this.axios.post(`http://localhost:8000/api/report/${this.$route.params.id}/`,
                     {
                         report_id: Number(this.$route.params.id),
@@ -170,13 +171,8 @@
             },
         },
         mounted() {
-            function sleep(ms) {
-              return new Promise(resolve => setTimeout(resolve, ms));
-            }
-            sleep(50).then(() => {
-                this.getReport()
-                this.getMessages()
-            })
+            this.getReport()
+            this.getMessages()
         }
     }
 </script>

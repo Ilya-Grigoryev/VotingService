@@ -116,7 +116,7 @@
             if (!this.$v.username.$dirty) return errors
             !this.$v.username.maxLength && errors.push('Username must be at most 20 characters long.')
             !this.$v.username.required && errors.push('Username is required.')
-            this.is_valid_username && errors.push('Username engaged')
+            this.is_valid_username && errors.push('Username engaged.')
             return errors
         },
         emailErrors() {
@@ -129,7 +129,7 @@
         passwordErrors() {
             const errors = []
             if (!this.$v.password.$dirty) return errors
-            !this.$v.password.required && errors.push('Password is required')
+            !this.$v.password.required && errors.push('Password is required.')
             return errors
         },
         repeatPasswordErrors() {

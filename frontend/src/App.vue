@@ -102,7 +102,13 @@
 
       <v-content class="px-12 py-3">
         <v-container fluid>
-          <router-view @login="login" @change-avatar="change_avatar" :user="user"/>
+          <router-view @login="login" @change-avatar="change_avatar" :user="user"
+                       @change-profile="change_profile"
+                       v-if="user.id != null ||
+                       $route.path === '/' ||
+                       $route.path === '/login' ||
+                       $route.path === '/register' ||
+                       $route.path === '/change_pass'"/>
         </v-container>
       </v-content>
       <v-scroll target="callback">
@@ -137,6 +143,12 @@ export default {
       change_avatar(new_avatar) {
         this.user.avatar = new_avatar
       },
+      change_profile(new_profile) {
+        this.user.first_name = new_profile.first_name
+        this.user.last_name = new_profile.last_name
+        this.user.email = new_profile.email
+        this.user.username = new_profile.username
+      },
       login(user){
         this.user = user
       },
@@ -155,7 +167,7 @@ export default {
         }).then(response => {
           if (response.data.status === 200)
             this.user = response.data
-          else
+          else if (this.$route.path !== '/')
             this.$router.push('/login')
         })
       }
@@ -164,7 +176,7 @@ export default {
     let token = localStorage.getItem('token')
     if (token)
       this.getUser(token)
-    else
+    else if (this.$route.path !== '/')
       this.$router.push('/login')
     },
 }

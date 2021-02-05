@@ -1,15 +1,18 @@
 <template>
   <div class="reports">
-      <v-btn v-if="!user.is_admin"
-             width="65%"
-             color="teal"
-             elevation="10"
-             @click="dialog=true">
-        add new report
-      </v-btn>
       <v-dialog
         v-model="dialog"
         max-width="50%">
+          <template v-slot:activator="{ on, attrs }">
+              <v-btn v-if="!user.is_admin"
+                     width="65%"
+                     color="teal"
+                     elevation="10"
+                     v-bind="attrs"
+                     v-on="on">
+                add new report
+              </v-btn>
+          </template>
         <v-card>
             <v-card-title>
                 <v-btn icon outlined color="red" style="position: absolute; right: 10px;"
@@ -67,8 +70,19 @@
             </v-card-text>
         </v-card>
       </v-dialog>
-      <br><br>
-      <Report v-for="(report, i) in reports" :key="i" :report="report" :user="user"/>
+
+      <div v-if="!user.is_admin"><br><br></div>
+      <v-card width="65%" elevation="0"
+          class="mx-auto ma-3"
+          v-if="user.is_admin">
+        <v-row justify="space-between"><v-col md="auto">
+          <h1>Users` problems:</h1>
+        </v-col></v-row>
+      </v-card>
+      <Report v-for="(report, i) in reports.opened" :key="i" :report="report" :user="user"/>
+      <br>
+      <Report v-for="(report, i) in reports.closed" :key="i" :report="report" :user="user"/>
+
   </div>
 </template>
 
@@ -83,7 +97,10 @@ export default {
     Report
   },
   data: () => ({
-      reports: [],
+      reports: {
+          opened: [],
+          closed: [],
+      },
       dialog: false,
       description: '',
       title: '',
@@ -110,7 +127,17 @@ export default {
                   headers: { Authorization: `Token ${this.user.token}` }
               })
           .then(response => {
-              this.reports = response.data
+              let all_reports = response.data.reverse()
+              this.reports = {
+                  opened: [],
+                  closed: [],
+              }
+              for (let report of all_reports) {
+                  if (report.status === 'open')
+                      this.reports.opened.push(report)
+                  else
+                      this.reports.closed.push(report)
+              }
           })
       },
       add_report() {
@@ -125,7 +152,7 @@ export default {
                   headers: { Authorization: `Token ${this.user.token}` }
               })
           .then(response => {
-              this.reports.push(response.data)
+              this.reports.opened.unshift(response.data)
               this.dialog = false
               this.title = ''
               this.description = ''
@@ -149,12 +176,7 @@ export default {
       },
   },
   mounted() {
-      function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }
-      sleep(50).then(() => {
-        this.getReportsList()
-      })
+      this.getReportsList()
   }
 }
 </script>

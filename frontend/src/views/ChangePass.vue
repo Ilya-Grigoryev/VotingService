@@ -85,20 +85,20 @@ export default {
     backupCodeErrors() {
       const errors = []
       if (!this.$v.backupCode.$dirty) return errors
-      !this.$v.backupCode.required && errors.push('Backup code is required')
+      !this.$v.backupCode.required && errors.push('Backup code is required.')
       return errors
     },
     new_passwordErrors() {
       const errors = []
       if (!this.$v.new_password.$dirty) return errors
-      !this.$v.new_password.required && errors.push('Password is required')
+      !this.$v.new_password.required && errors.push('Password is required.')
       return errors
     },
     usernameErrors() {
       const errors = []
       if (!this.$v.username.$dirty) return errors
-      !this.$v.username.required && errors.push('Username is required')
-      !this.is_valid_username && errors.push('Invalid username')
+      !this.$v.username.required && errors.push('Username is required.')
+      !this.is_valid_username && errors.push('Invalid username.')
       return errors
     },
   },

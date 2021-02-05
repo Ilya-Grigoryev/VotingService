@@ -73,7 +73,7 @@ def voting_req(request):
                 "start": "now" or "<datetime>"
             }
         """
-        # try:
+    try:
         body = dict(request.data)
         body['title'] = body['title'][0]
         body['description'] = body['description'][0]
@@ -127,8 +127,8 @@ def voting_req(request):
 
         return JsonResponse({"status": 200, "description": "OK"}, safe=False)
 
-    # except:
-    #     return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
+    except:
+        return JsonResponse({"status": 400, "description": "Bad Request"}, safe=False)
 
 
 @api_view(['GET'])
@@ -532,7 +532,6 @@ def start_poll_req(request):
                 user = request.user
             voting = Voting.objects.get(id=body['poll_id'])
             if voting.status == "not started":
-                voting.start_date = timezone.now()
                 if voting.end_date:
                     voting.status = "active"
                     voting.end_date = timezone.now() + \
@@ -655,7 +654,6 @@ def abuse_reports_req(request, id=None):
             report = AbuseReports.objects.get(id=id, user=user)
             if not user:
                 return JsonResponse({"status": 403, "description": "Forbidden"}, safe=False)
-            print(report.status)
             if report.status == "open":
                 report.status = "closed"
                 report.save()
@@ -698,7 +696,6 @@ def generate_code_req(request, user_id):
 @api_view(['POST'])
 def change_poll(request, poll_id):
     body = dict(request.data)
-    print(body)
     if request.method == 'POST':
         try:
             if not request.user.is_authenticated:

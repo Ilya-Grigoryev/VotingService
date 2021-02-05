@@ -90,13 +90,13 @@ export default {
     backupCodeErrors() {
       const errors = []
       if (!this.$v.backupCode.$dirty) return errors
-      !this.$v.backupCode.required && errors.push('Backup code is required')
+      !this.$v.backupCode.required && errors.push('Backup code is required.')
       return errors
     },
     new_passwordErrors() {
       const errors = []
       if (!this.$v.new_password.$dirty) return errors
-      !this.$v.new_password.required && errors.push('Password is required')
+      !this.$v.new_password.required && errors.push('Password is required.')
       return errors
     },
   },

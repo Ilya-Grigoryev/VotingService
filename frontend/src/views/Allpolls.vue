@@ -6,10 +6,11 @@
             outlined
             width="65%">
          <v-toolbar
-      dark
-      color="teal"
-    >
+          dark
+          color="teal">
               <v-text-field
+                      @input="filter_polls()"
+                      @blur="filter_polls()"
                         ref="search"
                         v-model="request"
                         hide-details
@@ -19,14 +20,6 @@
                         flat
                         solo-inverted
               ></v-text-field>
-           <v-btn icon
-                  @click="filter_polls">
-              <v-icon>mdi-magnify</v-icon>
-           </v-btn>
-           <v-btn icon
-             @click="refresh_polls">
-        <v-icon>mdi-refresh</v-icon>
-      </v-btn>
     </v-toolbar>
     </v-card>
       <v-card
@@ -51,15 +44,6 @@
       </v-btn>
       <Poll v-bind="voting" :user="user"/>
     </v-card>
-        <div class="text-center">
-          <v-pagination
-              v-model="page"
-              :length="pages"
-               prev-icon="mdi-menu-left"
-               next-icon="mdi-menu-right"
-          >
-          </v-pagination>
-        </div>
   </div>
 </template>
 
@@ -75,15 +59,9 @@ import Poll from '../components/Poll.vue'
     data: () => ({
       voting_list: [],
       search: [],
-      search_2: [],
       request: '',
-      pagination: {
-        rowsPerPage: false
-      },
-      page: 1
     }),
     methods: {
-
       get_voting_list() {
         this.axios.get('http://localhost:8000/api/voting/')
         .then(response => {
@@ -128,22 +106,18 @@ import Poll from '../components/Poll.vue'
         })
       },
       filter_polls() {
-        this.search = this.voting_list.filter(poll => poll.description.includes(this.request))
-        this.search_2 = this.voting_list.filter(poll => poll.question.includes(this.request))
-      },
-      refresh_polls(){
-         this.search = this.voting_list
-      },
+        if (this.request === '') {
+          this.search = this.voting_list
+          return
+        }
+        this.search = this.voting_list.filter(poll =>
+                poll.description.includes(this.request) || poll.question.includes(this.request))
+      }
     },
     mounted() {
       this.get_voting_list()
-    },
-    computed: {
-      pages () {
-      return this.pagination.rowsPerPage ? Math.ceil(this.voting_list.length / this.pagination.rowsPerPage) : 1
     }
-    },
-  }
+}
 
 </script>
 
