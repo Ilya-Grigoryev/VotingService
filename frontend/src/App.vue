@@ -158,7 +158,7 @@ export default {
                   Authorization: `Token ${this.user.token}`}})
         .then(() => {
           this.user = {}
-          this.$router.push('/login')
+          this.$router.push('/')
         })
       },
       getUser(token){

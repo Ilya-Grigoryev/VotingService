@@ -25,73 +25,13 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-carousel height="auto" width="auto">
+      <v-carousel hide-delimiters height="auto" width="auto">
         <v-carousel-item
-          src="../assets/Slide1.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
+          v-for="(item,i) in items"
+          :key="i"
+          :src="item"
         ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide2.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide3.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide4.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide5.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide6.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide7.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide8.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide9.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide10.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide11.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide12.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-        <v-carousel-item
-          src="../assets/Slide13.jpg"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-        ></v-carousel-item>
-    </v-carousel>
+      </v-carousel>
       <v-divider></v-divider>
       </v-card>
   </div>
@@ -104,13 +44,23 @@
     name: 'Home',
     props: ['user'],
 
-    data: () => ({
-      items: [],
-    }),
-    mounted() {
-      for (let i = 1; i <= 13; i++) {
-        this.items.push(`../assets/Slide${i}.jpg`)
-        console.log(`../assets/Slide${i}.jpg`)
+    data() {
+      return {
+        items: [
+          'https://i.ibb.co/TT6V5fj/Slide1.jpg',
+          'https://i.ibb.co/G3pTK75/Slide2.jpg',
+          'https://i.ibb.co/K9hG5GK/Slide3.jpg',
+          'https://i.ibb.co/6w9Q3qV/Slide4.jpg',
+          'https://i.ibb.co/w0fKCjx/Slide5.jpg',
+          'https://i.ibb.co/mXmZ6wc/Slide6.jpg',
+          'https://i.ibb.co/60GLssd/Slide7.jpg',
+          'https://i.ibb.co/6X5hbWP/Slide8.jpg',
+          'https://i.ibb.co/1rTKMFt/Slide9.jpg',
+          'https://i.ibb.co/ZGy8QXB/Slide10.jpg',
+          'https://i.ibb.co/SQB0Wsc/Slide11.jpg',
+          'https://i.ibb.co/cyCqRZz/Slide12.jpg',
+          'https://i.ibb.co/9HnNZ6f/Slide13.jpg',
+        ],
       }
     }
   }
