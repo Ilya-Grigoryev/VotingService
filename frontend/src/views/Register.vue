@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div @keydown.enter="register()">
         <v-card class="mx-auto pa-3"
                     elevation="6"
                     outlined

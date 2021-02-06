@@ -1,5 +1,5 @@
 <template>
-<div class="Settings">
+<div class="Settings" @keydown.enter="change_password()">
     <v-card
     class="mx-auto pa-3 ma-3"
             elevation="4"

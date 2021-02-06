@@ -92,6 +92,7 @@
             <v-row justify="space-between" no-gutters class="px-6">
                 <v-col md="10">
                   <v-text-field
+                          @keydown.enter="send_message()"
                           v-model="new_message"
                           label="Message"
                           outlined>

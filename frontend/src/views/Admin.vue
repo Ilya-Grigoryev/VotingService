@@ -16,119 +16,6 @@
           Admin panel
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" persistent max-width="800px">
-      <template v-slot:activator="{ on, attrs }">
-         <v-btn icon
-               outlined
-               depressed
-               v-bind="attrs"
-                v-on="on"
-               style="position: absolute; right: 20px;">
-          <v-icon>mdi-comment-text-outline</v-icon>
-        </v-btn>
-          </template>
-                <v-card>
-                    <v-toolbar
-                          color="teal"
-                          dark
-                        >
-                          <v-toolbar-title>Chats</v-toolbar-title>
-                          <v-spacer></v-spacer>
-                          <v-btn icon small dark style="position: absolute; right: 30px;"
-                                  @click="dialog = false">
-                                  <v-icon dark>
-                                    mdi-close
-                                  </v-icon>
-                          </v-btn>
-                        </v-toolbar>
-                    <v-list subheader>
-                      <v-subheader>Reports</v-subheader>
-
-                      <v-list-item
-                        v-for="chat in reports"
-                        :key="chat.question"
-                      >
-                        <v-list-item-avatar>
-                          <v-img
-                            :alt="`${chat.question} avatar`"
-                            :src="chat.author.avatar"
-                          ></v-img>
-                        </v-list-item-avatar>
-
-                        <v-list-item-content>
-                          <v-list-item-title v-html="chat.question"></v-list-item-title>
-                          <v-list-item-subtitle v-text="chat.description"></v-list-item-subtitle>
-                        </v-list-item-content>
-
-                        <v-list-item-icon>
-                          <v-dialog v-model="dialog" persistent max-width="800px">
-                            <template v-slot:activator="{ on, attrs }">
-                               <v-btn icon
-                                      depressed
-                                      v-bind="attrs"
-                                      v-on="on"
-                                     style="position: absolute; right: 20px;">
-                                    <v-icon :color="chat.status === 'active' ? 'deep-purple accent-4' : 'grey'">
-                                      mdi-message-outline
-                                  </v-icon>
-                              </v-btn>
-                                </template>
-                                      <v-card>
-                                          <v-toolbar
-                                                color="teal"
-                                                dark
-                                              >
-                                                <v-toolbar-title>{{chat.question}}</v-toolbar-title>
-                                                <v-spacer></v-spacer>
-                                                <v-btn icon small style="position: absolute; right: 30px;"
-                                                        @click="dialog = false">
-                                                        <v-icon dark>
-                                                          mdi-close
-                                                        </v-icon>
-                                                </v-btn>
-                                              </v-toolbar>
-                                          <v-list-group style="border: 1px solid gray;">
-                                            <v-list-item v-for="(answer, i) in chat.answers" :key="i">
-                                              <v-card class="px-3 ma-2" outlined width="100%" style="text-align: left;">
-                                                <v-row justify="space-between">
-                                                  <v-col md="auto">
-                                                    <strong style="color: #800080; cursor: pointer;"
-                                                        @click="$router.push(`/profile/${answer.author.id}`)">
-                                                      <u>{{ chat.author }}:</u>
-                                                    </strong>
-                                                  </v-col>
-                                                  <v-col md="7">
-                                                    {{ chat.description }}
-                                                  </v-col>
-                                                </v-row>
-                                              </v-card>
-                                            </v-list-item>
-                                            <br>
-                                            <v-row justify="space-between" no-gutters class="px-6">
-                                              <v-col md="10">
-                                                <v-text-field
-                                                        v-model="message"
-                                                        label="Message"
-                                                        outlined>
-                                                </v-text-field>
-                                              </v-col>
-                                              <v-col md="2">
-                                                <v-btn @click="send_message()"
-                                                       style="border: 2px solid #16b8fa;"
-                                                       color="blue" icon x-large>
-                                                  <v-icon>mdi-send</v-icon>
-                                                </v-btn>
-                                              </v-col>
-                                            </v-row>
-                                          </v-list-group>
-                                      </v-card>
-                              </v-dialog>
-                        </v-list-item-icon>
-                      </v-list-item>
-                    </v-list>
-                </v-card>
-        </v-dialog>
-
         <template v-slot:extension>
           <v-tabs
             v-model="tabs"
@@ -293,10 +180,10 @@ export default {
       {text: 'Id', value: 'id'},
       {text: 'Title', value: 'question'},
       {text: 'Description', value: 'description'},
-      {text: 'Author', value: 'user_id'},
+      {text: 'Author', value: 'author'},
       {text: 'Start Date', value: 'start_date'},
       {text: 'End Date', value: 'end_date'},
-      {text: 'Answers', value: 'answers'},
+      // {text: 'Answers', value: 'answers'},
       {text: 'Voted answer', value: 'voted_answer'},
     ],
     headers_3: [
@@ -313,7 +200,7 @@ export default {
       {text: 'Id', value: 'id'},
       {text: 'Title', value: 'question'},
       {text: 'Author', value: 'author'},
-      {text: 'Answers', value: 'answers'},
+      // {text: 'Answers', value: 'answers'},
       {text: 'Voted answer', value: 'voted_answer'},
     ],
     headers_4: [
@@ -321,11 +208,10 @@ export default {
       {text: 'Id', value: 'id'},
       {text: 'Title', value: 'title'},
       {text: 'Description', value: 'description'},
-      {text: 'Author', value: 'author'},
     ],
     voting_list: [],
     users: [],
-    answers: [],
+    // answers: [],
     voting_list_polls: [],
     voting_list_votes: [],
     reports: [],
@@ -344,7 +230,7 @@ export default {
         vote_count: this.user.vote_count,
         polls_count: this.user.polls_count,
       })
-      this.search_3 = this.users
+      this.search_3 = []
     },
     get_voting_list() {
       this.axios.get('http://localhost:8000/api/voting/')
@@ -382,7 +268,7 @@ export default {
                 author: vote.user.id,
                 start_date: start,
                 end_date: end,
-                answers: vote.answers,
+                answers: answers,
                 multiple: false,
                 voted_answer: voted_answer
               })
@@ -390,28 +276,29 @@ export default {
                 id: vote.id,
                 question: vote.title,
                 author: vote.user.id,
-                answers: vote.answers,
                 multiple: false,
                 voted_answer: voted_answer
               })
             }
-            this.search_1 = this.voting_list_polls
-            this.search_2 = this.voting_list_votes
+            this.search_1 = []
+            this.search_2 = []
           })
     },
     get_reports_list() {
-      this.axios.get('http://localhost:8000/api/abusereports/')
-          .then(response => {
-            this.reports = response.data
-          })
+      this.axios.get('http://localhost:8000/api/reports/',
+            {
+              headers: {Authorization: `Token ${this.user.token}`}
+            })
+            .then(response => {
+              this.reports = response.data
+            })
       this.reports.unshift({
-        status: this.report.status,
-        id: this.report.id,
-        title: this.report.title,
-        description: this.report.description,
-        author: this.report.user.id,
+        status: this.reports.status,
+        id: this.reports.id,
+        title: this.reports.title,
+        description: this.reports.description,
       })
-      this.search_4 = this.reports
+      this.search_4 = []
     }
   },
 

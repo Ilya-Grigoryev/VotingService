@@ -47,18 +47,18 @@
     data() {
       return {
         items: [
-          'https://i.ibb.co/TT6V5fj/Slide1.jpg',
+          'https://i.ibb.co/Ch43tN9/Slide1.jpg',
           'https://i.ibb.co/G3pTK75/Slide2.jpg',
           'https://i.ibb.co/K9hG5GK/Slide3.jpg',
           'https://i.ibb.co/6w9Q3qV/Slide4.jpg',
           'https://i.ibb.co/w0fKCjx/Slide5.jpg',
-          'https://i.ibb.co/mXmZ6wc/Slide6.jpg',
+          'https://i.ibb.co/r3Js6cB/Slide6.jpg',
           'https://i.ibb.co/60GLssd/Slide7.jpg',
           'https://i.ibb.co/6X5hbWP/Slide8.jpg',
           'https://i.ibb.co/1rTKMFt/Slide9.jpg',
           'https://i.ibb.co/ZGy8QXB/Slide10.jpg',
           'https://i.ibb.co/SQB0Wsc/Slide11.jpg',
-          'https://i.ibb.co/cyCqRZz/Slide12.jpg',
+          'https://i.ibb.co/XkGp4sV/Slide12.jpg',
           'https://i.ibb.co/9HnNZ6f/Slide13.jpg',
         ],
       }

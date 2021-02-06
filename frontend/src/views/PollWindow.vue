@@ -224,6 +224,7 @@
           <v-row justify="space-between" no-gutters class="px-6">
             <v-col md="10">
               <v-text-field
+                      @keydown.enter="send_comment()"
                       v-model="comment"
                       label="Comment"
                       outlined>
@@ -422,6 +423,7 @@
           })
         },
         send_comment() {
+          if (!this.comment) return
           this.axios.post(
                   'http://localhost:8000/api/comments/',
                   {

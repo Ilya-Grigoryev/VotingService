@@ -11,6 +11,7 @@
               <v-text-field
                       @input="filter_polls()"
                       @blur="filter_polls()"
+                      @click:clear="filter_polls()"
                         ref="search"
                         v-model="request"
                         hide-details
@@ -24,17 +25,6 @@
     </v-card>
       <v-card
             v-for="(voting, index) in search" :key="index"
-            class="mx-auto pa-3 ma-3"
-            elevation="4"
-            outlined
-            width="65%">
-      <v-btn @click="$router.push(`/poll/${voting.id}/`)" icon depressed color="teal" style="position: absolute; right: 10px;">
-        <v-icon>mdi-arrow-expand-all</v-icon>
-      </v-btn>
-      <Poll v-bind="voting" :user="user"/>
-    </v-card>
-    <v-card
-            v-for="(voting, index) in search_2" :key="index"
             class="mx-auto pa-3 ma-3"
             elevation="4"
             outlined
@@ -106,7 +96,7 @@ import Poll from '../components/Poll.vue'
         })
       },
       filter_polls() {
-        if (this.request === '') {
+        if (!this.request) {
           this.search = this.voting_list
           return
         }

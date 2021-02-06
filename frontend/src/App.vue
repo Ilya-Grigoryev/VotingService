@@ -1,7 +1,7 @@
 <template>
    <v-app id="app">
       <v-navigation-drawer v-if="user.id != null"
-              color="#5A009D"
+              color="#007070"
               mini-variant-width="56"
               dark
               expand-on-hover
@@ -167,7 +167,7 @@ export default {
         }).then(response => {
           if (response.data.status === 200)
             this.user = response.data
-          else if (this.$route.path !== '/')
+          else if (this.$route.path !== '/' && this.$route.path !== '/register' && this.$route.path !== '/change_pass')
             this.$router.push('/login')
         })
       }
@@ -176,7 +176,7 @@ export default {
     let token = localStorage.getItem('token')
     if (token)
       this.getUser(token)
-    else if (this.$route.path !== '/')
+    else if (this.$route.path !== '/' && this.$route.path !== '/register' && this.$route.path !== '/change_pass')
       this.$router.push('/login')
     },
 }
