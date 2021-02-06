@@ -713,7 +713,7 @@ def change_poll(request, poll_id):
             else:
                 body['hours'] = int(body['hours'][0])
             body['options'] = body['options'][0].split(',')
-            if body['file'][0] == 'undefined':
+            if body['file'][0] == 'undefined' or body['file'][0] == 'null':
                 body['file'] = None
             else:
                 body['file'] = body['file'][0]
